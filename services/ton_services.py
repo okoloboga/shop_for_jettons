@@ -18,71 +18,16 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
 
+
 # Getting hidden consts
-def _load_config(path: str | None = None):
+def _load_config(path: str | None = None) -> list:
     env = Env()
     env.read_env(path)
     logger.info(f"Enviroment executed: BOT_TOKEN, API_KEY, TEST_API_KEY, MNEMONICS")
     return [env('BOT_TOKEN'), env('API'), env('API_TEST'), env('MNEMONICS_TEST')]
 
 
-COLLECTION = 'EQCDqSx4f0qz5lZ6WiGQcUoxyfs2OjltHcWhu6sfaPeg6zLT'
-
-
-# Get addresses of all NFT in collection
-async def get_collection(db_engine: AsyncEngine):
-
-    logger.warning('Getting collection')
-
-    # Init TonCenterClient MAINNET
-    addresses = []
-    nft_data = {}
-    config = _load_config()
-    client = TonCenterClient(config[1])
-    logger.info('TonCenterClient started')
-
-    # Getting all items from collection
-    data = await client.get_collection(collection_address=COLLECTION)
-    logger.info('Data of NFT collection is getted')
-    items = await client.get_collection_items(collection=data, limit_per_one_request=1)
-    logger.info('Items of NFT collection getted')
-
-    # Writing addresses of items to Addresses list
-    for item in items:
-        addresses.append(item.to_dict()['address'])
-        logger.info(f"Added address of item {item.to_dict()['address']}")
-
-    # Getting NFT item by address from addresses list
-    for address in addresses:
-        data = await client.get_nft_items(nft_addresses=[address])
-
-        # Writing statement for new item in database
-        new_item = insert(catalogue).values(
-            index=data[0].to_dict()['index'],
-            name=data[0].to_dict()['metadata']['name'],
-            address=data[0].to_dict()['address'],
-            description=data[0].to_dict()['metadata']['description'],
-            marketplace=data[0].to_dict()['metadata']['marketplace'],
-            image=data[0].to_dict()['metadata']['image'],
-            collection=data[0].to_dict()['collection_address'],
-            owner=data[0].to_dict()['owner']
-        )
-
-        # If user already exists in database
-        do_ignore = new_item.on_conflict_do_nothing(index_elements=["index"])
-
-        # Commit to Database
-        async with db_engine.connect() as conn:
-            await conn.execute(do_ignore)
-            await conn.commit()
-            logger.info(f"NFT item {data[0].to_dict()['metadata']['name']} with address {data[0].to_dict()['address']} added to database")
-
-    addresses.clear()
-    nft_data.clear()
-    logger.info('Addresses cache and NFT data cache is cleared')
-
-
-async def wallet_deploy():
+async def wallet_deploy() -> list:
 
     logger.info('Wallet deploy')
 

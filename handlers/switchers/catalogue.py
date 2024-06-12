@@ -22,7 +22,7 @@ logging.basicConfig(
 """Catalogue Switchers"""
 
 
-# NFT from catalogue selected
+# Item from catalogue selected
 async def item_selection(
         callback: CallbackQuery,
         widget: Select,

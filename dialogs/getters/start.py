@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_nft_metadata
+from services import get_item_metadata
 from database import users
 
 logger = logging.getLogger(__name__)
@@ -51,12 +51,12 @@ async def start_getter(
             page = row[0]
             logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
 
-    item = await get_nft_metadata(page, db_engine)
+    item = await get_item_metadata(page, db_engine)
     name = item['name']
     image = item['image']
-    description = item['description']
+    sell_price = item['sell_price']
 
-    logger.info(f'NFT metadata for page:\n{name}\n{image}\n{description}')
+    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
@@ -65,4 +65,4 @@ async def start_getter(
             "button_catalogue": i18n.button.catalogue(),
             "name": name,
             "image": image,
-            "description": description}
+            "sell_price": sell_price}

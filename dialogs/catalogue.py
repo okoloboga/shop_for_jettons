@@ -9,7 +9,7 @@ from handlers import item_selection
 '''Catalogue Dialog'''
 catalogue_dialog = Dialog(
     Window(
-        Format('{nft_list}'),
+        Format('{item_list}'),
         Group(
             Select(
                 Format('{item[0]}'),

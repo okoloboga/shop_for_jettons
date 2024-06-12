@@ -43,9 +43,9 @@ async def new_user(
         logger.info(f'User {user_id} starts bot with referral link. Parent: {payload}')
         # Update referral parent by ID in payload
         update_parent = (users.update()
-                         .values(referrals=users.c.referrals+1)
+                         .values(referrals=users.c.referrals + 1)
                          .where(users.c.telegram_id == int(payload))
-        )
+                         )
         # Commit to database
         async with db_engine.connect() as conn:
             await conn.execute(update_parent)
@@ -86,17 +86,16 @@ async def new_user(
         logger.info(f'New user {user_id} data writed')
 
 
-# Getting NFT-item from database
-async def get_nft_metadata(number: int,
-                           db_engine: AsyncEngine
-                           ) -> dict:
+# Get item from database
+async def get_item_metadata(number: int,
+                            db_engine: AsyncEngine
+                            ) -> dict:
+    logger.info(f'get_item_metadata({number})')
+    result: list  # Main data of item
 
-    logger.info(f'get_nft_metadata({number})')
-    result: list  # Main data of NFT item
-
-    # Getting NFT by index
+    # Getting item by index
     statement = (
-        select(column("name"), column("image"), column("description"))
+        select(column("name"), column("image"), column("sell_price"))
         .select_from(catalogue)
         .where(catalogue.c.index == number)
     )
@@ -104,13 +103,11 @@ async def get_nft_metadata(number: int,
         result_raw = await conn.execute(statement)
         for row in result_raw:
             result = list(row)  # row is tuple!
-            logger.info(f'NFT item with index {number} is executed: {result}')
-
+            logger.info(f'Item with index {number} is executed: {result}')
 
     # To Dict
     item = {"name": result[0],
             "image": result[1],
-            "description": result[2]}
+            "sell_price": result[2]}
 
     return item
-

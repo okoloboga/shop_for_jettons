@@ -19,6 +19,7 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
 
+
 # Process BACK button
 async def go_back(callback: CallbackQuery,
                   db_engine: AsyncEngine,
@@ -33,7 +34,7 @@ async def go_back(callback: CallbackQuery,
     statement_page = (
         select(column("page"))
         .select_from(users)
-        .where(users.c.telegram_id==callback.from_user.id)
+        .where(users.c.telegram_id == callback.from_user.id)
     )
     async with db_engine.connect() as conn:
         catalogue_len = await conn.execute(statement_len)
@@ -44,10 +45,10 @@ async def go_back(callback: CallbackQuery,
     logger.info(f'Catalogue len is {catalogue_len}')
 
     # Rewrite users page in database
-    if user_page[0]==0:
+    if user_page[0] == 0:
         statement = (users.update()
                      .values(page=catalogue_len)
-                     .where(users.c.telegram_id==callback.from_user.id))
+                     .where(users.c.telegram_id == callback.from_user.id))
         async with db_engine.connect() as conn:
             await conn.execute(statement)
             await conn.commit()
@@ -55,7 +56,7 @@ async def go_back(callback: CallbackQuery,
     else:
         statement = (users.update()
                      .values(page=user_page[0]-1)
-                     .where(users.c.telegram_id==callback.from_user.id))
+                     .where(users.c.telegram_id == callback.from_user.id))
         async with db_engine.connect() as conn:
             await conn.execute(statement)
             await conn.commit()
@@ -69,7 +70,8 @@ async def go_next(callback: CallbackQuery,
                   db_engine: AsyncEngine,
                   button: Button,
                   dialog_manager: DialogManager):
-        # Get len of catalogue and current users page
+
+    # Get len of catalogue and current users page
     statement_len = (
         select(column("index"))
         .select_from(catalogue)
@@ -77,7 +79,7 @@ async def go_next(callback: CallbackQuery,
     statement_page = (
         select(column("page"))
         .select_from(users)
-        .where(users.c.telegram_id==callback.from_user.id)
+        .where(users.c.telegram_id == callback.from_user.id)
     )
     async with db_engine.connect() as conn:
         catalogue_len = await conn.execute(statement_len)
@@ -87,10 +89,10 @@ async def go_next(callback: CallbackQuery,
     catalogue_len = len(catalogue_len)
 
     # Rewrite users page in database
-    if user_page[0]==catalogue_len:
+    if user_page[0] == catalogue_len:
         statement = (users.update()
                      .values(page=0)
-                     .where(users.c.telegram_id==callback.from_user.id))
+                     .where(users.c.telegram_id == callback.from_user.id))
         async with db_engine.connect() as conn:
             await conn.execute(statement)
             await conn.commit()
@@ -98,7 +100,7 @@ async def go_next(callback: CallbackQuery,
     else:
         statement = (users.update()
                      .values(page=user_page[0]+1)
-                     .where(users.c.telegram_id==callback.from_user.id))
+                     .where(users.c.telegram_id == callback.from_user.id))
         async with db_engine.connect() as conn:
             await conn.execute(statement)
             await conn.commit()

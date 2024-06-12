@@ -17,7 +17,7 @@ from handlers import (switch_to_want, switch_to_account,
 start_dialog = Dialog(
     Window(
         Format('{name}'),
-        Format('{description}'),
+        Format('{sell_price}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -36,7 +36,7 @@ start_dialog = Dialog(
     ),
     Window(
         Format('{name}'),
-        Format('{description}'),
+        Format('{sell_price}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -55,7 +55,7 @@ start_dialog = Dialog(
     ),
     Window(
         Format('{name}'),
-        Format('{description}'),
+        Format('{sell_price}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -74,7 +74,7 @@ start_dialog = Dialog(
     ),
     Window(
         Format('{name}'),
-        Format('{description}'),
+        Format('{sell_price}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO

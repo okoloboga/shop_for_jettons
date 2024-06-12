@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column, func
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_nft_metadata
+from services import get_item_metadata
 from database import users, catalogue
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logging.basicConfig(
            '[%(asctime)s] - %(name)s - %(message)s')
 
 
-# Show catalogue - names of NFT's
+# Show catalogue - names of Items
 async def catalogue_show(
         dialog_manager: DialogManager,
         db_engine: AsyncEngine,
@@ -26,7 +26,7 @@ async def catalogue_show(
         event_from_user: User,
         **kwargs
 ):
-    # Get all NFT for catalogue from database
+    # Get all items for catalogue from database
     statement = (
         select(column("name"), column("index")).select_from(catalogue)
     )
@@ -41,7 +41,7 @@ async def catalogue_show(
     logger.info(f'Catalogue list is {catalogue_list}')
 
     return {'catalogue_list': catalogue_list,
-            'nft_list': i18n.nft.list()}
+            'item_list': i18n.nft.list()}
 
 
 # Processing switch to previous page
@@ -115,12 +115,12 @@ async def start_previous_getter(
             logger.info(f'Users {user_id} page is updated to {new_page}')
 
     # Getting data of NFT item from new Users page
-    item = await get_nft_metadata(new_page, db_engine)
+    item = await get_item_metadata(new_page, db_engine)
     name = item['name']
     image = item['image']
-    description = item['description']
+    sell_price = item['sell_price']
 
-    logger.info(f'NFT metadata for page:\n{name}\n{image}\n{description}')
+    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
@@ -129,7 +129,7 @@ async def start_previous_getter(
             "button_catalogue": i18n.button.catalogue(),
             "name": name,
             "image": image,
-            "description": description}
+            "sell_price": sell_price}
 
 
 # Processing switch ot next page
@@ -203,12 +203,12 @@ async def start_next_getter(
             logger.info(f'Users {user_id} page is updated to {new_page}')
 
     # Getting data of NFT item from new Users page
-    item = await get_nft_metadata(new_page, db_engine)
+    item = await get_item_metadata(new_page, db_engine)
     name = item['name']
     image = item['image']
-    description = item['description']
+    sell_price = item['sell_price']
 
-    logger.info(f'NFT metadata for page:\n{name}\n{image}\n{description}')
+    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
@@ -217,7 +217,7 @@ async def start_next_getter(
             "button_catalogue": i18n.button.catalogue(),
             "name": name,
             "image": image,
-            "description": description}
+            "sell_price": sell_price}
 
 
 # Show selected item from catalogue
@@ -250,13 +250,13 @@ async def show_item_getter(
         await conn.commit()
         logger.info(f'Users {user_id} page is updated to {item_id}')
 
-    # Getting data of NFT item from ITEM_ID
-    item = await get_nft_metadata(int(item_id), db_engine)
+    # Getting data of item from ITEM_ID
+    item = await get_item_metadata(int(item_id), db_engine)
     name = item['name']
     image = item['image']
-    description = item['description']
+    sell_price = item['sell_price']
 
-    logger.info(f'NFT metadata for page:\n{name}\n{image}\n{description}')
+    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
@@ -265,4 +265,4 @@ async def show_item_getter(
             "button_catalogue": i18n.button.catalogue(),
             "name": name,
             "image": image,
-            "description": description}
+            "sell_price": sell_price}

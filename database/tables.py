@@ -20,12 +20,13 @@ users = Table(
 catalogue = Table(
     "catalogue",
     metadata,
-    Column("index", Integer, primary_key=True), # 0
-    Column("name", String), # 1
-    Column("address", String), # 2
-    Column("description", String), # 3
-    Column("marketplace", String), # 4
-    Column("image", String), # 5
-    Column("collection", String), # 6
-    Column("owner", String) # 7
+    Column("index", Integer, primary_key=True),  # 0
+    Column("category", String),  # 1
+    Column("name", String),  # 2
+    Column("description", String),  # 3
+    Column("image", String),  # 4
+    Column("self_price", BigInteger),  # 5
+    Column("sell_price", BigInteger),  # 6
+    Column("count", Integer)  # 7
+
 )
