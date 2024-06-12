@@ -1,16 +1,10 @@
-from aiogram.types import ContentType
-
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.text import Format, Const
-from aiogram_dialog.widgets.media import StaticMedia
-from aiogram_dialog.widgets.kbd import Button, Row, Select, Group
+from aiogram_dialog.widgets.text import Format
+from aiogram_dialog.widgets.kbd import Select, Group
 
-from states.states import StartSG, AccountSG, CatalogueSG, WantSG
-from dialogs.getters import start_getter, catalogue_show
-from handlers.buttons import go_back, go_next
-from handlers.switchers import item_selection
-from services.services import get_nft_metadata
-
+from states import CatalogueSG
+from .getters import catalogue_show
+from handlers import item_selection
 
 '''Catalogue Dialog'''
 catalogue_dialog = Dialog(

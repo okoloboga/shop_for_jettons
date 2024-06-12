@@ -6,10 +6,10 @@ import logging
 from sqlalchemy import insert, delete, select, column
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
-
 from environs import Env
 from TonTools import *
-from database.tables import catalogue
+
+from database import catalogue
 
 logger = logging.getLogger(__name__)
 

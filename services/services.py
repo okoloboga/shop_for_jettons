@@ -9,7 +9,7 @@ from sqlalchemy import insert, delete, select, column
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from database.tables import users, catalogue
+from database import users, catalogue
 from .ton_services import wallet_deploy
 
 logger = logging.getLogger(__name__)

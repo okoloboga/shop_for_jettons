@@ -1,17 +1,14 @@
 import logging
 
 from aiogram import Router
-from aiogram.types import Message, CallbackQuery
-from aiogram.filters import CommandStart
-
-from sqlalchemy import insert, delete, select, column
-from sqlalchemy.dialects.postgresql import insert
+from aiogram.types import CallbackQuery
+from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
-
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.kbd import Button
-from states.states import StartSG
-from database.tables import users, catalogue
+
+from states import StartSG
+from database import users, catalogue
 
 router = Router()
 

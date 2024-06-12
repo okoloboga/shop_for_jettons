@@ -1,19 +1,14 @@
-import pprint
 import logging
 
-from aiogram import html, Bot
-from aiogram.utils.deep_linking import create_start_link, decode_payload
 from aiogram_dialog import DialogManager
 from aiogram.types import User
 from fluentogram import TranslatorRunner
 
-from sqlalchemy import insert, delete, select, column, func
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import select, column, func
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services.services import get_nft_metadata
-from services.ton_services import wallet_deploy
-from database.tables import users, catalogue
+from services import get_nft_metadata
+from database import users, catalogue
 
 logger = logging.getLogger(__name__)
 
@@ -21,112 +16,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
-
-
-# Getter for start menu
-async def start_getter(
-    dialog_manager: DialogManager,
-    db_engine: AsyncEngine,
-    i18n: TranslatorRunner,
-    event_from_user: User,
-    **kwargs
-) -> dict[str, str]:
-
-    logger.info('START button processing - start_getter')
-    page: int  # Number of last item from User data
-
-    # User ID
-    user_dict = dialog_manager.start_data
-    if user_dict is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-    user_id = user_dict['user_id']
-
-    # Get page number
-    statement = (
-        select(column("page"))
-        .select_from(users)
-        .where(users.c.telegram_id == user_id)
-    )
-
-    async with db_engine.connect() as conn:
-        page_raw = await conn.execute(statement)
-        for row in page_raw:
-            page = row[0]
-            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
-
-    item = await get_nft_metadata(page, db_engine)
-    name = item['name']
-    image = item['image']
-    description = item['description']
-
-    logger.info(f'NFT metadata for page:\n{name}\n{image}\n{description}')
-
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_want": i18n.button.want(),
-            "button_account": i18n.button.account(),
-            "button_catalogue": i18n.button.catalogue(),
-            "name": name,
-            "image": image,
-            "description": description}
-
-
-"""Account"""
-
-
-# Getter for Account menu
-async def account_getter(
-    dialog_manager: DialogManager,
-    db_engine: AsyncEngine,
-    i18n: TranslatorRunner,
-    bot: Bot,
-    event_from_user: User,
-    **kwargs
-) -> dict[str, str]:
-    user_data: list  # Result list for user data
-
-    # User ID
-    user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-    user_id = user_dict['user_id']
-
-    # Read users data from database
-    statement = (
-        select("*")
-        .select_from(users)
-        .where(users.c.telegram_id == user_id)
-    )
-    async with db_engine.connect() as conn:
-        user_data_raw = await conn.execute(statement)
-        for row in user_data_raw:
-            user_data = list(row)
-        logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
-
-    purchase = user_data[5]
-    purchase_sum = user_data[6]
-    address = user_data[3]
-    referrals = user_data[7]
-    link = await create_start_link(bot, str(user_id), encode=True)
-
-    logger.info(f'User data\nPurchase: {purchase}\nPurchase sum: {purchase_sum}\nWallet address: {address}\nReferrals: {referrals}\nLink: {link}')
-
-    return {"button_back": i18n.button.back(),
-            "button_referral": i18n.button.referral(),
-            "button_catalogue": i18n.button.catalogue(),
-            "account_data": i18n.account.data(user_id=user_id,
-                                              purchase=purchase,
-                                              purchase_sum=purchase_sum,
-                                              address=address,
-                                              link=link,
-                                              referrals=referrals)}
-
-
-"""Catalogue"""
 
 
 # Show catalogue - names of NFT's

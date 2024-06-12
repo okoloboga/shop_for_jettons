@@ -1,21 +1,19 @@
 import logging
 
 from aiogram import Router
-from aiogram.types import Message, CallbackQuery
 from aiogram.utils.deep_linking import decode_payload
 from aiogram.filters import CommandStart, CommandObject
+from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, StartMode
-from aiogram_dialog.widgets.kbd import Button, Select
-from fluentogram import TranslatorRunner
 
-from sqlalchemy import insert, delete, select, column
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from states.states import WantSG, AccountSG, CatalogueSG, StartSG, NewUserSG
-from database.tables import users, catalogue
-from services.ton_services import wallet_deploy
-from services.services import new_user
+from states import StartSG, CatalogueSG
+from services import new_user
+from database import users
+from states import AccountSG, WantSG
+
 
 router = Router()
 
@@ -128,42 +126,3 @@ async def switch_to_want(
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=WantSG.want)
 
-
-"""Catalogue Switchers"""
-
-
-# NFT from catalogue selected
-async def item_selection(
-        callback: CallbackQuery,
-        widget: Select,
-        dialog_manager: DialogManager,
-        item_id: str
-):
-    logger.info(f'User {callback.from_user.id} selected item {item_id} from catalogue')
-
-    # Switcher to start dialog Window
-    await dialog_manager.start(state=StartSG.show_item,
-                               data={'item_id': item_id,
-                                     'user_id': callback.from_user.id})
-
-
-# Pressing on Previous Page button
-async def previous_page(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
-    user_id = callback.from_user.id
-    logger.info(f'User {user_id} pressed PREVIOUS PAGE')
-    await dialog_manager.switch_to(state=StartSG.start_previous)
-
-
-# Pressing on Next Page button
-async def next_page(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
-    user_id = callback.from_user.id
-    logger.info(f'User {user_id} pressed NEXT PAGE')
-    await dialog_manager.switch_to(state=StartSG.start_next)

@@ -1,20 +1,19 @@
 from aiogram.types import ContentType
 
 from aiogram_dialog import Dialog, Window
-from aiogram_dialog.widgets.text import Format, Const
+from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.kbd import Button, Row
 
-from states.states import StartSG
-from dialogs.getters import (start_getter, start_next_getter,
-                             start_previous_getter, show_item_getter)
-from handlers.buttons import go_back, go_next
-from handlers.switchers import (previous_page, next_page, switch_to_want,
-                                switch_to_account, switch_to_catalogue)
-from services.services import get_nft_metadata
+from states import StartSG
+from .getters import (start_next_getter, start_previous_getter,
+                      start_getter, show_item_getter)
+from handlers import (switch_to_want, switch_to_account,
+                      switch_to_catalogue, previous_page,
+                      next_page)
 
 
-'''Starting Menu with 5 NFT'''
+'''Starting Menu with NFT'''
 start_dialog = Dialog(
     Window(
         Format('{name}'),

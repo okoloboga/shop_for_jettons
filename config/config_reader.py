@@ -1,5 +1,4 @@
 from functools import lru_cache
-from os import getenv
 from typing import TypeVar, Type
 
 from pydantic import BaseModel, SecretStr, PostgresDsn
