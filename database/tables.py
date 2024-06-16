@@ -29,6 +29,59 @@ catalogue = Table(
     Column("self_price", BigInteger),  # 5
     Column("sell_price", BigInteger),  # 6
     Column("count", Integer)  # 7
-    # INSERT INTO catalogue (index, category, name, description, image, self_price, sell_price, count)
-    # VALUES (0, 'Mushroom', 'Amanita Muscaria', 'He will punish u', 'https://m.media-amazon.com/images/I/61jQXEFqzPL._SL1500_.jpg', 1500, 850, 10);
+)
+
+income = Table(
+    "income",
+    metadata,
+    Column("index", Integer, primary_key=True),  # 0
+    Column("admin_id", BigInteger),  # 1
+    Column("date_and_time", String), # 2
+    Column("item_index", Integer), # 3
+    Column("category", String),  # 4
+    Column("name", String),  # 5
+    Column("count", Integer),  # 6
+    Column("income_sellprice", BigInteger),  # 7
+    Column("income_selfprice", BigInteger),  # 8
+)
+
+process = Table(
+    "process",
+    metadata,
+    Column("index", Integer, primary_key=True),  # 0
+    Column("user_id", BigInteger),  # 1
+    Column("delivery_address", String),  # 2
+    Column("date_and_time", String),  # 3
+    Column("item_index", Integer),  # 4
+    Column("category", String),  # 5
+    Column("name", String),  # 6
+    Column("count", Integer),  # 7
+    Column("income", BigInteger),  # 8
+    Column("pure_income", BigInteger)  # 9
+)
+
+outcome = Table(
+    "outcome",
+    metadata,
+    Column("index", Integer, primary_key=True),  # 0
+    Column("user_id", BigInteger),  # 1
+    Column("date_and_time", String),  # 2
+    Column("item_index", Integer),  # 3
+    Column("category", String),  # 4
+    Column("name", String),  # 5
+    Column("count", Integer),  # 6
+    Column("outcome_sellprice", BigInteger),  # 7
+    Column("outcome_selfprice", BigInteger),  # 8
+)
+
+edited = Table(
+    "edited",
+    metadata,
+    Column("index", Integer, primary_key=True),  # 0
+    Column("admin_id", BigInteger),  # 1
+    Column("date_and_time", String),  # 2
+    Column("item_index", Integer),  # 3
+    Column("category", String),  # 4
+    Column("name", String),  # 5
+    Column("commit", String),  # 6
 )

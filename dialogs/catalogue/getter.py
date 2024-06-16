@@ -25,7 +25,7 @@ async def catalogue_show(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
+) -> dict[str, str]:
     # Get all items for catalogue from database
     statement = (
         select(column("name"), column("index")).select_from(catalogue)
@@ -52,7 +52,7 @@ async def show_item_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
+) -> dict[str, str]:
     user_dict = dialog_manager.start_data
     if type(user_dict) is None:
         logger.error(f'User dict from DialogManager is {user_dict}')

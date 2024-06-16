@@ -107,9 +107,15 @@ async def get_item_metadata(number: int,
             logger.info(f'Item with index {number} is executed: {result}')
 
     # To Dict
-    item = {"name": result[0],
-            "image": result[1],
-            "sell_price": result[2]}
+    item = {
+            "category": result[0],
+            "name": result[1],
+            "description": result[2],
+            "image": result[3],
+            "sell_price": result[4],
+            "self_price": result[5],
+            "count": result[6]
+    }
 
     return item
 

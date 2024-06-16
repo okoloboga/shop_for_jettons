@@ -124,7 +124,8 @@ async def switch_to_want(
         dialog_manager: DialogManager
 ):
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
-    await dialog_manager.start(state=WantSG.want)
+    await dialog_manager.start(state=WantSG.want,
+                               data={'user_id': callback.from_user.id})
 
 
 # Pressing on Previous Page button

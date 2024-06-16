@@ -77,7 +77,7 @@ async def start_previous_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
+) -> dict[str, str]:
     user_dict = dialog_manager.start_data
     if type(user_dict) is None:
         logger.error(f'User dict from DialogManager is {user_dict}')
@@ -140,7 +140,7 @@ async def start_previous_getter(
             await conn.commit()
             logger.info(f'Users {user_id} page is updated to {new_page}')
 
-    # Getting data of NFT item from new Users page
+    # Getting data of item from new Users page
     item = await get_item_metadata(new_page, db_engine)
     name = item['name']
     image = item['image']
@@ -169,7 +169,7 @@ async def start_next_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
+) -> dict[str, str]:
     user_dict = dialog_manager.start_data
     if type(user_dict) is None:
         logger.error(f'User dict from DialogManager is {user_dict}')
@@ -232,7 +232,7 @@ async def start_next_getter(
             await conn.commit()
             logger.info(f'Users {user_id} page is updated to {new_page}')
 
-    # Getting data of NFT item from new Users page
+    # Getting data of item from new Users page
     item = await get_item_metadata(new_page, db_engine)
     name = item['name']
     image = item['image']
@@ -261,7 +261,7 @@ async def show_item_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
+) -> dict[str, str]:
     user_dict = dialog_manager.start_data
     if type(user_dict) is None:
         logger.error(f'User dict from DialogManager is {user_dict}')

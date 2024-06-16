@@ -25,3 +25,6 @@ class CatalogueSG(StatesGroup):
 
 class WantSG(StatesGroup):
     want = State()
+    enter_count = State()
+    enter_address = State()
+    confirm = State()

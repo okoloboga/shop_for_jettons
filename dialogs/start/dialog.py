@@ -8,7 +8,7 @@ from aiogram_dialog.widgets.kbd import Button, Row
 from .getter import *
 from .handler import *
 
-'''Starting Menu with NFT'''
+'''Starting Menu with Items'''
 start_dialog = Dialog(
     Window(
         Format('{item_show}'),
