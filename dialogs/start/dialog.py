@@ -5,19 +5,13 @@ from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.kbd import Button, Row
 
-from states import StartSG
-from .getters import (start_next_getter, start_previous_getter,
-                      start_getter, show_item_getter)
-from handlers import (switch_to_want, switch_to_account,
-                      switch_to_catalogue, previous_page,
-                      next_page)
-
+from .getter import *
+from .handler import *
 
 '''Starting Menu with NFT'''
 start_dialog = Dialog(
     Window(
-        Format('{name}'),
-        Format('{sell_price}'),
+        Format('{item_show}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -35,8 +29,7 @@ start_dialog = Dialog(
         state=StartSG.start
     ),
     Window(
-        Format('{name}'),
-        Format('{sell_price}'),
+        Format('{item_show}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -54,8 +47,7 @@ start_dialog = Dialog(
         state=StartSG.start_previous
     ),
     Window(
-        Format('{name}'),
-        Format('{sell_price}'),
+        Format('{item_show}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO
@@ -73,8 +65,7 @@ start_dialog = Dialog(
         state=StartSG.start_next
     ),
     Window(
-        Format('{name}'),
-        Format('{sell_price}'),
+        Format('{item_show}'),
         StaticMedia(
             url=Format('{image}'),
             type=ContentType.PHOTO

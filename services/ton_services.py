@@ -23,21 +23,22 @@ logging.basicConfig(
 def _load_config(path: str | None = None) -> list:
     env = Env()
     env.read_env(path)
-    logger.info(f"Enviroment executed: BOT_TOKEN, API_KEY, TEST_API_KEY, MNEMONICS")
-    return [env('BOT_TOKEN'), env('API'), env('API_TEST'), env('MNEMONICS_TEST')]
+    logger.info("Enviroment executed")
+    return [env('BOT_TOKEN'), env('API'), env('API_TEST'), env('CENTRAL_WALLET_MNEMONICS'), env('JETTON_MASTER')]
 
 
+# Init wallet for new user
 async def wallet_deploy() -> list:
 
     logger.info('Wallet deploy')
 
     # Connecting to TonCenterClient TESTNET
     config = _load_config()
-    client = TonCenterClient(key=config[-2], testnet=True)
+    client = TonCenterClient(key=config[1], testnet=False)
     logger.info('TonCenterClient started')
 
-    # Connect to ctntral wallet for deploy new wallet
-    my_wallet = Wallet(provider=client, mnemonics=config[-1].split(), version='v4r2')
+    # Connect to central wallet for deploy new wallet
+    my_wallet = Wallet(provider=client, mnemonics=config[3].split(), version='v4r2')
     logger.info('Central wallet activated')
     new_wallet = Wallet(provider=client)
     logger.info('New wallet init')
@@ -55,3 +56,23 @@ async def wallet_deploy() -> list:
     logger.info('New wallet is deployed')
 
     return [new_wallet.address, new_wallet.mnemonics]
+
+
+# Jettons value in wallet
+async def jetton_value(wallet: str) -> int:
+
+    logger.info(f'Jetton value of wallet {wallet}')
+
+    # Connecting to TonCenterClient TESTNET
+    config = _load_config()
+    client = TonCenterClient(key=config[1], testnet=False)
+    logger.info('TonCenterClient started')
+
+    # Get jetton wallet
+    jetton_wallet = await (Jetton(config[4], client)
+                           .get_jetton_wallet(owner_address=wallet))
+    await jetton_wallet.update()
+
+    jetton_wallet_data = jetton_wallet
+
+    return int(int(jetton_wallet_data.balance) / 1000000000)

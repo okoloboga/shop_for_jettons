@@ -10,7 +10,7 @@ from aiogram_dialog.widgets.kbd import Button
 from states import StartSG
 from database import users, catalogue
 
-router = Router()
+router_buttons = Router()
 
 logger = logging.getLogger(__name__)
 

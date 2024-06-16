@@ -18,30 +18,56 @@ logging.basicConfig(
            '[%(asctime)s] - %(name)s - %(message)s')
 
 
-# Show catalogue - names of Items
-async def catalogue_show(
+# Getter for start menu
+async def start_getter(
         dialog_manager: DialogManager,
         db_engine: AsyncEngine,
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-):
-    # Get all items for catalogue from database
+) -> dict[str, str]:
+    logger.info('START button processing - start_getter')
+    page: int  # Number of last item from User data
+
+    # User ID
+    user_dict = dialog_manager.start_data
+    if user_dict is None:
+        logger.error(f'User dict from DialogManager is {user_dict}')
+    else:
+        logger.info(f'User dict from DialogManager is {user_dict}')
+    user_id = user_dict['user_id']
+
+    # Get page number
     statement = (
-        select(column("name"), column("index")).select_from(catalogue)
+        select(column("page"))
+        .select_from(users)
+        .where(users.c.telegram_id == user_id)
     )
+
     async with db_engine.connect() as conn:
-        catalogue_tuples = await conn.execute(statement)
-        logger.info('Catalogue executed')
+        page_raw = await conn.execute(statement)
+        for row in page_raw:
+            page = row[0]
+            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
 
-    # Bring it to list
-    catalogue_list = []
-    for item in catalogue_tuples:
-        catalogue_list.append(item)
-    logger.info(f'Catalogue list is {catalogue_list}')
+    item = await get_item_metadata(page, db_engine)
+    name = item['name']
+    image = item['image']
+    sell_price = item['sell_price']
 
-    return {'catalogue_list': catalogue_list,
-            'item_list': i18n.nft.list()}
+    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+
+    return {"button_back": i18n.button.back(),
+            "button_next": i18n.button.next(),
+            "button_want": i18n.button.want(),
+            "button_account": i18n.button.account(),
+            "button_catalogue": i18n.button.catalogue(),
+            "item_show": i18n.item.show(
+                name=name,
+                sell_price=sell_price
+            ),
+            "image": image
+            }
 
 
 # Processing switch to previous page
@@ -122,14 +148,18 @@ async def start_previous_getter(
 
     logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_want": i18n.button.want(),
-            "button_account": i18n.button.account(),
-            "button_catalogue": i18n.button.catalogue(),
-            "name": name,
-            "image": image,
-            "sell_price": sell_price}
+    return {
+        "button_back": i18n.button.back(),
+        "button_next": i18n.button.next(),
+        "button_want": i18n.button.want(),
+        "button_account": i18n.button.account(),
+        "button_catalogue": i18n.button.catalogue(),
+        "item_show": i18n.item.show(
+            name=name,
+            sell_price=sell_price
+        ),
+        "image": image
+    }
 
 
 # Processing switch ot next page
@@ -210,14 +240,18 @@ async def start_next_getter(
 
     logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_want": i18n.button.want(),
-            "button_account": i18n.button.account(),
-            "button_catalogue": i18n.button.catalogue(),
-            "name": name,
-            "image": image,
-            "sell_price": sell_price}
+    return {
+        "button_back": i18n.button.back(),
+        "button_next": i18n.button.next(),
+        "button_want": i18n.button.want(),
+        "button_account": i18n.button.account(),
+        "button_catalogue": i18n.button.catalogue(),
+        "item_show": i18n.item.show(
+            name=name,
+            sell_price=sell_price
+        ),
+        "image": image
+    }
 
 
 # Show selected item from catalogue
@@ -258,11 +292,15 @@ async def show_item_getter(
 
     logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_want": i18n.button.want(),
-            "button_account": i18n.button.account(),
-            "button_catalogue": i18n.button.catalogue(),
-            "name": name,
-            "image": image,
-            "sell_price": sell_price}
+    return {
+        "button_back": i18n.button.back(),
+        "button_next": i18n.button.next(),
+        "button_want": i18n.button.want(),
+        "button_account": i18n.button.account(),
+        "button_catalogue": i18n.button.catalogue(),
+        "item_show": i18n.item.show(
+            name=name,
+            sell_price=sell_price
+        ),
+        "image": image
+    }

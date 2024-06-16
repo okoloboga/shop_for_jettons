@@ -10,17 +10,14 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 from fluentogram import TranslatorHub
 
-from config.config_reader import get_config, BotConfig, DbConfig
-from config.config import Config, load_config
-from handlers import unknown, buttons, switchers
-from dialogs.start import start_dialog
-from dialogs.account import account_dialog
-from dialogs.want import want_dialog
-from dialogs.catalogue import catalogue_dialog
-from utils.i18n import TranslatorHub, create_translator_hub
-from middlewares.i18n import TranslatorRunnerMiddleware
-from database.tables import metadata
-from services.ton_services import get_collection
+from config import get_config, BotConfig, DbConfig, Config, load_config
+from dialogs import (start_dialog, account_dialog, catalogue_dialog,
+                     router_buttons, router_start, router_account,
+                     router_unknown, router_catalogue)
+from utils import TranslatorHub, create_translator_hub
+from middlewares import TranslatorRunnerMiddleware
+from database import metadata
+from services import get_admins_list
 
 logger = logging.getLogger(__name__)
 
@@ -44,18 +41,14 @@ async def main():
         echo=db_config.is_echo
     )
 
-    # Проверка соединения с СУБД
+    # Connection tes with database
     async with engine.begin() as conn:
-        # Выполнение обычного тектового запроса
         await conn.execute(text("SELECT 1"))
 
-    # Создание таблиц
+    # Create Tables
     async with engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
     config: Config = load_config()
-
-    # Getting NFT collection
-    await get_collection(engine)
 
     # Init Bot in Dispatcher
     bot_config = get_config(BotConfig, "bot")
@@ -67,15 +60,12 @@ async def main():
     translator_hub: TranslatorHub = create_translator_hub()
 
     # Routers, dialogs, middlewares
-    dp.include_router(start_dialog)
-    dp.include_router(account_dialog)
-    dp.include_router(catalogue_dialog)
-    dp.include_router(want_dialog)
+    dp.include_routers(start_dialog, account_dialog, catalogue_dialog)
 
-    dp.include_router(buttons.router)
-    dp.include_router(switchers.router)
-    dp.include_router(unknown.router)
+    dp.include_routers(router_catalogue, router_buttons, router_start, router_account,
+                       router_unknown)
     dp.update.middleware(TranslatorRunnerMiddleware())
+    dp.workflow_data.update({'admins': await get_admins_list(engine)})
 
     setup_dialogs(dp)
 
@@ -85,7 +75,4 @@ async def main():
     return bot
 
 if __name__ == '__main__':
-    if sys.platform == "win32":
-        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
     asyncio.run(main())

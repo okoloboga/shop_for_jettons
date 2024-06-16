@@ -15,7 +15,7 @@ from database import users
 from states import AccountSG, WantSG
 
 
-router = Router()
+router_start = Router()
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ logging.basicConfig(
 
 
 # Process START command
-@router.message(CommandStart(deep_link_encoded=True))
+@router_start.message(CommandStart(deep_link_encoded=True))
 async def command_start_process(
         message: Message,
         db_engine: AsyncEngine,
@@ -126,3 +126,24 @@ async def switch_to_want(
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=WantSG.want)
 
+
+# Pressing on Previous Page button
+async def previous_page(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+):
+    user_id = callback.from_user.id
+    logger.info(f'User {user_id} pressed PREVIOUS PAGE')
+    await dialog_manager.switch_to(state=StartSG.start_previous)
+
+
+# Pressing on Next Page button
+async def next_page(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+):
+    user_id = callback.from_user.id
+    logger.info(f'User {user_id} pressed NEXT PAGE')
+    await dialog_manager.switch_to(state=StartSG.start_next)

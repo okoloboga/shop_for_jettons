@@ -2,14 +2,15 @@ import logging
 
 from aiogram import Router
 from aiogram.types import CallbackQuery
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Select
+
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from states import StartSG
 
 
-router = Router()
+router_catalogue = Router()
 
 logger = logging.getLogger(__name__)
 
@@ -37,23 +38,14 @@ async def item_selection(
                                      'user_id': callback.from_user.id})
 
 
-# Pressing on Previous Page button
-async def previous_page(
+# Process START command from another states
+async def go_start(
         callback: CallbackQuery,
         db_engine: AsyncEngine,
         dialog_manager: DialogManager
-):
-    user_id = callback.from_user.id
-    logger.info(f'User {user_id} pressed PREVIOUS PAGE')
-    await dialog_manager.switch_to(state=StartSG.start_previous)
-
-
-# Pressing on Next Page button
-async def next_page(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
-    user_id = callback.from_user.id
-    logger.info(f'User {user_id} pressed NEXT PAGE')
-    await dialog_manager.switch_to(state=StartSG.start_next)
+) -> None:
+    logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
+    await dialog_manager.start(state=StartSG.start,
+                               mode=StartMode.RESET_STACK,
+                               data={'user_id': callback.from_user.id}
+                               )

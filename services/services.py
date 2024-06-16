@@ -73,7 +73,8 @@ async def new_user(
         purchase_sum=0,
         referrals=0,
         invited=invited,
-        page=0
+        page=0,
+        status='user'
     )
 
     # If user already exists in database
@@ -111,3 +112,23 @@ async def get_item_metadata(number: int,
             "sell_price": result[2]}
 
     return item
+
+
+# Getting users with non-user status
+async def get_admins_list(db_engine: AsyncEngine) -> list:
+    logger.info(f'Getting list of admins...')
+    admins = []
+
+    # Getting ID's by status
+    statement = (
+        select(column("telegram_id"))
+        .select_from(users)
+        .where(users.c.status != 'user')
+    )
+    async with db_engine.connect() as conn:
+        result_raw = await conn.execute(statement)
+        for row in result_raw:
+            admins.append(row[0])
+            logger.info(f'{row[0]} executed as Admin')
+
+    return admins

@@ -1,1 +1,2 @@
-from . import config, config_reader
+from .config import *
+from .config_reader import *

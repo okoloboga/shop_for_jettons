@@ -1,3 +1,4 @@
+import pprint
 import logging
 from typing import Any, Awaitable, Callable, Dict
 
@@ -15,7 +16,6 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         event: TelegramObject,
         data: Dict[str, Any]
     ) -> Any:
-
         user: User = data.get('event_from_user')
 
         if user is None:

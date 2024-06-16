@@ -1,10 +1,10 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format
-from aiogram_dialog.widgets.kbd import Select, Group
+from aiogram_dialog.widgets.kbd import Select, Group, Button
 
 from states import CatalogueSG
-from .getters import catalogue_show
-from handlers import item_selection
+from .getter import catalogue_show
+from .handler import item_selection, go_start
 
 '''Catalogue Dialog'''
 catalogue_dialog = Dialog(
@@ -20,6 +20,7 @@ catalogue_dialog = Dialog(
             ),
             width=1
         ),
+        Button(Format('{button_back}'), id='b_back', on_click=go_start),
         getter=catalogue_show,
         state=CatalogueSG.catalogue
     )
