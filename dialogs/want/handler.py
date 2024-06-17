@@ -44,11 +44,10 @@ async def fill_count(
     # Getting count of items from catalogue table
     current_count = int(dialog_manager.current_context()
                         .dialog_data['current_count'])
-    filled_count = int(callback.message.text)
 
     logger.info(f'User {callback.from_user.id} fills count: {count}')
 
-    if filled_count > current_count:
+    if count > current_count:
         i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
         await callback.answer(text=i18n.too.large.count())
 
@@ -79,7 +78,7 @@ async def fill_address(
 ):
     logger.info(f'User {callback.from_user.id} fills count: {address}')
 
-    dialog_manager.current_context().dialog_data['count'] = address
+    dialog_manager.current_context().dialog_data['address'] = address
     await dialog_manager.next()
 
 
@@ -103,7 +102,4 @@ async def order_confirm(
         dialog_manager: DialogManager
 ):
     logger.info(f'User {callback.from_user.id} confim new order')
-
-
-
     await dialog_manager.next()

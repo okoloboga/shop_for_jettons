@@ -50,7 +50,7 @@ async def item_info_getter(
         "button_take_it": i18n.button.take.it(),
         "button_account": i18n.button.account(),
         "button_catalogue": i18n.button.catalogue(),
-        "item_info": i18n.item.show(
+        "item_info": i18n.item.info(
             category=category,
             name=name,
             description=description,
@@ -118,18 +118,18 @@ async def order_confirmation_getter(
     dialog_manager.current_context().dialog_data['order_metadata'] = item
 
     return{
-        "order_confirmation": i18n.confirm.new.order(
+        "order_confirmation": i18n.order.confirmation(
             username=username,
             address=new_order_data['address'],
             category=category,
             name=name,
             description=description,
-            image=image,
             sell_price=sell_price,
             count=new_order_data['count'],
             total_sum=int(new_order_data['count']) * sell_price
         ),
-        "button_confirm": i18n.button.confirm(),
+        "image": image,
+        "button_great": i18n.button.great(),
         "button_back": i18n.button.back()
     }
 
@@ -145,7 +145,8 @@ async def complete_order_getter(
     user_dict = dialog_manager.start_data
     new_order_data = dialog_manager.current_context().dialog_data
 
-    await new_order(
+    # Place new order and return index of order
+    index_and_data = await new_order(
         db_engine,
         i18n,
         user_dict,
@@ -153,10 +154,13 @@ async def complete_order_getter(
     )
 
     return {
-        "order_complete": i18n.order.complete(),
-        "button_take_it": i18n.take.it(),
-        "button_catalogue": i18n.catalogue(),
-        "button_account": i18n.account(),
-        "button_back": i18n.back()
+        "order_complete": i18n.order.complete(
+            index=index_and_data[0],
+            date_and_time=index_and_data[1]
+        ),
+        "button_take_it": i18n.button.take.it(),
+        "button_catalogue": i18n.button.catalogue(),
+        "button_account": i18n.button.account(),
+        "button_back": i18n.button.back()
     }
 

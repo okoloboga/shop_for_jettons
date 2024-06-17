@@ -60,13 +60,8 @@ async def start_previous_getter(
         **kwargs
 ) -> dict[str, str]:
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-    user_id = user_dict['user_id']
 
-    logger.info(f'User {user_id} presser PREVIOUS button')
+    logger.info(f'User {user_dict['user_id']} pressed PREVIOUS button')
 
     page: int  # Current page of user from database
     new_page: int  # Users page after updating
@@ -76,7 +71,7 @@ async def start_previous_getter(
     user_page = (
         select(column("page"))
         .select_from(users)
-        .where(users.c.telegram_id == user_id)
+        .where(users.c.telegram_id == user_dict['user_id'])
     )
 
     # Get number of items in catalogue
@@ -93,36 +88,36 @@ async def start_previous_getter(
             logger.info(f'{catalogue_len} items total in Catalogue')
         for row in page_raw:
             page = row[0]
-            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
+            logger.info(f'Statement PAGE: {row[0]} executed of user {user_dict['user_id']}, page is {page}')
 
     if page == 0:
         # New page value, if current page is 0
         new_page = catalogue_len - 1
         update_page = (users.update()
                        .values(page=new_page)
-                       .where(users.c.telegram_id == user_id)
+                       .where(users.c.telegram_id == user_dict['user_id'])
                        )
         # Commit to database
         async with db_engine.connect() as conn:
             await conn.execute(update_page)
             await conn.commit()
-            logger.info(f'Users {user_id} page is updated to {new_page}')
+            logger.info(f'Users {user_dict['user_id']} page is updated to {new_page}')
 
     else:
         # New page value, if current page bigger than 0
         new_page = page - 1
         update_page = (users.update()
                        .values(page=new_page)
-                       .where(users.c.telegram_id == user_id)
+                       .where(users.c.telegram_id == user_dict['user_id'])
                        )
         # Commit to database
         async with db_engine.connect() as conn:
             await conn.execute(update_page)
             await conn.commit()
-            logger.info(f'Users {user_id} page is updated to {new_page}')
+            logger.info(f'Users {user_dict['user_id']} page is updated to {new_page}')
 
     # Getting data of item from new Users page
-    item = await get_item_metadata(new_page, db_engine)
+    item = await get_item_metadata(user_dict, db_engine)
     name = item['name']
     image = item['image']
     sell_price = item['sell_price']
@@ -152,9 +147,8 @@ async def start_next_getter(
         **kwargs
 ) -> dict[str, str]:
     user_dict = dialog_manager.start_data
-    user_id = user_dict['user_id']
 
-    logger.info(f'User {user_id} pressed NEXT button')
+    logger.info(f'User {user_dict['user_id']} pressed NEXT button')
 
     page: int  # Current page of user from database
     new_page: int  # Users page after updating
@@ -164,7 +158,7 @@ async def start_next_getter(
     user_page = (
         select(column("page"))
         .select_from(users)
-        .where(users.c.telegram_id == user_id)
+        .where(users.c.telegram_id == user_dict['user_id'])
     )
 
     # Get number of items in catalogue
@@ -178,7 +172,7 @@ async def start_next_getter(
         count_raw = await conn.execute(count)
         for row in page_raw:
             page = row[0]
-            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
+            logger.info(f'Statement PAGE: {row[0]} executed of user {user_dict['user_id']}, page is {page}')
         for row in count_raw:
             catalogue_len = row[0]
             logger.info(f'{catalogue_len} items total in Catalogue')
@@ -188,29 +182,29 @@ async def start_next_getter(
         new_page = 0
         update_page = (users.update()
                        .values(page=new_page)
-                       .where(users.c.telegram_id == user_id)
+                       .where(users.c.telegram_id == user_dict['user_id'])
                        )
         # Commit to database
         async with db_engine.connect() as conn:
             await conn.execute(update_page)
             await conn.commit()
-            logger.info(f'Users {user_id} page is updated to {new_page}')
+            logger.info(f'Users {user_dict['user_id']} page is updated to {new_page}')
 
     else:
         # New page value, if current page is less than number of items in catalogue
         new_page = page + 1
         update_page = (users.update()
                        .values(page=new_page)
-                       .where(users.c.telegram_id == user_id)
+                       .where(users.c.telegram_id == user_dict['user_id'])
                        )
         # Commit to database
         async with db_engine.connect() as conn:
             await conn.execute(update_page)
             await conn.commit()
-            logger.info(f'Users {user_id} page is updated to {new_page}')
+            logger.info(f'Users {user_dict['user_id']} page is updated to {new_page}')
 
     # Getting data of item from new Users page
-    item = await get_item_metadata(new_page, db_engine)
+    item = await get_item_metadata(user_dict, db_engine)
     name = item['name']
     image = item['image']
     sell_price = item['sell_price']

@@ -25,7 +25,7 @@ logging.basicConfig(
 # Process START command from another states
 async def go_start(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ) -> None:
     logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
@@ -50,7 +50,7 @@ async def switch_to_account(
 # Switch to Catalogue dialog
 async def switch_to_catalogue(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):
     logger.info(f'Switch to Catalogue dialog by user {callback.from_user.id}')
@@ -60,14 +60,13 @@ async def switch_to_catalogue(
 # Switch to Want dialogue
 async def switch_to_want(
         callback: CallbackQuery,
+        button: Button,
         dialog_manager: DialogManager
 ):
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=WantSG.want,
-                               data={
-                                   'user_id': callback.from_user.id,
-                                   'username': callback.from_user.username
-                                }
+                               data={'user_id': callback.from_user.id,
+                                     'username': callback.from_user.username}
                                )
 
 

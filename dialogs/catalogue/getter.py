@@ -26,6 +26,7 @@ async def catalogue_show(
         event_from_user: User,
         **kwargs
 ) -> dict[str, str]:
+
     # Get all items for catalogue from database
     statement = (
         select(column("name"), column("index")).select_from(catalogue)

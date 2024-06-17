@@ -12,8 +12,8 @@ from fluentogram import TranslatorHub
 
 from config import get_config, BotConfig, DbConfig, Config, load_config
 from dialogs import (start_dialog, account_dialog, catalogue_dialog,
-                     router_buttons, router_start, router_account,
-                     router_unknown, router_catalogue)
+                     want_dialog, router_buttons, router_start, router_account,
+                     router_unknown, router_catalogue, router_want)
 from utils import TranslatorHub, create_translator_hub
 from middlewares import TranslatorRunnerMiddleware
 from database import metadata
@@ -60,10 +60,11 @@ async def main():
     translator_hub: TranslatorHub = create_translator_hub()
 
     # Routers, dialogs, middlewares
-    dp.include_routers(start_dialog, account_dialog, catalogue_dialog)
+    dp.include_routers(start_dialog, account_dialog, catalogue_dialog,
+                       want_dialog)
 
-    dp.include_routers(router_catalogue, router_buttons, router_start, router_account,
-                       router_unknown)
+    dp.include_routers(router_catalogue, router_buttons, router_start,
+                       router_account, router_want, router_unknown)
     dp.update.middleware(TranslatorRunnerMiddleware())
     dp.workflow_data.update({'admins': await get_admins_list(engine)})
 

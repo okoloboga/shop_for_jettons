@@ -1,6 +1,8 @@
+from aiogram.types import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.kbd import Button, Row
+from aiogram_dialog.widgets.media import StaticMedia
 
 from .getter import *
 from .handler import *
@@ -10,7 +12,11 @@ from ..buttons import switch_to_catalogue, switch_to_account, go_start
 """Want dialog - for selling"""
 want_dialog = Dialog(
     Window(
-        Format('{item_info'),
+        Format('{item_info}'),
+        StaticMedia(
+            url=Format('{image}'),
+            type=ContentType.PHOTO
+        ),
         Button(Format('{button_take_it}'), id='b_take_it', on_click=take_it),
         Row(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
@@ -46,13 +52,17 @@ want_dialog = Dialog(
     ),
     Window(
         Format('{order_confirmation}'),
-        Button(Format('{button_confirm}'), id='b_confirm', on_click=order_confirm),
+        StaticMedia(
+            url=Format('{image}'),
+            type=ContentType.PHOTO
+        ),
+        Button(Format('{button_great}'), id='b_great', on_click=order_confirm),
         Button(Format('{button_back}'), id='b_back', on_click=go_start),
         getter=order_confirmation_getter,
         state=WantSG.confirm
     ),
     Window(
-        Format('{order_complete'),
+        Format('{order_complete}'),
         Button(Format('{button_take_it}'), id='b_take_it', on_click=take_it),
         Row(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),

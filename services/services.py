@@ -133,8 +133,8 @@ async def get_item_metadata(user_dict: dict,
         "name": result[2],
         "description": result[3],
         "image": result[4],
-        "sell_price": result[5],
-        "self_price": result[6],
+        "self_price": result[5],
+        "sell_price": result[6],
         "count": result[7]
     }
 
@@ -166,7 +166,7 @@ async def new_order(db_engine: AsyncEngine,
                     i18n: TranslatorRunner,
                     user_dict: dict,
                     new_order_data: dict
-                    ):
+                    ) -> list:
     logger.info(f'Placing new order by user {user_dict['user_id']}')
 
     order_counter: int  # Index of last order
@@ -180,7 +180,7 @@ async def new_order(db_engine: AsyncEngine,
 
     # Getting order counter
     order_counter_statement = (
-        select(column("order_counter"))
+        select(column("orders_counter"))
         .select_from(variables)
     )
 
@@ -207,20 +207,23 @@ async def new_order(db_engine: AsyncEngine,
                      int(new_order_data['count'])),
     )
 
+    # If user already exists in database
+    do_ignore_order = orders_statement.on_conflict_do_nothing(index_elements=["index"])
+
     async with db_engine.connect() as conn:
-        await conn.execute(orders_statement)
+        await conn.execute(do_ignore_order)
         await conn.commit()
         logger.info('New order placed')
 
     # Update Order Counter in Variables table
-    update_order_counter = (variables.update()
-                            .values(order_counter=len_orders + 1)
+    update_orders_counter = (variables.update()
+                            .values(orders_counter=len_orders + 1)
                             )
     # Commit to database order counter updating
     async with db_engine.connect() as conn:
-        await conn.execute(update_order_counter)
+        await conn.execute(update_orders_counter)
         await conn.commit()
-        logger.info(f'Order Counter updated to {len_orders + 1}')
+        logger.info(f'Orders Counter updated to {len_orders + 1}')
 
     # Send notification to manager
     # Get Manager ID from Variables table
@@ -240,6 +243,7 @@ async def new_order(db_engine: AsyncEngine,
     bot = Bot(token=bot_config.token.get_secret_value(),
               default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
+    # Send notification to manager
     await bot.send_message(chat_id=manager_id,
                            text=i18n.order.notification(
                                index=len_orders + 1,
@@ -253,5 +257,7 @@ async def new_order(db_engine: AsyncEngine,
                                        int(new_order_data['count'])),
                                pure_income=(int(new_order_data['order_metadata']['self_price']) *
                                             int(new_order_data['count']))
+                               )
                            )
-                           )
+
+    return [len_orders + 1, date_and_time]
