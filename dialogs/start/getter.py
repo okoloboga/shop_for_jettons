@@ -27,30 +27,11 @@ async def start_getter(
         **kwargs
 ) -> dict[str, str]:
     logger.info('START button processing - start_getter')
-    page: int  # Number of last item from User data
 
     # User ID
     user_dict = dialog_manager.start_data
-    if user_dict is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-    user_id = user_dict['user_id']
 
-    # Get page number
-    statement = (
-        select(column("page"))
-        .select_from(users)
-        .where(users.c.telegram_id == user_id)
-    )
-
-    async with db_engine.connect() as conn:
-        page_raw = await conn.execute(statement)
-        for row in page_raw:
-            page = row[0]
-            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}, page is {page}')
-
-    item = await get_item_metadata(page, db_engine)
+    item = await get_item_metadata(user_dict, db_engine)
     name = item['name']
     image = item['image']
     sell_price = item['sell_price']
@@ -171,13 +152,9 @@ async def start_next_getter(
         **kwargs
 ) -> dict[str, str]:
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
     user_id = user_dict['user_id']
 
-    logger.info(f'User {user_id} presser NEXT button')
+    logger.info(f'User {user_id} pressed NEXT button')
 
     page: int  # Current page of user from database
     new_page: int  # Users page after updating
@@ -263,29 +240,14 @@ async def show_item_getter(
         **kwargs
 ) -> dict[str, str]:
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
 
     user_id = user_dict['user_id']
     item_id = user_dict['item_id']
 
     logger.info(f'User {user_id} select item №{item_id} from catalogue')
 
-    # Rewrite User page to ITEM_ID
-    update_page = (users.update()
-                   .values(page=item_id)
-                   .where(users.c.telegram_id == user_id)
-                   )
-    # Commit to database
-    async with db_engine.connect() as conn:
-        await conn.execute(update_page)
-        await conn.commit()
-        logger.info(f'Users {user_id} page is updated to {item_id}')
-
     # Getting data of item from ITEM_ID
-    item = await get_item_metadata(int(item_id), db_engine)
+    item = await get_item_metadata(user_dict, db_engine)
     name = item['name']
     image = item['image']
     sell_price = item['sell_price']

@@ -1,15 +1,18 @@
-import json
-import pprint
-import random
 import logging
 
-from aiogram_dialog import DialogManager
+from datetime import datetime
+from aiogram import Bot
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 
-from sqlalchemy import insert, delete, select, column
+from sqlalchemy import insert, select, column
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from database import users, catalogue
+from fluentogram import TranslatorRunner
+
+from database import users, catalogue, orders, variables
+from config import get_config, BotConfig
 from .ton_services import wallet_deploy
 
 logger = logging.getLogger(__name__)
@@ -88,33 +91,51 @@ async def new_user(
 
 
 # Get item from database
-async def get_item_metadata(number: int,
+async def get_item_metadata(user_dict: dict,
                             db_engine: AsyncEngine
                             ) -> dict:
-    logger.info(f'get_item_metadata({number})')
+    logger.info(f'get_item_metadata({user_dict['user_id']})')
+
+    page: int  # Current page of user from database
     result: list  # Main data of item
+    user_id = user_dict['user_id']
+
+    # Get current page
+    user_page = (
+        select(column("page"))
+        .select_from(users)
+        .where(users.c.telegram_id == user_id)
+    )
+
+    async with db_engine.connect() as conn:
+        page_raw = await conn.execute(user_page)
+        for row in page_raw:
+            page = int(row[0])
+            logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}')
 
     # Getting item by index
     statement = (
-        select(column("name"), column("image"), column("sell_price"))
+        select("*")
         .select_from(catalogue)
-        .where(catalogue.c.index == number)
+        .where(catalogue.c.index == page)
     )
+
     async with db_engine.connect() as conn:
         result_raw = await conn.execute(statement)
         for row in result_raw:
-            result = list(row)  # row is tuple!
-            logger.info(f'Item with index {number} is executed: {result}')
+            result = list(row)  # row is a tuple!
+            logger.info(f'Item with index {page} is executed: {result}')
 
     # To Dict
     item = {
-            "category": result[0],
-            "name": result[1],
-            "description": result[2],
-            "image": result[3],
-            "sell_price": result[4],
-            "self_price": result[5],
-            "count": result[6]
+        "index": result[0],
+        "category": result[1],
+        "name": result[2],
+        "description": result[3],
+        "image": result[4],
+        "sell_price": result[5],
+        "self_price": result[6],
+        "count": result[7]
     }
 
     return item
@@ -138,3 +159,99 @@ async def get_admins_list(db_engine: AsyncEngine) -> list:
             logger.info(f'{row[0]} executed as Admin')
 
     return admins
+
+
+# Place new Order
+async def new_order(db_engine: AsyncEngine,
+                    i18n: TranslatorRunner,
+                    user_dict: dict,
+                    new_order_data: dict
+                    ):
+    logger.info(f'Placing new order by user {user_dict['user_id']}')
+
+    order_counter: int  # Index of last order
+    manager_id: int  # ID of manager for notification sending
+
+    # Getting current date and time
+    now = datetime.now()
+
+    # dd/mm/YY H:M:S
+    date_and_time = now.strftime("%d/%m/%Y %H:%M:%S")
+
+    # Getting order counter
+    order_counter_statement = (
+        select(column("order_counter"))
+        .select_from(variables)
+    )
+
+    async with db_engine.connect() as conn:
+        raw_orders_count = await conn.execute(order_counter_statement)
+        for row in raw_orders_count:
+            len_orders = int(row[0])
+            logger.info(f'Order counter is {len_orders}')
+
+    # Writing statement for Orders table
+    orders_statement = insert(orders).values(
+        index=len_orders + 1,
+        user_id=user_dict['user_id'],
+        username=user_dict['username'],
+        delivery_address=new_order_data['address'],
+        date_and_time=date_and_time,
+        item_index=new_order_data['order_metadata']['index'],
+        category=new_order_data['order_metadata']['category'],
+        name=new_order_data['order_metadata']['name'],
+        count=new_order_data['count'],
+        income=(int(new_order_data['order_metadata']['sell_price']) *
+                int(new_order_data['count'])),
+        pure_income=(int(new_order_data['order_metadata']['self_price']) *
+                     int(new_order_data['count'])),
+    )
+
+    async with db_engine.connect() as conn:
+        await conn.execute(orders_statement)
+        await conn.commit()
+        logger.info('New order placed')
+
+    # Update Order Counter in Variables table
+    update_order_counter = (variables.update()
+                            .values(order_counter=len_orders + 1)
+                            )
+    # Commit to database order counter updating
+    async with db_engine.connect() as conn:
+        await conn.execute(update_order_counter)
+        await conn.commit()
+        logger.info(f'Order Counter updated to {len_orders + 1}')
+
+    # Send notification to manager
+    # Get Manager ID from Variables table
+    manager_id_statement = (
+        select(column("manager_id"))
+        .select_from(variables)
+    )
+
+    async with db_engine.connect() as conn:
+        raw_manager_id = await conn.execute(manager_id_statement)
+        for row in raw_manager_id:
+            manager_id = int(row[0])
+            logger.info(f'Manager ID for sending notification: {manager_id}')
+
+    # Init Bot
+    bot_config = get_config(BotConfig, "bot")
+    bot = Bot(token=bot_config.token.get_secret_value(),
+              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+
+    await bot.send_message(chat_id=manager_id,
+                           text=i18n.order.notification(
+                               index=len_orders + 1,
+                               date_and_time=date_and_time,
+                               user_id=user_dict['user_id'],
+                               username=user_dict['username'],
+                               delivery_address=new_order_data['address'],
+                               name=new_order_data['order_metadata']['name'],
+                               count=new_order_data['count'],
+                               income=(int(new_order_data['order_metadata']['sell_price']) *
+                                       int(new_order_data['count'])),
+                               pure_income=(int(new_order_data['order_metadata']['self_price']) *
+                                            int(new_order_data['count']))
+                           )
+                           )

@@ -37,15 +37,3 @@ async def item_selection(
                                data={'item_id': item_id,
                                      'user_id': callback.from_user.id})
 
-
-# Process START command from another states
-async def go_start(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-) -> None:
-    logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
-    await dialog_manager.start(state=StartSG.start,
-                               mode=StartMode.RESET_STACK,
-                               data={'user_id': callback.from_user.id}
-                               )

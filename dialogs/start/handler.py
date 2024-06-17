@@ -82,52 +82,6 @@ async def command_start_process(
                                    )
 
 
-# Process START command from another states
-async def go_start(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-) -> None:
-    logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
-    await dialog_manager.start(state=StartSG.start,
-                               mode=StartMode.RESET_STACK,
-                               data={'user_id': callback.from_user.id}
-                               )
-
-
-# Switch to Account dialogue
-# Cheking if new user
-async def switch_to_account(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
-    logger.info(f'Switch to Account dialog by user {callback.from_user.id}')
-    await dialog_manager.start(state=AccountSG.account,
-                               data={'user_id': callback.from_user.id}
-                               )
-
-
-# Switch to Catalogue dialog
-async def switch_to_catalogue(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
-    logger.info(f'Switch to Catalogue dialog by user {callback.from_user.id}')
-    await dialog_manager.start(state=CatalogueSG.catalogue)
-
-
-# Switch to Want dialogue
-async def switch_to_want(
-        callback: CallbackQuery,
-        dialog_manager: DialogManager
-):
-    logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
-    await dialog_manager.start(state=WantSG.want,
-                               data={'user_id': callback.from_user.id})
-
-
 # Pressing on Previous Page button
 async def previous_page(
         callback: CallbackQuery,

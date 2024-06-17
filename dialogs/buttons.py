@@ -4,10 +4,10 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 
-from states import StartSG
+from states import StartSG, AccountSG, CatalogueSG, WantSG
 from database import users, catalogue
 
 router_buttons = Router()
@@ -18,6 +18,57 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
+
+"""Default handlers"""
+
+
+# Process START command from another states
+async def go_start(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+) -> None:
+    logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
+    await dialog_manager.start(state=StartSG.start,
+                               mode=StartMode.RESET_STACK,
+                               data={'user_id': callback.from_user.id}
+                               )
+
+
+# Switch to Account dialogue
+async def switch_to_account(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+):
+    logger.info(f'Switch to Account dialog by user {callback.from_user.id}')
+    await dialog_manager.start(state=AccountSG.account,
+                               data={'user_id': callback.from_user.id}
+                               )
+
+
+# Switch to Catalogue dialog
+async def switch_to_catalogue(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+):
+    logger.info(f'Switch to Catalogue dialog by user {callback.from_user.id}')
+    await dialog_manager.start(state=CatalogueSG.catalogue)
+
+
+# Switch to Want dialogue
+async def switch_to_want(
+        callback: CallbackQuery,
+        dialog_manager: DialogManager
+):
+    logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
+    await dialog_manager.start(state=WantSG.want,
+                               data={
+                                   'user_id': callback.from_user.id,
+                                   'username': callback.from_user.username
+                                }
+                               )
 
 
 # Process BACK button

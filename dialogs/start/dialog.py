@@ -7,6 +7,7 @@ from aiogram_dialog.widgets.kbd import Button, Row
 
 from .getter import *
 from .handler import *
+from ..buttons import go_start, switch_to_account, switch_to_catalogue, switch_to_want
 
 '''Starting Menu with Items'''
 start_dialog = Dialog(
