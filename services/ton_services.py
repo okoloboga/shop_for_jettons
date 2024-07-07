@@ -24,7 +24,8 @@ def _load_config(path: str | None = None) -> list:
     env = Env()
     env.read_env(path)
     logger.info("Enviroment executed")
-    return [env('BOT_TOKEN'), env('API'), env('API_TEST'), env('CENTRAL_WALLET_MNEMONICS'), env('JETTON_MASTER')]
+    return [env('BOT_TOKEN'), env('API'), env('API_TEST'), env('CENTRAL_WALLET_MNEMONICS'), 
+            env('JETTON_MASTER'), env('MASTER_WALLET')]
 
 
 # Init wallet for new user
@@ -32,7 +33,7 @@ async def wallet_deploy() -> list:
 
     logger.info('Wallet deploy')
 
-    # Connecting to TonCenterClient TESTNET
+    # Connecting to TonCenterClient
     config = _load_config()
     client = TonCenterClient(key=config[1], testnet=False)
     logger.info('TonCenterClient started')
@@ -76,3 +77,24 @@ async def jetton_value(wallet: str) -> int:
     jetton_wallet_data = jetton_wallet
 
     return int(int(jetton_wallet_data.balance) / 1000000000)
+
+
+# Send jettons for purchase
+async def jetton_transfer(value: int,
+                          costumer_mnemonics: str):
+    
+    logger.info(f'Send {value} jettons for purchase')
+
+    # Connecting to TonCenterClient and central wallet
+    config = _load_config()
+    client = TonCenterClient(key=config[1], testnet=False)
+    logger.info('TonCenterClient started')
+    
+    costumers_wallet = Wallet(provider=client, mnemonics=costumer_mnemonics.split(), version='v4r2')
+    logger.info('Costumers wallet activated')
+    
+    await costumers_wallet.transfer_jetton(
+        destination_address=config[5],
+        jetton_master_address=config[4],
+        jettons_amount=value
+    )

@@ -13,7 +13,7 @@ from fluentogram import TranslatorRunner
 
 from database import users, catalogue, orders, variables
 from config import get_config, BotConfig
-from .ton_services import wallet_deploy
+from .ton_services import wallet_deploy, jetton_transfer
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +171,8 @@ async def new_order(db_engine: AsyncEngine,
 
     order_counter: int  # Index of last order
     manager_id: int  # ID of manager for notification sending
-
+    costumers_mnemonics: str  # Mnemonics of TON wallet for transaction
+    
     # Getting current date and time
     now = datetime.now()
 
@@ -219,26 +220,48 @@ async def new_order(db_engine: AsyncEngine,
     update_orders_counter = (variables.update()
                             .values(orders_counter=len_orders + 1)
                             )
+    
+    # Update count of Items in catralogue
+    update_catalogue_counter = (catalogue.update()
+                                .values(count=int(catalogue.c.count - new_order_data['count']))
+    )
+    
     # Commit to database order counter updating
     async with db_engine.connect() as conn:
         await conn.execute(update_orders_counter)
+        await conn.execute(update_catalogue_counter)
         await conn.commit()
-        logger.info(f'Orders Counter updated to {len_orders + 1}')
+        logger.info(f'Orders Counter updated to {len_orders + 1},\
+            Catalogue count update by {new_order_data['count']}')
 
-    # Send notification to manager
+    # Send notification to manager and getting Mnemonics of costumer
     # Get Manager ID from Variables table
     manager_id_statement = (
         select(column("manager_id"))
         .select_from(variables)
     )
-
+    # Get costumers mnemonics from Users table
+    costumers_mnemonics_statement = (
+        select(column("mnemonics"))
+        .select_from(users)
+        .where(users.c.telegram_id == user_dict['user_id'])
+    )
     async with db_engine.connect() as conn:
         raw_manager_id = await conn.execute(manager_id_statement)
+        raw_costumers_mnemonics = await conn.execute(costumers_mnemonics_statement)
         for row in raw_manager_id:
             manager_id = int(row[0])
             logger.info(f'Manager ID for sending notification: {manager_id}')
+        for row in raw_costumers_mnemonics:
+            costumers_mnemonics = row[0]
+            logger.info(f'Costumers Mnemonics are executed')
+            
+    # SEND JETTONS FOR PURCHASE
+    await jetton_transfer(value=int(new_order_data['order_metadata']['sell_price']) *
+                                int(new_order_data['count']),
+                          costumer_mnemonics=costumers_mnemonics)
 
-    # Init Bot
+    # Init Bot for sending notification to manager
     bot_config = get_config(BotConfig, "bot")
     bot = Bot(token=bot_config.token.get_secret_value(),
               default=DefaultBotProperties(parse_mode=ParseMode.HTML))

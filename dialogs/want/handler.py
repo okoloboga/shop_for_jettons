@@ -1,5 +1,6 @@
 import logging
 
+from math import floor
 from aiogram import Router
 from aiogram.utils.deep_linking import decode_payload
 from aiogram.filters import CommandStart, CommandObject
@@ -29,7 +30,7 @@ async def take_it(
         callback: CallbackQuery,
         db_config: AsyncEngine,
         dialog_manager: DialogManager
-):
+):  
     logger.info(f'User {callback.from_user.id} starts TAKE IT process')
     await dialog_manager.switch_to(WantSG.fill_count)
 
@@ -46,10 +47,23 @@ async def fill_count(
                         .dialog_data['current_count'])
 
     logger.info(f'User {callback.from_user.id} fills count: {count}')
-
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    
+    # Enough jettons in wallet?
+    price = dialog_manager.current_context().dialog_data['sell_price']
+    users_jettons = dialog_manager.current_context().dialog_data['jettons']
+    total_order_sum = price * count
+    
     if count > current_count:
-        i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+        logger.info(f'Not enough items in catalogue! Asked {count}, total {current_count}')
         await callback.answer(text=i18n.too.large.count())
+        
+    elif total_order_sum > floor(jettons):
+        logger.info(f'Not enough jettons! Need {total_order_sum}, user have {floor(jettons)}')
+        await callback.answer(text=i18n.notenough.jettons(total_order_sum=total_order_sum,
+                                                          jettons=jettons
+        ))
+        
 
     else:
         dialog_manager.current_context().dialog_data['count'] = count
