@@ -41,8 +41,8 @@ income = Table(
     Column("category", String),  # 4
     Column("name", String),  # 5
     Column("count", Integer),  # 6
-    Column("income_sellprice", BigInteger),  # 7
-    Column("income_selfprice", BigInteger),  # 8
+    Column("income", BigInteger),  # 7
+    Column("pure_income", BigInteger),  # 8
 )
 
 orders = Table(
@@ -58,7 +58,8 @@ orders = Table(
     Column("name", String),  # 7
     Column("count", Integer),  # 8
     Column("income", BigInteger),  # 9
-    Column("pure_income", BigInteger)  # 10
+    Column("pure_income", BigInteger),  # 10
+    Column("status", String)  # 11
 )
 
 outcome = Table(
@@ -66,13 +67,14 @@ outcome = Table(
     metadata,
     Column("index", Integer, primary_key=True),  # 0
     Column("user_id", BigInteger),  # 1
-    Column("date_and_time", String),  # 2
-    Column("item_index", Integer),  # 3
-    Column("category", String),  # 4
-    Column("name", String),  # 5
-    Column("count", Integer),  # 6
-    Column("outcome_sellprice", BigInteger),  # 7
-    Column("outcome_selfprice", BigInteger),  # 8
+    Column("username", String),  # 2
+    Column("date_and_time", String),  # 3
+    Column("item_index", Integer),  # 4
+    Column("category", String),  # 5
+    Column("name", String),  # 6
+    Column("count", Integer),  # 7
+    Column("income", BigInteger),  # 8
+    Column("pure_income", BigInteger),  # 9
 )
 
 edited = Table(

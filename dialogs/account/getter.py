@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import users
+from services import get_admins_list
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,9 @@ async def account_getter(
             user_data = list(row)
         logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
 
+    # Getting list of admins
+    dialog_manager.current_context().dialog_data['admins'] = await get_admins_list(db_engine)
+    
     purchase = user_data[5]
     purchase_sum = user_data[6]
     address = user_data[3]

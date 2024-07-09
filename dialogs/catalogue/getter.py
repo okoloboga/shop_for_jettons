@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_item_metadata
+from services import get_user_item_metadata
 from database import users, catalogue
 
 logger = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ async def show_item_getter(
         logger.info(f'Users {user_id} page is updated to {item_id}')
 
     # Getting data of item from ITEM_ID
-    item = await get_item_metadata(int(item_id), db_engine)
+    item = await get_user_item_metadata(int(item_id), db_engine)
     name = item['name']
     image = item['image']
     sell_price = item['sell_price']

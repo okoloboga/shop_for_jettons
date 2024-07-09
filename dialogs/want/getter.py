@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_item_metadata, new_order, jetton_value
+from services import get_user_item_metadata, new_order, jetton_value
 from database import users
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ async def item_info_getter(
     dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
 
     # Getting data of item by Page in Users table
-    item = await get_item_metadata(user_dict, db_engine)
+    item = await get_user_item_metadata(user_dict, db_engine)
 
     category = item['category']
     name = item['name']
@@ -115,7 +115,7 @@ async def order_confirmation_getter(
     username = user_dict['username']
 
     # Getting data of item from PAGE
-    item = await get_item_metadata(user_dict, db_engine)
+    item = await get_user_item_metadata(user_dict, db_engine)
 
     category = item['category']
     name = item['name']

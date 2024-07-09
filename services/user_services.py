@@ -91,7 +91,7 @@ async def new_user(
 
 
 # Get item from database
-async def get_item_metadata(user_dict: dict,
+async def get_user_item_metadata(user_dict: dict,
                             db_engine: AsyncEngine
                             ) -> dict:
     logger.info(f'get_item_metadata({user_dict['user_id']})')
@@ -284,3 +284,11 @@ async def new_order(db_engine: AsyncEngine,
                            )
 
     return [len_orders + 1, date_and_time]
+
+
+# Check for #admin_panel command
+def is_admin(text: str) -> str:
+    if text == '#admin_panel':
+        return text
+    raise ValueError
+        
