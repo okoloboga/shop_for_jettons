@@ -76,3 +76,12 @@ class ConfirmOrderSG(StatesGroup):
     accepted_order = State()
     declined_order = State()
     completed_order = State()
+
+# Game states
+class FSMMain(StatesGroup):
+    
+    main = State()
+    make_bet = State()
+    wait_game = State()
+    select_enemy = State()
+    in_game = State()

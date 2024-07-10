@@ -43,6 +43,7 @@ async def start_getter(
             "button_want": i18n.button.want(),
             "button_account": i18n.button.account(),
             "button_catalogue": i18n.button.catalogue(),
+            "button_game": i18n.button.game(),
             "item_show": i18n.item.show(
                 name=name,
                 sell_price=sell_price
@@ -130,6 +131,7 @@ async def start_previous_getter(
         "button_want": i18n.button.want(),
         "button_account": i18n.button.account(),
         "button_catalogue": i18n.button.catalogue(),
+        "button_game": i18n.button.game(),
         "item_show": i18n.item.show(
             name=name,
             sell_price=sell_price
@@ -217,6 +219,7 @@ async def start_next_getter(
         "button_want": i18n.button.want(),
         "button_account": i18n.button.account(),
         "button_catalogue": i18n.button.catalogue(),
+        "button_game": i18n.button.game(),
         "item_show": i18n.item.show(
             name=name,
             sell_price=sell_price
@@ -254,6 +257,7 @@ async def show_item_getter(
         "button_want": i18n.button.want(),
         "button_account": i18n.button.account(),
         "button_catalogue": i18n.button.catalogue(),
+        "button_game": i18n.button.game(),
         "item_show": i18n.item.show(
             name=name,
             sell_price=sell_price

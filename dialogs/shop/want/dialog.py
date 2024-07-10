@@ -6,7 +6,7 @@ from aiogram_dialog.widgets.media import StaticMedia
 
 from .getter import *
 from .handler import *
-from ..buttons import switch_to_catalogue, switch_to_account, go_start
+from dialogs.buttons import switch_to_catalogue, switch_to_account, go_start
 
 
 """Want dialog - for selling"""

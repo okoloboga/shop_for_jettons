@@ -1,11 +1,12 @@
 import logging
 
 from aiogram import Router
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
+from fluentogram import TranslatorRunner
 
 from states import StartSG, AccountSG, CatalogueSG, WantSG
 from database import users, catalogue
@@ -20,6 +21,14 @@ logging.basicConfig(
            '[%(asctime)s] - %(name)s - %(message)s')
 
 """Default handlers"""
+
+# Keyboard of start screen
+def start_kb(i18n: TranslatorRunner):
+    button_shop = InlineKeyboardButton(text=i18n.button.shop(),
+                                       callback_data='shop')
+    button_game = InlineKeyboardButton(text=i18n.button.game(),
+                                       callback_data='game')
+    return InlineKeyboardMarkup(inline_keyboard=[[button_shop], [button_game]])
 
 
 # Process START command from another states

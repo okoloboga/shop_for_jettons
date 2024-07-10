@@ -28,5 +28,5 @@ async def start_getter(
     return {
         "button_add_row": i18n.button.add.row(),
         "button_catalogue": i18n.button.catalogue(),
-        "start": i18n.start()
+        "start": i18n.start.admin()
     }

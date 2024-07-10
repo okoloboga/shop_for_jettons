@@ -16,7 +16,8 @@ from dialogs import (admin_start_dialog, start_dialog, account_dialog, admin_cat
                      add_row_dialog, router_buttons, router_admin_start, router_add_row,
                      router_item, router_edit_row, router_confirm_order, router_start, 
                      router_account, router_unknown, router_admin_catalogue,
-                     router_catalogue, router_want)
+                     router_catalogue, router_want, router_game_menu, router_game_lobby,
+                     router_game_process)
 from utils import TranslatorHub, create_translator_hub
 from middlewares import TranslatorRunnerMiddleware
 from database import metadata
@@ -73,7 +74,8 @@ async def main():
                        router_account, router_want, router_unknown, 
                        router_admin_catalogue, router_admin_start, 
                        router_add_row, router_confirm_order, router_edit_row,
-                       router_item)
+                       router_item, router_game_menu, router_game_lobby,
+                       router_game_process)
     dp.update.middleware(TranslatorRunnerMiddleware())
     dp.workflow_data.update({'admins': await get_admins_list(engine)})
 

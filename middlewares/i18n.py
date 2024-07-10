@@ -8,6 +8,11 @@ from fluentogram import TranslatorHub
 
 logger = logging.getLogger(__name__)
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(filename)s:%(lineno)d #%(levelname)-8s '
+           '[%(asctime)s] - %(name)s - %(message)s')
+
 
 class TranslatorRunnerMiddleware(BaseMiddleware):
     async def __call__(
@@ -17,7 +22,7 @@ class TranslatorRunnerMiddleware(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
         user: User = data.get('event_from_user')
-
+        
         if user is None:
             return await handler(event, data)
 

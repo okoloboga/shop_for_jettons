@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.kbd import Select, Group, Button
 from states import CatalogueSG
 from .getter import catalogue_show
 from .handler import item_selection
-from ..buttons import go_start
+from dialogs.buttons import go_start
 
 '''Catalogue Dialog'''
 catalogue_dialog = Dialog(

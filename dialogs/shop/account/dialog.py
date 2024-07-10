@@ -4,7 +4,7 @@ from aiogram_dialog.widgets.kbd import Row, Button
 from aiogram_dialog.widgets.input.text import TextInput
 
 from .getter import account_getter
-from ..buttons import switch_to_catalogue, go_start
+from dialogs.buttons import switch_to_catalogue, go_start
 from .handler import *
 from states import AccountSG
 from services import is_admin

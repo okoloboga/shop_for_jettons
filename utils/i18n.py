@@ -13,14 +13,14 @@ def create_translator_hub() -> TranslatorHub:
                 locale="ru",
                 translator=FluentBundle.from_files(
                     locale="ru-RU",
-                    filenames=["locales/ru/LC_MESSAGES/txt.ftl"]
+                    filenames=["market_template/locales/ru/LC_MESSAGES/txt.ftl"]
                 )
         ),
             FluentTranslator(
                 locale="en",
                 translator=FluentBundle.from_files(
                     locale="en-US",
-                    filenames=["locales/en/LC_MESSAGES/txt.ftl"]
+                    filenames=["market_template/locales/en/LC_MESSAGES/txt.ftl"]
                 )
             )
         ]
