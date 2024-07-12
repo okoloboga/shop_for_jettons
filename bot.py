@@ -11,13 +11,8 @@ from sqlalchemy import text
 from fluentogram import TranslatorHub
 
 from config import get_config, BotConfig, DbConfig, Config, load_config
-from dialogs import (admin_start_dialog, start_dialog, account_dialog, admin_catalogue_dialog, 
-                     catalogue_dialog, want_dialog, edit_dialog, item_dialog, confirm_order_dialog, 
-                     add_row_dialog, router_buttons, router_admin_start, router_add_row,
-                     router_item, router_edit_row, router_confirm_order, router_start, 
-                     router_account, router_unknown, router_admin_catalogue,
-                     router_catalogue, router_want, router_game_menu, router_game_lobby,
-                     router_game_process)
+from dialogs import (shop_dialogs, shop_routers, game_routers, admin_dialogs,
+                     admin_routers)
 from utils import TranslatorHub, create_translator_hub
 from middlewares import TranslatorRunnerMiddleware
 from database import metadata
@@ -64,18 +59,12 @@ async def main():
     translator_hub: TranslatorHub = create_translator_hub()
 
     # Routers, dialogs, middlewares
-    dp.include_routers(start_dialog, account_dialog, catalogue_dialog,
-                       want_dialog, admin_catalogue_dialog, admin_start_dialog,
-                       add_row_dialog, confirm_order_dialog, edit_dialog, 
-                       item_dialog
-                       )
-
-    dp.include_routers(router_catalogue, router_buttons, router_start,
-                       router_account, router_want, router_unknown, 
-                       router_admin_catalogue, router_admin_start, 
-                       router_add_row, router_confirm_order, router_edit_row,
-                       router_item, router_game_menu, router_game_lobby,
-                       router_game_process)
+    dp.include_routers(*shop_dialogs)
+    dp.include_routers(*shop_routers)
+    dp.include_routers(*game_routers)
+    dp.include_routers(*admin_dialogs)
+    dp.include_routers(*admin_routers)
+    
     dp.update.middleware(TranslatorRunnerMiddleware())
     dp.workflow_data.update({'admins': await get_admins_list(engine)})
 

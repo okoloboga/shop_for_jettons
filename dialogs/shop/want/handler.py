@@ -58,10 +58,10 @@ async def fill_count(
         logger.info(f'Not enough items in catalogue! Asked {count}, total {current_count}')
         await callback.answer(text=i18n.too.large.count())
         
-    elif total_order_sum > floor(jettons):
-        logger.info(f'Not enough jettons! Need {total_order_sum}, user have {floor(jettons)}')
+    elif total_order_sum > floor(users_jettons):
+        logger.info(f'Not enough jettons! Need {total_order_sum}, user have {floor(users_jettons)}')
         await callback.answer(text=i18n.notenough.jettons(total_order_sum=total_order_sum,
-                                                          jettons=jettons
+                                                          jettons=users_jettons
         ))
         
 

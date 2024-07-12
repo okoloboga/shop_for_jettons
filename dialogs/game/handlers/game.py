@@ -25,8 +25,14 @@ logging.basicConfig(
 
 
 # Room owner confirmed game
-@router_game_process.callback_query(F.data == 'game_confirm', StateFilter(FSMMain.wait_game))
-async def process_game_confirm_button(callback: CallbackQuery, state: FSMContext, bot: Bot, i18n: TranslatorRunner):
+@router_game_process.callback_query(F.data == 'game_confirm', 
+                                    StateFilter(FSMMain.wait_game)
+                                    )
+async def process_game_confirm_button(callback: CallbackQuery, 
+                                      state: FSMContext, 
+                                      bot: Bot, 
+                                      i18n: TranslatorRunner
+                                      ):
 
     await asyncio.sleep(2)
     r = aioredis.Redis(host='localhost', port=6379)
@@ -51,8 +57,14 @@ async def process_game_confirm_button(callback: CallbackQuery, state: FSMContext
 """MAIN GAME PROCESS IN ONE HANDLER"""
 
 
-@router_game_process.callback_query(F.data.in_(['rock', 'paper', 'scissors']), StateFilter(FSMMain.in_game))
-async def process_game_button(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner):
+@router_game_process.callback_query(F.data.in_(['rock', 'paper', 'scissors']), 
+                                    StateFilter(FSMMain.in_game)
+                                    )
+async def process_game_button(callback: CallbackQuery, 
+                              bot: Bot, 
+                              state: FSMContext, 
+                              i18n: TranslatorRunner
+                              ):
 
     r = aioredis.Redis(host='localhost', port=6379)
 
@@ -216,8 +228,14 @@ async def process_game_button(callback: CallbackQuery, bot: Bot, state: FSMConte
 
 
 # Canceling game before by Player
-@router_game_process.callback_query(F.data == 'end_game', StateFilter(FSMMain.in_game))
-async def process_end_game_button(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner):
+@router_game_process.callback_query(F.data == 'end_game', 
+                                    StateFilter(FSMMain.in_game)
+                                    )
+async def process_end_game_button(callback: CallbackQuery, 
+                                  bot: Bot, 
+                                  state: FSMContext, 
+                                  i18n: TranslatorRunner
+                                  ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Vars initialization
@@ -248,8 +266,14 @@ async def process_end_game_button(callback: CallbackQuery, bot: Bot, state: FSMC
     await r.delete('g_' + str(room_id))
 
 
-@router_game_process.message(CommandStart(), StateFilter(FSMMain.in_game))
-async def process_end_game_button(message: Message, bot: Bot, state: FSMContext, i18n: TranslatorRunner):
+@router_game_process.message(CommandStart(), 
+                             StateFilter(FSMMain.in_game)
+                             )
+async def process_end_game_button(message: Message, 
+                                  bot: Bot, 
+                                  state: FSMContext, 
+                                  i18n: TranslatorRunner
+                                  ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Vars initialization

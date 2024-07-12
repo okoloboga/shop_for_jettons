@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import users
-from services import get_admins_list
+from services import get_admins_list, get_user_account_data, jetton_value
 
 logger = logging.getLogger(__name__)
 
@@ -39,35 +39,28 @@ async def account_getter(
         logger.info(f'User dict from DialogManager is {user_dict}')
     user_id = user_dict['user_id']
 
-    # Read users data from database
-    statement = (
-        select("*")
-        .select_from(users)
-        .where(users.c.telegram_id == user_id)
-    )
-    async with db_engine.connect() as conn:
-        user_data_raw = await conn.execute(statement)
-        for row in user_data_raw:
-            user_data = list(row)
-        logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
-
+    # Getting user info for display in Account dialog
+    user_data = await get_user_account_data(user_id,
+                                            db_engine)
     # Getting list of admins
     dialog_manager.current_context().dialog_data['admins'] = await get_admins_list(db_engine)
     
-    purchase = user_data[5]
-    purchase_sum = user_data[6]
-    address = user_data[3]
-    referrals = user_data[7]
+    # Referral link
     link = await create_start_link(bot, str(user_id), encode=True)
 
-    logger.info(f'User data\nPurchase: {purchase}\nPurchase sum: {purchase_sum}\nWallet address: {address}\nReferrals: {referrals}\nLink: {link}')
+    # Getting value of jettons
+    jettons = await jetton_value(user_data['address'])
+    
+    logger.info(f"User data\nPurchase: {user_data['purchase']}\nPurchase sum: {user_data['purchase_sum']}\n\
+                Wallet address: {user_data['address']}\nReferrals: {user_data['referrals']}\nLink: {link}")
 
     return {"button_back": i18n.button.back(),
             "button_referral": i18n.button.referral(),
             "button_catalogue": i18n.button.catalogue(),
             "account_data": i18n.account.data(user_id=user_id,
-                                              purchase=purchase,
-                                              purchase_sum=purchase_sum,
-                                              address=address,
+                                              purchase=user_data['purchase'],
+                                              purchase_sum=user_data['purchase_sum'],
+                                              address=user_data['address'],
+                                              jettons=jettons,
                                               link=link,
-                                              referrals=referrals)}
+                                              referrals=user_data['referrals'])}

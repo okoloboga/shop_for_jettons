@@ -6,6 +6,7 @@ from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.input.text import ManagedTextInput
 
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
+from fluentogram import TranslatorRunner
 
 from states import CatalogueSG, StartSG, Admin_StartSG
 
@@ -34,6 +35,7 @@ async def check_admin(callback: CallbackQuery,
     if user_id in admins:
         await dialog_manager.start(Admin_StartSG.main)        
     else:
+        i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
         await callback.answer(text=i18n.unknown.message())
 
         
@@ -42,9 +44,11 @@ async def check_admin(callback: CallbackQuery,
 async def wrong_input(callback: CallbackQuery,
                       widget: ManagedTextInput,
                       dialog_manager: DialogManager,
+                      text: str
                       ):
     user_id = callback.from_user.id
     logger.info(f'User {user_id} entered wrong command')
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     await callback.answer(text=i18n.unknown.message())
     
     

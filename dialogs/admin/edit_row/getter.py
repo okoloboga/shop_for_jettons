@@ -6,8 +6,8 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database.tables import users
-from services import get_admin_item_metadata, delete_item, change_item
-
+from services import (get_admin_item_metadata, delete_item, 
+                      change_item, get_user_data)
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,8 @@ async def edit_delete_getter(
         logger.info(f'User dict from DialogManager is {user_dict}')
 
     user_id = user_dict['user_id']
-    item_id = user_dict['item_id']
+    page = await get_user_data(user_id, db_engine)
+    item_id = page['page']
 
     logger.info(f'User {user_id} select item №{item_id} from catalogue')
 
@@ -51,7 +52,7 @@ async def edit_delete_getter(
     item = await get_admin_item_metadata(int(item_id), db_engine)
 
     return {"button_back": i18n.button.back(),
-            "button_delete": i18n.button.next(),
+            "button_delete": i18n.button.delete(),
             "button_edit": i18n.button.edit(),
             "button_confirm": i18n.button.confirm(),
             "delete_confirm": i18n.delete.confirm(
@@ -72,7 +73,7 @@ async def edit_delete_getter(
                 self_price=item['self_price'],
                 count=item['count']
             ),
-            "edit_menu": i18n.edit_menu(
+            "edit_menu": i18n.edit.menu(
                 category=item['category'],
                 name=item['name'],
                 description=item['description'],

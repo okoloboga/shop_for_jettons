@@ -31,11 +31,11 @@ async def command_start_process(
         message: Message,
         db_engine: AsyncEngine,
         dialog_manager: DialogManager,
-) -> None:
+):
 
     logger.info(f'Process START command from default state by user {message.from_user.id}')
 
-    await dialog_manager.start(state=Admins_StartSG.main,
+    await dialog_manager.start(state=Admin_StartSG.main,
                                data={'user_id': message.from_user.id}
                                )
 
@@ -45,7 +45,7 @@ async def go_start(
         callback: CallbackQuery,
         db_engine: AsyncEngine,
         dialog_manager: DialogManager
-) -> None:
+):
     logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
     await dialog_manager.start(state=Admin_StartSG.main,
                                mode=StartMode.RESET_STACK,

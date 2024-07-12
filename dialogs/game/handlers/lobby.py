@@ -21,8 +21,13 @@ router_game_lobby = Router()
 
 
 # CREATE button pressing
-@router_game_lobby.callback_query(F.data == 'create', StateFilter(default_state))
-async def process_create_button(callback: CallbackQuery, state: FSMContext, i18n: TranslatorRunner):
+@router_game_lobby.callback_query(F.data == 'create', 
+                                  StateFilter(default_state)
+                                  )
+async def process_create_button(callback: CallbackQuery, 
+                                state: FSMContext, 
+                                i18n: TranslatorRunner
+                                ):
     r = aioredis.Redis(host='localhost', port=6379)
     user = await r.hgetall(str(callback.from_user.id))
 
@@ -43,8 +48,13 @@ async def process_create_button(callback: CallbackQuery, state: FSMContext, i18n
 
 
 # BET selected by pressing button
-@router_game_lobby.callback_query(F.data.in_(['b1', 'b2', 'b3', 'b4', 'b5', 'b25']), StateFilter(FSMMain.make_bet))
-async def process_yes_answer(callback: CallbackQuery, state: FSMContext, i18n: TranslatorRunner):
+@router_game_lobby.callback_query(F.data.in_(['b1', 'b2', 'b3', 'b4', 'b5', 'b25']), 
+                                  StateFilter(FSMMain.make_bet)
+                                  )
+async def process_yes_answer(callback: CallbackQuery, 
+                             state: FSMContext, 
+                             i18n: TranslatorRunner
+                             ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Parsing for value of bet
@@ -74,8 +84,13 @@ async def process_yes_answer(callback: CallbackQuery, state: FSMContext, i18n: T
 
 
 # WAIT button pressing
-@router_game_lobby.callback_query(F.data == 'wait', StateFilter(FSMMain.wait_game))
-async def process_wait_button(callback: CallbackQuery, state: FSMContext, i18n: TranslatorRunner):
+@router_game_lobby.callback_query(F.data == 'wait', 
+                                  StateFilter(FSMMain.wait_game)
+                                  )
+async def process_wait_button(callback: CallbackQuery, 
+                              state: FSMContext, 
+                              i18n: TranslatorRunner
+                              ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Checking for update of game start
@@ -95,8 +110,13 @@ async def process_wait_button(callback: CallbackQuery, state: FSMContext, i18n: 
 
 
 # JOIN button pressing
-@router_game_lobby.callback_query(F.data == 'join', StateFilter(default_state))
-async def process_yes_answer(callback: CallbackQuery, state: FSMContext, i18n: TranslatorRunner):
+@router_game_lobby.callback_query(F.data == 'join', 
+                                  StateFilter(default_state)
+                                  )
+async def process_yes_answer(callback: CallbackQuery, 
+                             state: FSMContext, 
+                             i18n: TranslatorRunner
+                             ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     user = await r.hgetall(str(callback.from_user.id))
@@ -130,8 +150,14 @@ async def process_yes_answer(callback: CallbackQuery, state: FSMContext, i18n: T
 
 
 # Checking update for Enemy base (enemy+space+bet_value)
-@router_game_lobby.callback_query(IsEnemy(), StateFilter(FSMMain.select_enemy))
-async def select_enemy_button(callback: CallbackQuery, bot: Bot, state: FSMContext, i18n: TranslatorRunner):
+@router_game_lobby.callback_query(IsEnemy(), 
+                                  StateFilter(FSMMain.select_enemy)
+                                  )
+async def select_enemy_button(callback: CallbackQuery, 
+                              bot: Bot, 
+                              state: FSMContext, 
+                              i18n: TranslatorRunner
+                              ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Vars initialization

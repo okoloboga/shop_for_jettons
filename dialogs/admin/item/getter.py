@@ -91,6 +91,8 @@ async def start_previous_getter(
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(new_page), db_engine)
 
+    logger.info(f'Item getted in Admin getter: {item}')
+
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
             "button_edit_row": i18n.button.edit.row(),
@@ -180,6 +182,8 @@ async def start_next_getter(
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(new_page), db_engine)
 
+    logger.info(f'Item getted in Admin getter: {item}')
+
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),
             "button_edit_row": i18n.button.edit.row(),
@@ -228,6 +232,8 @@ async def show_item_getter(
 
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(item_id), db_engine)
+    
+    logger.info(f'Item getted in Admin getter: {item}')
 
     return {"button_back": i18n.button.back(),
             "button_next": i18n.button.next(),

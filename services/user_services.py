@@ -90,10 +90,39 @@ async def new_user(
         logger.info(f'New user {user_id} data writed')
 
 
+# Get User data
+async def get_user_account_data(user_id: int,
+                                db_engine: AsyncEngine
+                                ) -> dict:
+    
+    # Read users data from database
+    statement = (
+        select("*")
+        .select_from(users)
+        .where(users.c.telegram_id == user_id)
+    )
+    async with db_engine.connect() as conn:
+        user_data_raw = await conn.execute(statement)
+        for row in user_data_raw:
+            user_data = list(row)
+        logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
+
+    user = {
+        'first_name': user_data[1],
+        'last_name': user_data[2],
+        'address': user_data[3],
+        'purchase': user_data[5],
+        'purchase_sum': user_data[6],
+        'referrals': user_data[7]
+    }
+    
+    return user
+
+
 # Get item from database
 async def get_user_item_metadata(user_dict: dict,
-                            db_engine: AsyncEngine
-                            ) -> dict:
+                                 db_engine: AsyncEngine
+                                 ) -> dict:
     logger.info(f'get_item_metadata({user_dict['user_id']})')
 
     page: int  # Current page of user from database
@@ -288,6 +317,7 @@ async def new_order(db_engine: AsyncEngine,
 
 # Check for #admin_panel command
 def is_admin(text: str) -> str:
+    logger.info(f'is_admin({text})')
     if text == '#admin_panel':
         return text
     raise ValueError

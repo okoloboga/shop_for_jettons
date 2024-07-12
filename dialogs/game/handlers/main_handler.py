@@ -95,7 +95,7 @@ async def process_play_button(callback: CallbackQuery,
         await callback.answer()
 
 
-# ACCOUNT button pressing
+# STATS button pressing
 @router_game_menu.callback_query(F.data == 'stats', 
                                  StateFilter(default_state)
                                  )

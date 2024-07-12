@@ -240,6 +240,7 @@ async def delete_item(
 
 # Validate changes entered by Admin
 def check_changes(changes: str) -> dict:
+    logger.info(f'Checking for changes {changes}')
     changes_types = {
                      'category': str,
                      'name': str,
@@ -249,7 +250,6 @@ def check_changes(changes: str) -> dict:
                      'self_price': int,
                      'count': int
     }
-
     if changes[0] == '#':
 
         # drop #
@@ -257,10 +257,15 @@ def check_changes(changes: str) -> dict:
 
         # is correct type of change
         if changes_raw[0] in changes_types:
+            
+            logger.info(f'changes_raw[0]: {changes_raw[0]}')
 
             # unite changes description, like {'description': 'very taste banana'}
             changes_united = {changes_raw[0]: ' '.join(changes_raw[1:])}
-
+    
+            logger.info(f'changes_united: {changes_united}')
+            logger.info(f'changes_types[changes_united[0]]: {changes_types[changes_united[0]]}')
+            
             # check for data type of changes
             if changes_types[changes_united[0]] is type(changes_united[1]):
                 if (((changes_united[0] == 'image')
