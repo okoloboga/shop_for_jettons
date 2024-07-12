@@ -1,6 +1,5 @@
 from aiogram.filters import BaseFilter
-from aiogram.types import Message, CallbackQuery
-from isHex import isHex
+from aiogram.types import CallbackQuery
 
 
 # Checking callback from user for [id+space+bet]

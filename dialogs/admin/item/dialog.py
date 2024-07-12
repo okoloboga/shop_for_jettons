@@ -1,11 +1,7 @@
-from aiogram.types import ContentType
-
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format
-from aiogram_dialog.widgets.media import StaticMedia
 from aiogram_dialog.widgets.kbd import Button, Row
 
-from states import ItemSG
 from .getter import *
 from .handler import *
 from ..start import switch_to_edit_row, switch_to_catalogue
@@ -15,7 +11,7 @@ from ..start import switch_to_edit_row, switch_to_catalogue
 item_dialog = Dialog(
     Window(
         Format('{item_show}'),
-        Button(Format('{button_edit_row}'), id='b_edit_row', on_click=switch_to_edit_row),
+        Button(Format('{button_delete_row}'), id='b_delete_row', on_click=switch_to_edit_row),
         Row(
             Button(Format('{button_back}'), id='b_back', on_click=previous_page),
             Button(Format('{button_next}'), id='b_next', on_click=next_page),
@@ -26,7 +22,7 @@ item_dialog = Dialog(
     ),
     Window(
         Format('{item_show}'),
-        Button(Format('{button_edit_row}'), id='b_edit_row', on_click=switch_to_edit_row),
+        Button(Format('{button_delete_row}'), id='b_delete_row', on_click=switch_to_edit_row),
         Row(
             Button(Format('{button_back}'), id='b_back', on_click=previous_page),
             Button(Format('{button_next}'), id='b_next', on_click=next_page),
@@ -37,7 +33,7 @@ item_dialog = Dialog(
     ),
     Window(
         Format('{item_show}'),
-        Button(Format('{button_edit_row}'), id='b_edit_row', on_click=switch_to_edit_row),
+        Button(Format('{button_delete_row}'), id='b_delete_row', on_click=switch_to_edit_row),
         Row(
             Button(Format('{button_back}'), id='b_back', on_click=previous_page),
             Button(Format('{button_next}'), id='b_next', on_click=next_page),

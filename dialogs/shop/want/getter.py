@@ -4,12 +4,10 @@ from aiogram_dialog import DialogManager
 from aiogram.types import User
 from fluentogram import TranslatorRunner
 
-from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_user_item_metadata, get_user_account_data,
-                      new_order, jetton_value)
-from database import users
+                      new_order, jetton_value, ton_value)
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +34,10 @@ async def item_info_getter(
                                                  db_engine)
     wallet = costumers_dict['address']    
     
-    # Write jettons value to dialog data
+    # Write jettons and TONvalue to dialog data
     dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
+    dialog_manager.current_context().dialog_data['ton'] = await ton_value(wallet)
+    dialog_manager.current_context().dialog_data['wallet'] = wallet
 
     # Getting data of item by Page in Users table
     item = await get_user_item_metadata(user_dict, db_engine)
@@ -154,23 +154,42 @@ async def complete_order_getter(
 ) -> dict[str, str]:
     user_dict = dialog_manager.start_data
     new_order_data = dialog_manager.current_context().dialog_data
+    
+    logger.info(f'New Order Data: {new_order_data}')
 
-    # Place new order and return index of order
-    index_and_data = await new_order(
-        db_engine,
-        i18n,
-        user_dict,
-        new_order_data
-    )
+    # Getting variables
+    current_count = int(dialog_manager.current_context().dialog_data['current_count'])
+    ton_value = dialog_manager.current_context().dialog_data['ton'] / 1000000000
+    wallet = dialog_manager.current_context().dialog_data['wallet']
 
-    return {
-        "order_complete": i18n.order.complete(
-            index=index_and_data[0],
-            date_and_time=index_and_data[1]
-        ),
-        "button_take_it": i18n.button.take.it(),
-        "button_catalogue": i18n.button.catalogue(),
-        "button_account": i18n.button.account(),
-        "button_back": i18n.button.back()
-    }
+    logger.info(f'TON Value of wallet {wallet} is {ton_value}')
+
+    if ton_value >= 0.1:
+        # Place new order and return index of order
+        index_and_data = await new_order(
+            db_engine,
+            i18n,
+            user_dict,
+            new_order_data,
+            current_count
+        )
+
+        return {
+            "result": i18n.order.complete(
+                index=index_and_data[0],
+                date_and_time=index_and_data[1]
+            ),
+            "button_catalogue": i18n.button.catalogue(),
+            "button_account": i18n.button.account(),
+            "button_back": i18n.button.back()
+        }
+    else:
+        return {
+            "result": i18n.notenough.ton(
+                wallet=wallet
+            ),
+            "button_catalogue": i18n.button.catalogue(),
+            "button_account": i18n.button.account(),
+            "button_back": i18n.button.back()
+        }
 

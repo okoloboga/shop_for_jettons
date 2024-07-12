@@ -1,7 +1,6 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.kbd import Button
-from aiogram_dialog.widgets.input.text import TextInput
 
 from services import check_price_count, check_url
 from .getter import *

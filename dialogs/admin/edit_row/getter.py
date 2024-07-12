@@ -26,11 +26,6 @@ async def edit_delete_getter(
         **kwargs
 ):
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-
     user_id = user_dict['user_id']
     page = await get_user_data(user_id, db_engine)
     item_id = page['page']
@@ -48,7 +43,7 @@ async def edit_delete_getter(
         await conn.commit()
         logger.info(f'Users {user_id} page is updated to {item_id}')
 
-    # Getting data of NFT item from new Users page
+    # Getting data of item from new Users page
     item = await get_admin_item_metadata(int(item_id), db_engine)
 
     return {"button_back": i18n.button.back(),
@@ -72,7 +67,34 @@ async def edit_delete_getter(
                 sell_price=item['sell_price'],
                 self_price=item['self_price'],
                 count=item['count']
-            ),
+            )
+            }
+
+
+# Chosing changes to fill
+async def select_type_getter(
+        dialog_manager: DialogManager,
+        db_engine: AsyncEngine,
+        i18n: TranslatorRunner,
+        event_from_user: User,
+        **kwargs
+):
+    # Getting page of user
+    user_dict = dialog_manager.start_data
+    user_id = user_dict['user_id']
+    user_data = await get_user_data(user_id, db_engine)
+    
+    # Getting data of item from Users page
+    item = await get_admin_item_metadata(int(user_data['page']), db_engine)
+        
+    return {"button_back": i18n.button.back(),
+            "button_category": i18n.button.category(),
+            "button_name": i18n.button.name(),
+            "button_description": i18n.button.description(),
+            "button_image": i18n.button.image(),
+            "button_sellprice": i18n.button.sellprice(),
+            "button_selfprice": i18n.button.selfprice(),
+            "button_count": i18n.button.count(),
             "edit_menu": i18n.edit.menu(
                 category=item['category'],
                 name=item['name'],
@@ -85,6 +107,19 @@ async def edit_delete_getter(
             }
 
 
+# Filling changes of selected type
+async def fill_changes_getter(
+        dialog_manager: DialogManager,
+        db_engine: AsyncEngine,
+        i18n: TranslatorRunner,
+        event_from_user: User,
+        **kwargs
+):
+    return {"button_back": i18n.button.back(),
+            "enter_new_data": i18n.fill.newdata()
+            }
+
+
 # Deleting confirmed
 async def delete_confirmed_getter(
         dialog_manager: DialogManager,
@@ -94,10 +129,6 @@ async def delete_confirmed_getter(
         **kwargs
 ):
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
     user_id = user_dict['user_id']
 
     logger.info(f'User {user_id} confirmed item deleting')
@@ -122,19 +153,17 @@ async def changes_confirmed_getter(
         **kwargs
 ):
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
     user_id = user_dict['user_id']
     new_data = dialog_manager.current_context().dialog_data['new_data']
+    type = dialog_manager.current_context().dialog_data['change']
 
     logger.info(f'User {user_id} confirmed item changes')
 
     await change_item(
         db_engine,
         user_id,
-        new_data
+        new_data,
+        type
     )
 
     return {

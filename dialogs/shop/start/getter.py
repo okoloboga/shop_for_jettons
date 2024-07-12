@@ -32,24 +32,36 @@ async def start_getter(
     user_dict = dialog_manager.start_data
 
     item = await get_user_item_metadata(user_dict, db_engine)
-    name = item['name']
-    image = item['image']
-    sell_price = item['sell_price']
+    
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_want": i18n.button.want(),
-            "button_account": i18n.button.account(),
-            "button_catalogue": i18n.button.catalogue(),
-            "button_game": i18n.button.game(),
-            "item_show": i18n.item.show(
-                name=name,
-                sell_price=sell_price
-            ),
-            "image": image
-            }
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }
 
 
 # Processing switch to previous page
@@ -119,25 +131,36 @@ async def start_previous_getter(
 
     # Getting data of item from new Users page
     item = await get_user_item_metadata(user_dict, db_engine)
-    name = item['name']
-    image = item['image']
-    sell_price = item['sell_price']
+    
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {
-        "button_back": i18n.button.back(),
-        "button_next": i18n.button.next(),
-        "button_want": i18n.button.want(),
-        "button_account": i18n.button.account(),
-        "button_catalogue": i18n.button.catalogue(),
-        "button_game": i18n.button.game(),
-        "item_show": i18n.item.show(
-            name=name,
-            sell_price=sell_price
-        ),
-        "image": image
-    }
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }
 
 
 # Processing switch ot next page
@@ -207,25 +230,35 @@ async def start_next_getter(
 
     # Getting data of item from new Users page
     item = await get_user_item_metadata(user_dict, db_engine)
-    name = item['name']
-    image = item['image']
-    sell_price = item['sell_price']
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {
-        "button_back": i18n.button.back(),
-        "button_next": i18n.button.next(),
-        "button_want": i18n.button.want(),
-        "button_account": i18n.button.account(),
-        "button_catalogue": i18n.button.catalogue(),
-        "button_game": i18n.button.game(),
-        "item_show": i18n.item.show(
-            name=name,
-            sell_price=sell_price
-        ),
-        "image": image
-    }
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }
 
 
 # Show selected item from catalogue
@@ -245,22 +278,32 @@ async def show_item_getter(
 
     # Getting data of item from ITEM_ID
     item = await get_user_item_metadata(user_dict, db_engine)
-    name = item['name']
-    image = item['image']
-    sell_price = item['sell_price']
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {
-        "button_back": i18n.button.back(),
-        "button_next": i18n.button.next(),
-        "button_want": i18n.button.want(),
-        "button_account": i18n.button.account(),
-        "button_catalogue": i18n.button.catalogue(),
-        "button_game": i18n.button.game(),
-        "item_show": i18n.item.show(
-            name=name,
-            sell_price=sell_price
-        ),
-        "image": image
-    }
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_want": i18n.button.want(),
+                "button_account": i18n.button.account(),
+                "button_catalogue": i18n.button.catalogue(),
+                "button_game": i18n.button.game(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }

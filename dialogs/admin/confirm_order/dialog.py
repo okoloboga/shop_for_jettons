@@ -1,11 +1,6 @@
-from aiogram.types import ContentType
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format, List
-from aiogram_dialog.widgets.media import StaticMedia
-from aiogram_dialog.widgets.input.text import TextInput
-from aiogram_dialog.widgets.kbd import Button, Row
-
-from states import ConfirmOrderSG
+from aiogram_dialog.widgets.kbd import Button
 
 from .getter import *
 from .handler import *

@@ -5,8 +5,7 @@ from aiogram.types import User
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from database.tables import users, orders
-from services import (delete_item, change_item, get_order_data, get_orders_list)
+from services import get_order_data, get_orders_list
 
 
 logger = logging.getLogger(__name__)

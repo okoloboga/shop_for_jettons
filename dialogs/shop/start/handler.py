@@ -4,15 +4,14 @@ from aiogram import Router
 from aiogram.utils.deep_linking import decode_payload
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from states import StartSG, CatalogueSG
+from states import StartSG
 from services import new_user
 from database import users
-from states import AccountSG, WantSG
 
 
 router_start = Router()

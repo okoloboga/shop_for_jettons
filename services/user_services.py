@@ -1,11 +1,12 @@
 import logging
+import asyncio
 
 from datetime import datetime
 from aiogram import Bot
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 
-from sqlalchemy import insert, select, column
+from sqlalchemy import insert, select, column, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
@@ -128,6 +129,7 @@ async def get_user_item_metadata(user_dict: dict,
     page: int  # Current page of user from database
     result: list  # Main data of item
     user_id = user_dict['user_id']
+    catalogue_len: int  # Number of items in catalogue
 
     # Get current page
     user_page = (
@@ -141,34 +143,49 @@ async def get_user_item_metadata(user_dict: dict,
         for row in page_raw:
             page = int(row[0])
             logger.info(f'Statement PAGE: {row[0]} executed of user {user_id}')
-
-    # Getting item by index
-    statement = (
-        select("*")
+            
+    # Get number of items in catalogue
+    count = (
+        select(func.count())
         .select_from(catalogue)
-        .where(catalogue.c.index == page)
     )
 
     async with db_engine.connect() as conn:
-        result_raw = await conn.execute(statement)
-        for row in result_raw:
-            result = list(row)  # row is a tuple!
-            logger.info(f'Item with index {page} is executed: {result}')
+        count_raw = await conn.execute(count)
+        for row in count_raw:
+            catalogue_len = row[0]
+            logger.info(f'{catalogue_len} items total in Catalogue')
+            
+    if catalogue_len != 0:
 
-    # To Dict
-    item = {
-        "index": result[0],
-        "category": result[1],
-        "name": result[2],
-        "description": result[3],
-        "image": result[4],
-        "self_price": result[5],
-        "sell_price": result[6],
-        "count": result[7]
-    }
+        # Getting item by index
+        statement = (
+            select("*")
+            .select_from(catalogue)
+            .where(catalogue.c.index == page)
+        )
 
-    return item
-
+        async with db_engine.connect() as conn:
+            result_raw = await conn.execute(statement)
+            for row in result_raw:
+                result = list(row)  # row is a tuple!
+                logger.info(f'Item with index {page} is executed: {result}')
+                
+            # To Dict
+            item = {
+                "index": result[0],
+                "category": result[1],
+                "name": result[2],
+                "description": result[3],
+                "image": result[4],
+                "self_price": result[5],
+                "sell_price": result[6],
+                "count": result[7]
+            }
+            return item
+    else:
+        return None
+    
 
 # Getting users with non-user status
 async def get_admins_list(db_engine: AsyncEngine) -> list:
@@ -194,11 +211,13 @@ async def get_admins_list(db_engine: AsyncEngine) -> list:
 async def new_order(db_engine: AsyncEngine,
                     i18n: TranslatorRunner,
                     user_dict: dict,
-                    new_order_data: dict
+                    new_order_data: dict,
+                    current_count: int
                     ) -> list:
     logger.info(f'Placing new order by user {user_dict['user_id']}')
 
     order_counter: int  # Index of last order
+
     manager_id: int  # ID of manager for notification sending
     costumers_mnemonics: str  # Mnemonics of TON wallet for transaction
     
@@ -252,8 +271,10 @@ async def new_order(db_engine: AsyncEngine,
     
     # Update count of Items in catralogue
     update_catalogue_counter = (catalogue.update()
-                                .values(count=int(catalogue.c.count - new_order_data['count']))
-    )
+                                .values(count=(current_count - int(new_order_data['count'])))
+                                .where(catalogue.c.index == new_order_data['order_metadata']['index'])
+                                )
+    
     
     # Commit to database order counter updating
     async with db_engine.connect() as conn:
@@ -289,6 +310,7 @@ async def new_order(db_engine: AsyncEngine,
     await jetton_transfer(value=int(new_order_data['order_metadata']['sell_price']) *
                                 int(new_order_data['count']),
                           costumer_mnemonics=costumers_mnemonics)
+    
 
     # Init Bot for sending notification to manager
     bot_config = get_config(BotConfig, "bot")

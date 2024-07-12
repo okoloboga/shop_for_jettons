@@ -1,15 +1,8 @@
 import asyncio
-import pprint
-import json
 import logging
 
-from sqlalchemy import insert, delete, select, column
-from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from environs import Env
 from TonTools import *
-
-from database import catalogue
 
 logger = logging.getLogger(__name__)
 
@@ -65,18 +58,12 @@ async def wallet_deploy() -> list:
 
     logger.info(f'State of new wallet: {await new_wallet.get_state()}')  # active
     
-    logger.info(f'New wallet is deployed {new_wallet.address}')    
-    
-    await new_wallet.transfer_ton(destination_address=config[5],
-                                  amount=0.01,
-                                  message='init cashback')
-    
-    logger.info(f'Cashback for init sended')
+    logger.info(f'New wallet is deployed {new_wallet.address}')
     
     await central_wallet.transfer_jetton(
         destination_address=new_wallet.address, 
         jetton_master_address=config[4],
-        jettons_amount=15
+        jettons_amount=15,
     )
     logger.info('Jettons transfered to new wallet')
 
@@ -101,7 +88,7 @@ async def jetton_value(wallet: str) -> int:
 
     jetton_wallet_data = jetton_wallet
     logger.info(f'jetton_wallet_data after update: {jetton_wallet_data}')
-
+    
     return int(int(jetton_wallet_data.balance) / 1000000000)
 
 
@@ -116,11 +103,32 @@ async def jetton_transfer(value: int,
     client = TonCenterClient(key=config[1], testnet=False)
     logger.info('TonCenterClient started')
     
+    central_wallet = Wallet(provider=client, mnemonics=config[3].split(), version='v4r2')
+    logger.info('Central wallet activated')
     costumers_wallet = Wallet(provider=client, mnemonics=costumer_mnemonics.split(), version='v4r2')
-    logger.info('Costumers wallet activated')
-    
+    logger.info(f'Costumers wallet activated {costumers_wallet.address}')
+
     await costumers_wallet.transfer_jetton(
-        destination_address=config[5],
+        destination_address=central_wallet.address,
         jetton_master_address=config[4],
-        jettons_amount=value
+        jettons_amount=int(value)
     )
+
+    logger.info(f'Jettons transferes from {costumers_wallet.address} to {config[5]}')
+
+
+# Checking for TON value
+async def ton_value(wallet: str) -> int:
+
+    logger.info(f'TON value of wallet {wallet}')
+
+    # Connecting to TonCenterClient TESTNET
+    config = _load_config()
+    client = TonCenterClient(key=config[1], testnet=False)
+    logger.info('TonCenterClient started')
+
+    wallet = Wallet(provider=client, address=wallet, version='v4r2')
+    balance = await wallet.get_balance()
+
+    return balance
+

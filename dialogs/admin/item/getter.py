@@ -90,23 +90,32 @@ async def start_previous_getter(
 
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(new_page), db_engine)
+    
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    logger.info(f'Item getted in Admin getter: {item}')
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_edit_row": i18n.button.edit.row(),
-            "button_catalogue": i18n.button.catalogue(),
-            "item_show": i18n.admin.item.show(
-                category=item['category'],
-                name=item['name'],
-                description=item['description'],
-                image=item['image'],
-                sell_price=item['sell_price'],
-                self_price=item['self_price'],
-                count=item['count']
-            )
-            }
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }    
 
 
 # Processing switch ot next page
@@ -182,22 +191,31 @@ async def start_next_getter(
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(new_page), db_engine)
 
-    logger.info(f'Item getted in Admin getter: {item}')
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_edit_row": i18n.button.edit.row(),
-            "button_catalogue": i18n.button.catalogue(),
-            "item_show": i18n.admin.item.show(
-                category=item['category'],
-                name=item['name'],
-                description=item['description'],
-                image=item['image'],
-                sell_price=item['sell_price'],
-                self_price=item['self_price'],
-                count=item['count']
-            )
-            }
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }    
 
 
 # Show selected item from catalogue
@@ -233,19 +251,28 @@ async def show_item_getter(
     # Getting data of NFT item from new Users page
     item = await get_admin_item_metadata(int(item_id), db_engine)
     
-    logger.info(f'Item getted in Admin getter: {item}')
+    if item != None:
+        name = item['name']
+        image = item['image']
+        sell_price = item['sell_price']
 
-    return {"button_back": i18n.button.back(),
-            "button_next": i18n.button.next(),
-            "button_edit_row": i18n.button.edit.row(),
-            "button_catalogue": i18n.button.catalogue(),
-            "item_show": i18n.admin.item.show(
-                category=item['category'],
-                name=item['name'],
-                description=item['description'],
-                image=item['image'],
-                sell_price=item['sell_price'],
-                self_price=item['self_price'],
-                count=item['count']
-            )
-            }
+        logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
+
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.item.show(
+                    name=name,
+                    sell_price=sell_price
+                ),
+                "image": image
+                }
+    else: 
+        return {"button_back": i18n.button.back(),
+                "button_next": i18n.button.next(),
+                "button_delete_row": i18n.button.delete.row(),
+                "button_catalogue": i18n.button.catalogue(),
+                "item_show": i18n.no.stack(),
+                "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
+                }    

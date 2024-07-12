@@ -7,7 +7,7 @@ from aiogram_dialog.widgets.kbd import Button, Row
 
 from .getter import *
 from .handler import *
-from dialogs.buttons import go_start, switch_to_account, switch_to_catalogue, switch_to_want
+from dialogs.buttons import switch_to_account, switch_to_catalogue, switch_to_want
 from dialogs.game import process_start_command
 
 '''Starting Menu with Items'''

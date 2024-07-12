@@ -5,7 +5,6 @@ from datetime import datetime
 from aiogram import Bot
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram_dialog import DialogManager
 
 from sqlalchemy import insert, delete, select, column, func
 from sqlalchemy.dialects.postgresql import insert
@@ -15,7 +14,6 @@ from fluentogram import TranslatorRunner
 
 from database import *
 from config import get_config, BotConfig
-from .ton_services import wallet_deploy
 
 logger = logging.getLogger(__name__)
 
@@ -282,7 +280,8 @@ def check_changes(changes: str) -> dict:
 async def change_item(
         db_engine: AsyncEngine,
         admin_id: int,
-        new_data: dict
+        new_data: str | int,
+        type: str
 ):
     logger.info(f'change_item({admin_id}, {new_data})')
     len_edited: int  # Number of items in Edited table
@@ -333,12 +332,14 @@ async def change_item(
         item_index=page,
         category=item['category'],
         name=item['name'],
-        commit=' '.join(new_data)
+        commit=(f'{type}: {new_data}')
     )
+    
+    update_dict = {f'{type}': f'{new_data}'}
 
     # Update data in Catalogue table
     update_catalogue = (catalogue.update()
-                        .values(**new_data)
+                        .values(**update_dict)
                         .where(catalogue.c.index == page)
                         )
 

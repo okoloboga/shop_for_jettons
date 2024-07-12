@@ -1,13 +1,7 @@
 import logging
 
-from aiogram_dialog import DialogManager
 from aiogram.types import User
 from fluentogram import TranslatorRunner
-
-from sqlalchemy import select, column
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
-
-from database import users
 
 logger = logging.getLogger(__name__)
 

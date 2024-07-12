@@ -6,10 +6,8 @@ from aiogram_dialog import DialogManager
 from aiogram.types import User
 from fluentogram import TranslatorRunner
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from database import users
 from services import get_admins_list, get_user_account_data, jetton_value
 
 logger = logging.getLogger(__name__)

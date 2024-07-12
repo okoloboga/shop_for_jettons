@@ -64,6 +64,7 @@ class EditRowSG(StatesGroup):
     edit_row = State()
     edit = State()
     delete = State()
+    new_data = State()
     delete_confirmed = State()
     changes_confirmed = State()
 

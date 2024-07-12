@@ -2,13 +2,12 @@ import logging
 
 from aiogram import Router
 from aiogram.types import CallbackQuery
-from aiogram_dialog import DialogManager, StartMode
+from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input.text import ManagedTextInput
 
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from fluentogram import TranslatorRunner
 
-from states import CatalogueSG, StartSG, Admin_StartSG
+from states import Admin_StartSG
 
 
 router_account = Router()

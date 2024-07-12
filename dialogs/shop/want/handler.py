@@ -2,16 +2,14 @@ import logging
 
 from math import floor
 from aiogram import Router
-from aiogram.utils.deep_linking import decode_payload
-from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import DialogManager, StartMode
+from aiogram.types import CallbackQuery
+from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input.text import TextInput, ManagedTextInput
 
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from states import WantSG, CatalogueSG, AccountSG, StartSG
+from states import WantSG
 
 
 router_want = Router()
@@ -63,8 +61,6 @@ async def fill_count(
         await callback.answer(text=i18n.notenough.jettons(total_order_sum=total_order_sum,
                                                           jettons=users_jettons
         ))
-        
-
     else:
         dialog_manager.current_context().dialog_data['count'] = count
         await dialog_manager.next()

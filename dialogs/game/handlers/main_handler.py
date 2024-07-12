@@ -1,7 +1,7 @@
 import logging
 
-from aiogram import F, Router, Bot
-from aiogram.filters import CommandStart, StateFilter
+from aiogram import F, Router
+from aiogram.filters import StateFilter
 from aiogram.fsm.state import default_state
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -17,7 +17,7 @@ from redis import asyncio as aioredis
 
 from ..keyboards import create_join_kb, play_account_kb, back_kb
 from database import new_user_template
-from states import FSMMain, StartSG
+from states import StartSG
 from config import get_config, BotConfig
 
 router_game_menu = Router()

@@ -62,8 +62,7 @@ want_dialog = Dialog(
         state=WantSG.confirm
     ),
     Window(
-        Format('{order_complete}'),
-        Button(Format('{button_take_it}'), id='b_take_it', on_click=take_it),
+        Format('{result}'),
         Row(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_account}'), id='account', on_click=switch_to_account),

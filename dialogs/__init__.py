@@ -3,7 +3,6 @@ from .unknown import *
 from .shop import *
 from .admin import *
 from .game import *
-from .base_start import *
 
 shop_dialogs = (start_dialog, account_dialog, catalogue_dialog, want_dialog)
 

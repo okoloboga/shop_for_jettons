@@ -30,7 +30,8 @@ def parse_config_file() -> dict:
 
 
 @lru_cache
-def get_config(model: Type[ConfigType], root_key: str) -> ConfigType:
+def get_config(model: Type[ConfigType],
+               root_key: str) -> ConfigType:
     config_dict = parse_config_file()
     if root_key not in config_dict:
         error = f"Key {root_key} not found"

@@ -1,9 +1,7 @@
 import logging
 
 from aiogram import Router
-from aiogram.utils.deep_linking import decode_payload
-from aiogram.filters import CommandStart, CommandObject
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager, StartMode
 
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
@@ -20,24 +18,6 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s'
 )
-
-
-'''Base Switchers'''
-
-
-# Process START command
-@router_admin_start.message(CommandStart())
-async def command_start_process(
-        message: Message,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager,
-):
-
-    logger.info(f'Process START command from default state by user {message.from_user.id}')
-
-    await dialog_manager.start(state=Admin_StartSG.main,
-                               data={'user_id': message.from_user.id}
-                               )
 
 
 # Process START command from another states

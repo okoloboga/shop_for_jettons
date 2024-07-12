@@ -20,7 +20,9 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
 
+
 """Default handlers"""
+
 
 # Keyboard of start screen
 def start_kb(i18n: TranslatorRunner):
@@ -28,15 +30,15 @@ def start_kb(i18n: TranslatorRunner):
                                        callback_data='shop')
     button_game = InlineKeyboardButton(text=i18n.button.game(),
                                        callback_data='game')
-    return InlineKeyboardMarkup(inline_keyboard=[[button_shop], [button_game]])
+    return InlineKeyboardMarkup(inline_keyboard=[[button_shop],
+                                                 [button_game]])
 
 
 # Process START command from another states
-async def go_start(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-) -> None:
+async def go_start(callback: CallbackQuery,
+                   button: Button,
+                   dialog_manager: DialogManager
+                   ):
     logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
     await dialog_manager.start(state=StartSG.start,
                                mode=StartMode.RESET_STACK,
@@ -45,11 +47,10 @@ async def go_start(
 
 
 # Switch to Account dialogue
-async def switch_to_account(
-        callback: CallbackQuery,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager
-):
+async def switch_to_account(callback: CallbackQuery,
+                            db_engine: AsyncEngine,
+                            dialog_manager: DialogManager
+                            ):
     logger.info(f'Switch to Account dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=AccountSG.account,
                                data={'user_id': callback.from_user.id}
@@ -57,21 +58,19 @@ async def switch_to_account(
 
 
 # Switch to Catalogue dialog
-async def switch_to_catalogue(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def switch_to_catalogue(callback: CallbackQuery,
+                              button: Button,
+                              dialog_manager: DialogManager
+                              ):
     logger.info(f'Switch to Catalogue dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=CatalogueSG.catalogue)
 
 
 # Switch to Want dialogue
-async def switch_to_want(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def switch_to_want(callback: CallbackQuery,
+                         button: Button,
+                         dialog_manager: DialogManager
+                         ):
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=WantSG.want,
                                data={'user_id': callback.from_user.id,
