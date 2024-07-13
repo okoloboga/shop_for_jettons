@@ -31,6 +31,19 @@ async def go_start(
                                mode=StartMode.RESET_STACK,
                                data={'user_id': callback.from_user.id}
                                )
+    
+
+# Process START command from from main Admin menu
+async def go_start_total(
+        callback: CallbackQuery,
+        db_engine: AsyncEngine,
+        dialog_manager: DialogManager
+):
+    logger.info(f'Process START command from non-default state by user {callback.from_user.id}')
+    await dialog_manager.start(state=StartSG.start,
+                               mode=StartMode.RESET_STACK,
+                               data={'user_id': callback.from_user.id}
+                               )
 
 
 # Switch to Catalogue dialog

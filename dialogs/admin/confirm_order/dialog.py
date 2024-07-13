@@ -1,5 +1,6 @@
 from aiogram_dialog import Dialog, Window
 from aiogram_dialog.widgets.text import Format, List
+from aiogram_dialog.widgets.input.text import TextInput
 from aiogram_dialog.widgets.kbd import Button
 
 from .getter import *

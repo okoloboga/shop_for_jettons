@@ -155,7 +155,7 @@ async def changes_confirmed_getter(
     user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']
     new_data = dialog_manager.current_context().dialog_data['new_data']
-    type = dialog_manager.current_context().dialog_data['change']
+    feature = dialog_manager.current_context().dialog_data['change']
 
     logger.info(f'User {user_id} confirmed item changes')
 
@@ -163,7 +163,7 @@ async def changes_confirmed_getter(
         db_engine,
         user_id,
         new_data,
-        type
+        feature
     )
 
     return {

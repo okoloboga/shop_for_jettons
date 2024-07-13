@@ -254,6 +254,7 @@ async def new_order(db_engine: AsyncEngine,
                 int(new_order_data['count'])),
         pure_income=(int(new_order_data['order_metadata']['self_price']) *
                      int(new_order_data['count'])),
+        status='new'
     )
 
     # If user already exists in database

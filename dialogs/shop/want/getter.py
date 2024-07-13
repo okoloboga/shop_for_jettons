@@ -164,7 +164,7 @@ async def complete_order_getter(
 
     logger.info(f'TON Value of wallet {wallet} is {ton_value}')
 
-    if ton_value >= 0.1:
+    if ton_value >= 0.09:
         # Place new order and return index of order
         index_and_data = await new_order(
             db_engine,

@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input.text import ManagedTextInput, TextInput
+from aiogram_dialog.widgets.kbd import Button
 
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from fluentogram import TranslatorRunner
@@ -25,7 +26,7 @@ logging.basicConfig(
 # Status New selected
 async def new_orders(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager,
 ):
     logger.info(f'User {callback.from_user.id} watching for NEW order')
@@ -37,7 +38,7 @@ async def new_orders(
 # Status Accepted selected
 async def accepted_orders(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager,
 ):
     logger.info(f'User {callback.from_user.id} watching for ACCEPTED orders')
@@ -49,7 +50,7 @@ async def accepted_orders(
 # Status Declined selected
 async def declined_orders(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager,
 ):
     logger.info(f'User {callback.from_user.id} watching for DECLINED orders')
@@ -60,18 +61,22 @@ async def declined_orders(
 
 # Selecting order from list with saved status
 async def select_order(
-    callback: CallbackQuery,
-    db_engine: AsyncEngine,
-    dialog_manager: DialogManager,
-    order: str
+        callback: CallbackQuery,
+        widget: ManagedTextInput, 
+        dialog_manager: DialogManager,
+        order: str
 ):  
     status = dialog_manager.current_context().dialog_data['status']
-    dialog_manager.current_context().dialog_manager['order'] = order
-    logger.info(f'User {callback.from_user.id} select #{order} of {status}')
+    dialog_manager.current_context().dialog_data['order'] = order
+    logger.info(f'User {callback.from_user.id} select {order} of {status}')
     
-    orders_indexes = dialog_manager.current_context().dialog_data['dialogs_indexes']
-    
-    if order[1:] in orders_indexes:        
+    orders_indexes = dialog_manager.current_context().dialog_data['orders_indexes']
+    logger.info(f'Orders Indexes: {orders_indexes}')
+    logger.info(f'Order[1:] {order[1:]}')
+                
+    if int(order[1:]) in orders_indexes:    
+        logger.info(f'Order {order[1:]} in orders_indexes {orders_indexes}')
+            
         if status == 'new':
             await dialog_manager.switch_to(ConfirmOrderSG.new_order)
             
@@ -105,7 +110,7 @@ async def wrong_order(
 # Accepting order
 async def accept_order(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):  
     order = dialog_manager.current_context().dialog_data['order']
@@ -122,7 +127,7 @@ async def accept_order(
 # Declining order
 async def decline_order(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):  
     order = dialog_manager.current_context().dialog_data['order']
@@ -139,20 +144,21 @@ async def decline_order(
 # Confirming order accept
 async def confirm_accept_order(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):
+    updated_status = "accepted"  # Status after confirming
     user_id = callback.from_user.id
     order = dialog_manager.current_context().dialog_data['order']
-    status = dialog_manager.current_context().dialog_data['status']
-    logger.info(f'User {callback.from_user.id} confirm orders #{order} accept')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     
-    accepted_order = change_order_status(i18n=i18n,
-                                         db_engine=db_engine,
-                                         user_id=user_id,
-                                         order=order,  
-                                         status=status     
+    logger.info(f'User {callback.from_user.id} confirm accept order {order}')
+    
+    accepted_order = await change_order_status(i18n=i18n,
+                                               db_engine=db_engine,
+                                               user_id=user_id,
+                                               order=order,  
+                                               updated_status=updated_status    
     )
     
     await callback.answer(text=i18n.accept.costumers.username(
@@ -204,12 +210,12 @@ async def wrong_reason(
 # Complete order that in process
 async def complete_order(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):
+    updated_status = "accepted"  # Status after confirming
     user_id = callback.from_user.id
     order = dialog_manager.current_context().dialog_data['order']
-    status = dialog_manager.current_context().dialog_data['status']
     logger.info(f'User {callback.from_user.id} confirm orders #{order} accept')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     

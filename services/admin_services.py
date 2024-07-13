@@ -23,7 +23,6 @@ logging.basicConfig(
            '[%(asctime)s] - %(name)s - %(message)s')
 
 
-
 # Get user from database
 async def get_user_data(user_id: int,
                         db_engine: AsyncEngine
@@ -281,7 +280,7 @@ async def change_item(
         db_engine: AsyncEngine,
         admin_id: int,
         new_data: str | int,
-        type: str
+        feature: str
 ):
     logger.info(f'change_item({admin_id}, {new_data})')
     len_edited: int  # Number of items in Edited table
@@ -335,7 +334,7 @@ async def change_item(
         commit=(f'{type}: {new_data}')
     )
     
-    update_dict = {f'{type}': f'{new_data}'}
+    update_dict = {f'{feature}': f'{new_data}'}
 
     # Update data in Catalogue table
     update_catalogue = (catalogue.update()
@@ -355,24 +354,39 @@ async def get_orders_list(
         db_engine: AsyncEngine,
         user_id: int,
         status: str
-) -> dict:
-    orders_list: list  # Empty tuple for orders
+) -> list:
+    orders_list = [] # Empty tuple for orders
+    len_orders: int  # Checking for empty table
 
     logger.info(f'User {user_id} in getting order list with status {status}')
 
-    # Getting list of orders
-    orders_list_statement = (select(column("index"), column("date_and_time"), 
-                             column("name"), column("count"))
-                             .select_from(orders)
-                             .where(orders.c.accepted == status)
-    )
+    len_orders_statement = (
+        select(func.count())
+        .select_from(orders)
+        )
+    
     async with db_engine.connect() as conn:
-        orders_raw = await conn.execute(orders_list_statement)
-        for row in orders_raw:
-            orders_list.append(list(row))
-            logger.info(f'Order with index {list(row)[0]} is executed {list(row)[1:]}')
+        raw_orders_len = await conn.execute(len_orders_statement)
+        for row in raw_orders_len:
+            len_orders = int(row[0])
+            logger.info(f'Orders table length is {len_orders}')
+    
+    if len_orders != 0:  
+        # Getting list of orders
+        orders_list_statement = (select(column("index"), column("date_and_time"), 
+                                column("name"), column("count"))
+                                .select_from(orders)
+                                .where(orders.c.status == status)
+        )
+        async with db_engine.connect() as conn:
+            orders_raw = await conn.execute(orders_list_statement)
+            for row in orders_raw:
+                logger.info(f'Order data {list(row)}')
+                orders_list.append(list(row))
 
-    return orders_list
+        return orders_list
+    else:
+        return None
 
 
 # Get order information
@@ -382,7 +396,7 @@ async def get_order_data(
 ) -> list:
     selected_order: list  # For putting order here 
     selected_order_statement = (
-        select(column("*"))
+        select("*")
         .select_from(orders)
         .where(orders.c.index == int(order))
     )
@@ -403,9 +417,9 @@ async def change_order_status(
         db_engine: AsyncEngine,
         user_id: int,
         order: int,
-        status: str
+        updated_status: str
 ):
-    logger.info(f'{status} order {order} by {user_id}')
+    logger.info(f'{updated_status} order {order} by {user_id}')
     costumer_id: int  # ID of costumer for sending notification
     coustumers_username: str  # @username of costumer for contact
     order_data: list  # Data of executed order
@@ -416,7 +430,7 @@ async def change_order_status(
                             .where(orders.c.index == order))
     
     update_status_statement = (catalogue.update()
-                               .values(status=status)
+                               .values(status=updated_status)
                                .where(orders.c.index == order)
                                )
     
@@ -437,7 +451,7 @@ async def change_order_status(
               default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     # Send notification to Customer
-    if status == 'accepted':
+    if updated_status == 'accepted':
         await bot.send_message(chat_id=costumer_id,
                             text=i18n.order.accepted.notification(
                                 date_and_time=order_data[4],
@@ -446,7 +460,7 @@ async def change_order_status(
                                 income=order_data[9]
                             ))
     
-    elif status =='completed':
+    elif updated_status =='completed':
         len_outcome: int  # Number of items in Outcome Table
         
         await bot.send_message(chat_id=costumer_id,
@@ -468,7 +482,7 @@ async def change_order_status(
             raw_outcome_len = await conn.execute(len_outcome_statement)
             for row in raw_outcome_len:
                 len_outcome = int(row[0])
-                logger.info(f'Outcome table length is {len_catalogue}')
+                logger.info(f'Outcome table length is {len_outcome}')
                 
         outcome_statement = insert(catalogue).value(
             index=len_outcome,
@@ -561,7 +575,8 @@ async def decline_order_process(
     
 # Parse selecting order for #number form
 def check_order(order: str) -> str:
-    if str[0] == '#' and str[1:].isdigit:
+    logger.info(f'check_order{order}')
+    if order[0] == '#' and order[1:].isdigit:
         return order
     raise ValueError  
 

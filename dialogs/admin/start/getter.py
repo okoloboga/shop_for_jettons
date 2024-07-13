@@ -20,6 +20,7 @@ async def start_getter(
     logger.info('START button processing - start_getter')
 
     return {
+        "button_back": i18n.button.back(),
         "button_add_row": i18n.button.add.row(),
         "button_orders": i18n.button.orders(),
         "button_catalogue": i18n.button.catalogue(),

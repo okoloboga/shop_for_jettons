@@ -41,25 +41,27 @@ async def orders_list_getter(
         **kwargs
 ):
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
 
     status = dialog_manager.current_context().dialog_data['status']
     user_id = user_dict['user_id']
     
-    orders_list = get_orders_list(db_engine,
-                                  int(user_id),
-                                  str(status))
-    
-    orders_indexes = [i[0] for i in orders_list]
-    
-    dialog_manager.current_context().dialog_data['orders_indexes'] = orders_indexes
+    orders_list = await get_orders_list(db_engine,
+                                        int(user_id),
+                                        str(status))
+    if orders_list is not None:
+        orders_indexes = [int(i[0]) for i in orders_list]
+        logger.info(f'Orders List: {orders_list}')
+        logger.info(f'Orders Indexes: {orders_indexes}')
+        
+        dialog_manager.current_context().dialog_data['orders_indexes'] = orders_indexes
 
-    return {'orders_list': i18n.orders.list(),
-            'orders': tuple(orders_list),
-            'button_back': i18n.button.back()}
+        return {'orders_list': i18n.orders.list(),
+                'orders': tuple(orders_list),
+                'button_back': i18n.button.back()}
+    else:
+        return {'orders_list': i18n.empty.orders.list(),
+                'orders': (),
+                'button_back': i18n.button.back()}
     
     
 # Selected one of orders... Order information
@@ -71,21 +73,17 @@ async def order_getter(
         **kwargs
 ):  
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
 
     user_id = user_dict['user_id']   
     order = dialog_manager.current_context().dialog_data['order']
     
-    selected_order = get_order_data(db_engine, int(order))
+    selected_order = await get_order_data(db_engine, int(order[1:]))
             
     return {"button_decline": i18n.decline.order(),
             "button_confirm": i18n.button.confirm(),
             "button_complete_order": i18n.button.complete.order(),
-            "button_accept_order": i18n.accept.order(),
-            "button_decline_order": i18n.decline.order(),
+            "button_accept_order": i18n.button.accept.order(),
+            "button_decline_order": i18n.button.decline.order(),
             "button_back": i18n.button.back(),
             "new_selected_order": i18n.new.selected.order(index=order),
             "accept_order": i18n.accept.order(index=order),
