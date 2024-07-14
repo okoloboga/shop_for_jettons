@@ -16,7 +16,6 @@ from fluentogram import TranslatorRunner
 from redis import asyncio as aioredis
 
 from ..keyboards import create_join_kb, play_account_kb, back_kb
-from database import new_user_template
 from states import StartSG
 from config import get_config, BotConfig
 
