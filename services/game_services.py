@@ -1,6 +1,4 @@
 import asyncio
-import sys
-sys.path.append("..")
 
 from aiogram import Bot
 from fluentogram import TranslatorRunner
@@ -10,7 +8,10 @@ r = aioredis.Redis(host='localhost', port=6379)
 
 
 # Returns key of dict by users answer as value
-def normalize_answer(i18n: TranslatorRunner, user_answer: str) -> str:
+def normalize_answer(i18n: TranslatorRunner, 
+                     user_answer: str
+                     ) -> str:
+    
     game = {'rock': i18n.rock(),
             'paper': i18n.paper(),
             'scissors': i18n.scissors()}
@@ -21,11 +22,16 @@ def normalize_answer(i18n: TranslatorRunner, user_answer: str) -> str:
 
 
 # Define winner of turn
-async def _get_winner(player1_move: str | bytes, player2_move: str | bytes, room_id: str | int) -> str:
+async def _get_winner(player1_move: str | bytes, 
+                      player2_move: str | bytes, 
+                      room_id: str | int
+                      ) -> str:
+    
     game = await r.hgetall('g_'+str(room_id))
     rules = {b'rock': b'scissors',
              b'scissors': b'paper',
              b'paper': b'rock'}
+    
     if player1_move == player2_move:
         return 'nobody_won'
     elif rules[player1_move] == player2_move:
@@ -41,8 +47,14 @@ async def _get_winner(player1_move: str | bytes, player2_move: str | bytes, room
 
 
 # Redirection of turn result
-async def turn_result(player1_move: str | bytes, player2_move: str | bytes, room_id: str | int, i_am: str | bytes) -> str:
+async def turn_result(player1_move: str | bytes, 
+                      player2_move: str | bytes, 
+                      room_id: str | int, 
+                      i_am: str | bytes
+                      ) -> str:
+    
     result = await _get_winner(player1_move, player2_move, room_id)
+    
     if result == 'nobody_won':
         return 'nobody_won'
     elif result == b'player1_damaged':
@@ -68,12 +80,18 @@ async def turn_result(player1_move: str | bytes, player2_move: str | bytes, room
 
 
 # Changing account stats after game
-async def game_result(result: str, my_id: str, enemy_id: str, room_id: str | int, msg_id: int):
+async def game_result(result: str, 
+                      my_id: str, 
+                      enemy_id: str, 
+                      room_id: str | int, 
+                      msg_id: int
+                      ):
+    
     user = await r.hgetall(my_id)
     enemy = await r.hgetall(enemy_id)
     game = await r.hgetall('g_'+str(room_id))
 
-    if result == 'lose':
+    if result == 'lose': 
         # Player lose
         user[b'total_games'] = int(str(user[b'total_games'], encoding='utf-8')) + 1
         user[b'lose'] = int(str(user[b'lose'], encoding='utf-8')) + 1
@@ -106,7 +124,9 @@ async def game_result(result: str, my_id: str, enemy_id: str, room_id: str | int
 async def timer(bot: Bot, 
                 i18n: TranslatorRunner, 
                 room_id: int,
-                play_account_kb):
+                play_account_kb
+                ):
+    
     await asyncio.sleep(120)
     if await r.exists('g_' + str(room_id)) == 0:
         pass

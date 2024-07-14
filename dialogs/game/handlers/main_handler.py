@@ -36,15 +36,31 @@ async def process_start_command(callback: CallbackQuery,
                                 button: Button,
                                 dialog_manager: DialogManager
                                 ):
+    
+    wallet = dialog_manager.current_context().dialog_data['wallet']
     logger.info(f'User {callback.from_user.id} enter the Game')
+    logger.info(f'Users {callback.from_user.id} wallet is {wallet}')
+
     await dialog_manager.reset_stack()
      
     r = aioredis.Redis(host='localhost', port=6379)
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     
-    # User first time in bot - add him to DB
+    # User first time in game - add him to DB
     if await r.exists(str(callback.from_user.id)) == 0:
+        
+        new_user_template = {
+            'total_games': 0,
+            'win': 0,
+            'lose': 0,
+            'rating': 0,
+            'current_game': 0,
+            'last_message': 0,
+            'wallet': wallet
+            }
+        
         await r.hmset(str(callback.from_user.id), new_user_template)
+        logger.info(f'User {callback.from_user.id} is New. Added to Redis')
         
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
@@ -56,8 +72,8 @@ async def process_start_command(callback: CallbackQuery,
     
     await bot.delete_message(callback.from_user.id, msg.message_id - 1)
     
-
-
+    logger.info(f'Last message {msg.message_id - 1} is deleted')
+    
 
 # Canceling anything in states
 @router_game_menu.callback_query(F.data == 'back', ~StateFilter(default_state))
@@ -65,18 +81,27 @@ async def process_back_waiting_button(callback: CallbackQuery,
                                       state: FSMContext, 
                                       i18n: TranslatorRunner
                                       ):
+    
     r = aioredis.Redis(host='localhost', port=6379)
 
     try:
+        logger.info(f'User {callback.from_user.id} pressed BACK in Game Menu')
+        
         await callback.message.edit_text(text=i18n.start(),
                                          reply_markup=play_account_kb(i18n))
+        
         user = await r.hgetall(str(callback.from_user.id))
+        logger.info(f'Users {callback.from_user.id} data: {user}')
+        
         user[b'current_game'] = 0
         await r.hmset(str(callback.from_user.id), user)
+        
         if await r.exists("r_" + str(callback.from_user.id)) != 0:
             await r.delete("r_" + str(callback.from_user.id))
+            
     except TelegramBadRequest:
         await callback.answer()
+        
     await state.clear()
 
 
@@ -86,11 +111,16 @@ async def process_back_waiting_button(callback: CallbackQuery,
                                  )
 async def process_play_button(callback: CallbackQuery, 
                               state: FSMContext, 
-                              i18n: TranslatorRunner):
+                              i18n: TranslatorRunner
+                              ):
+    
+    logger.info(f'User {callback.from_user.id} pressed Play in Game Menu')
+    
     try:
         await callback.message.edit_text(text=i18n.ready(),
                                          reply_markup=create_join_kb(i18n))
         await state.clear()
+        
     except TelegramBadRequest:
         await callback.answer()
 
@@ -103,10 +133,15 @@ async def process_stats_button(callback: CallbackQuery,
                                state: FSMContext, 
                                i18n: TranslatorRunner
                                ):
+    
+    logger.info(f'User {callback.from_user.id} pressed Stats in Game Menu')
+    
     r = aioredis.Redis(host='localhost', port=6379)
 
     try:
         user = await r.hgetall(str(callback.from_user.id))
+        logger.info(f'Users {callback.from_user.id} data: {user}')
+        
         await callback.message.edit_text(
             text=i18n.statistic(total_games=str(user[b'total_games'], encoding='utf-8'),
                                 win=str(user[b'win'], encoding='utf-8'),
@@ -114,6 +149,7 @@ async def process_stats_button(callback: CallbackQuery,
                                 rating=str(user[b'rating'], encoding='utf-8'),
                                 ),
             reply_markup=back_kb(i18n))
+        
     except TelegramBadRequest:
         await callback.answer()
 
@@ -125,6 +161,9 @@ async def process_stats_button(callback: CallbackQuery,
 async def process_back_button(callback: CallbackQuery, 
                               i18n: TranslatorRunner
                               ):
+    
+    logger.info(f'User {callback.from_user.id} pressed Back in Game Menu without states')
+    
     try:
         await callback.message.edit_text(text=i18n.start(id=callback.from_user.id),
                                          reply_markup=play_account_kb(i18n))
@@ -140,6 +179,8 @@ async def process_total_back_button(callback: CallbackQuery,
                                     i18n: TranslatorRunner,
                                     dialog_manager: DialogManager
                                     ):
+    
+    logger.info(f'User {callback.from_user.id} pressed Total Back in Game Menu')
     await dialog_manager.start(state=StartSG.start,
                                data={'user_id': callback.from_user.id}
                                )

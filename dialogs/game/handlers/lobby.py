@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from aiogram import F, Router, Bot
 from aiogram.types import CallbackQuery
@@ -13,9 +14,17 @@ from ..keyboards import (back_kb, create_join_kb, select_enemy, game_process_kb,
                                  bet_kb, play_account_kb, game_confirm)
 from states import FSMMain
 from ..filters.filters import IsEnemy
-from services import timer
+from services import timer, jetton_value
 
 router_game_lobby = Router()
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(filename)s:%(lineno)d #%(levelname)-8s '
+           '[%(asctime)s] - %(name)s - %(message)s')
+
 
 """GAME LOBBY: CREATE OR JOIN"""
 
@@ -28,17 +37,22 @@ async def process_create_button(callback: CallbackQuery,
                                 state: FSMContext, 
                                 i18n: TranslatorRunner
                                 ):
+    logger.info(f'User {callback.from_user.id} pressed Create in Game Menu')
+    
     r = aioredis.Redis(host='localhost', port=6379)
     user = await r.hgetall(str(callback.from_user.id))
 
     # Checking for existing games of this player
     if user[b'current_game'] != b'0':
+        logger.info(f'User {callback.from_user.id} already in game')
+        
         try:
             await callback.message.edit_text(text=i18n.already.ingame(),
                                              reply_markup=play_account_kb(i18n))
         except TelegramBadRequest:
             await callback.answer()
     else:
+        logger.info(f'User {callback.from_user.id} not in game - go to make Bet')
         try:
             await callback.message.edit_text(text=i18n.bet(),
                                              reply_markup=bet_kb(i18n))
@@ -55,19 +69,24 @@ async def process_yes_answer(callback: CallbackQuery,
                              state: FSMContext, 
                              i18n: TranslatorRunner
                              ):
+    
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Parsing for value of bet
     bet = int(callback.data[1]) if len(callback.data) != 3 else int(callback.data[1:3])
-
     user = await r.hgetall(str(callback.from_user.id))
+    logger.info(f'User {callback.from_user.id} data {user}')
+    
+    # Getting value of jettons
+    jettons = jetton_value(str(user[b'jettons'], encoding='utf-8'))
+    
+    logger.info(f'User {callback.from_user.id} made bet: {bet}. User have {jettons} jettons')    
 
     # If player have not enough jettons
-    if bet > int(str(user[b'jettons'], encoding='utf-8')):
+    if bet > int(jettons):
         await callback.message.edit_text(text=i18n.notenough(),
                                          reply_markup=bet_kb(i18n))
     else:
-
         # Creating new room
         await r.set('r_'+str(callback.from_user.id), bet)
 

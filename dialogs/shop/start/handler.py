@@ -50,34 +50,34 @@ async def command_start_process(
 
     # Read users data from database
     statement = (
-        select("*")
+        select(column('wallet'))
         .select_from(users)
         .where(users.c.telegram_id == message.from_user.id)
     )
     async with db_engine.connect() as conn:
         user_data = await conn.execute(statement)
-        logger.info(f'User data of {message.from_user.id} is executed')
-
-    for row in user_data:
-        user.append(row)
-        logger.info(f'User data of {message.from_user.id} appended: {user[0]}')
+        for row in user_data:
+            user.append(row)
+            logger.info(f'User data of {message.from_user.id} appended. Wallet: {user[0]}')
 
     # If User is New...
     if len(user) == 0:
 
         logger.warning(f'{message.from_user.id} is new user')
-        await new_user(db_engine,
-                       message.from_user.id,
-                       message.from_user.first_name,
-                       message.from_user.last_name,
-                       payload)
+        wallet = await new_user(db_engine,
+                                message.from_user.id,
+                                message.from_user.first_name,
+                                message.from_user.last_name,
+                                payload)
         await dialog_manager.start(state=StartSG.start,
-                                   data={'user_id': message.from_user.id}
+                                   data={'user_id': message.from_user.id},
+                                   wallet={'wallet': wallet}
                                    )
     else:
         logger.info(f'{message.from_user.id} is old user')
         await dialog_manager.start(state=StartSG.start,
-                                   data={'user_id': message.from_user.id}
+                                   data={'user_id': message.from_user.id},
+                                   wallet={'wallet': user[0]}
                                    )
 
 

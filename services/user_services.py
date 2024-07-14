@@ -42,7 +42,7 @@ async def new_user(
         first_name: str,
         last_name: str,
         payload: str | None
-):
+) -> str:
     logger.info('new_user processing')
 
     # Wallet data
@@ -100,6 +100,8 @@ async def new_user(
         await conn.execute(do_ignore)
         await conn.commit()
         logger.info(f'New user {user_id} data writed')
+        
+    return new_address
 
 
 # Get User data
@@ -274,6 +276,9 @@ async def new_order(db_engine: AsyncEngine,
         for row in raw_orders_count:
             len_orders = int(row[0])
             logger.info(f'Order counter is {len_orders}')
+            
+    income = int(new_order_data['order_metadata']['sell_price']) * int(new_order_data['count'])
+    pure_income = income - int(new_order_data['order_metadata']['self_price']) * int(new_order_data['count'])
 
     # Writing statement for Orders table
     orders_statement = insert(orders).values(
@@ -286,10 +291,8 @@ async def new_order(db_engine: AsyncEngine,
         category=new_order_data['order_metadata']['category'],
         name=new_order_data['order_metadata']['name'],
         count=new_order_data['count'],
-        income=(int(new_order_data['order_metadata']['sell_price']) *
-                int(new_order_data['count'])),
-        pure_income=(int(new_order_data['order_metadata']['self_price']) *
-                     int(new_order_data['count'])),
+        income=income,
+        pure_income=pure_income,
         status='new'
     )
 
@@ -364,10 +367,8 @@ async def new_order(db_engine: AsyncEngine,
                                delivery_address=new_order_data['address'],
                                name=new_order_data['order_metadata']['name'],
                                count=new_order_data['count'],
-                               income=(int(new_order_data['order_metadata']['sell_price']) *
-                                       int(new_order_data['count'])),
-                               pure_income=(int(new_order_data['order_metadata']['self_price']) *
-                                            int(new_order_data['count']))
+                               income=income,
+                               pure_income=pure_income
                                )
                            )
 
