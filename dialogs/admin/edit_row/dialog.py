@@ -34,7 +34,7 @@ edit_dialog = Dialog(
             on_error=wrong_changes
         ),
         Button(Format('{button_back}'), id='b_back', on_click=go_start),
-        getter=edit_delete_getter,
+        getter=select_type_getter,
         state=EditRowSG.edit
     ),
     Window(

@@ -147,24 +147,13 @@ async def confirm_accept_order(
         button: Button,
         dialog_manager: DialogManager
 ):
-    updated_status = "accepted"  # Status after confirming
     user_id = callback.from_user.id
     order = dialog_manager.current_context().dialog_data['order']
-    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    dialog_manager.current_context().dialog_data['updated_status'] = 'accepted'
     
-    logger.info(f'User {callback.from_user.id} confirm accept order {order}')
+    logger.info(f'User {user_id} confirm accept order {order}')
     
-    accepted_order = await change_order_status(i18n=i18n,
-                                               db_engine=db_engine,
-                                               user_id=user_id,
-                                               order=order,  
-                                               updated_status=updated_status    
-    )
-    
-    await callback.answer(text=i18n.accept.costumers.username(
-                                    username=accepted_order)
-                          )    
-    await dialog_manager.switch_to(ConfirmOrderSG.select_order)
+    await dialog_manager.switch_to(ConfirmOrderSG.status_changed)
 
 
 # Confirming order decline
@@ -175,23 +164,10 @@ async def confirm_decline_order(
         dialog_manager: DialogManager,
         reason: str
 ):
-    user_id = callback.from_user.id
-    order = dialog_manager.current_context().dialog_data['order']
-    logger.info(f'User {callback.from_user.id} confirm orders #{order} decline\
-        reason:\n{reason}')
-    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    dialog_manager.current_context().dialog_data['reason'] = reason
+    dialog_manager.current_context().dialog_data['updated_status'] = 'declined'
     
-    declined_order = decline_order_process(i18n=i18n,
-                                           db_engine=db_engine,
-                                           user_id=user_id,
-                                           order=order,
-                                           reason=reason
-    )
-    
-    await callback.answer(text=i18n.decline.costumers.username(
-                                    username=declined_order)
-                          )
-    await dialog_manager.switch_to(ConfirmOrderSG.select_order) 
+    await dialog_manager.switch_to(ConfirmOrderSG.status_changed) 
     
 
 # Filled wrong reason 
@@ -213,21 +189,7 @@ async def complete_order(
         button: Button,
         dialog_manager: DialogManager
 ):
-    updated_status = "accepted"  # Status after confirming
-    user_id = callback.from_user.id
-    order = dialog_manager.current_context().dialog_data['order']
-    logger.info(f'User {callback.from_user.id} confirm orders #{order} accept')
-    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    
-    completed_order = change_order_status(i18n=i18n,
-                                          db_engine=db_engine,
-                                          user_id=user_id,
-                                          order=order,
-                                          status=status       
-    )
-    
-    await callback.answer(text=i18n.complete.costumers.username(
-                                    username=completed_order)
-                          )    
-    await dialog_manager.switch_to(ConfirmOrderSG.select_order)
+    dialog_manager.current_context().dialog_data['updated_status'] = 'completed'
+  
+    await dialog_manager.switch_to(ConfirmOrderSG.status_changed)
 

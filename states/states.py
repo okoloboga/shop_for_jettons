@@ -74,6 +74,7 @@ class ConfirmOrderSG(StatesGroup):
     new_order = State()
     accept_order = State()
     decline_order = State()
+    status_changed = State()
     accepted_order = State()
     declined_order = State()
     completed_order = State()

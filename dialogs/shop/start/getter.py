@@ -276,6 +276,17 @@ async def show_item_getter(
 
     logger.info(f'User {user_id} select item №{item_id} from catalogue')
 
+    # Rewrite User page to ITEM_ID
+    update_page = (users.update()
+                   .values(page=item_id)
+                   .where(users.c.telegram_id == user_id)
+                   )
+    # Commit to database
+    async with db_engine.connect() as conn:
+        await conn.execute(update_page)
+        await conn.commit()
+        logger.info(f'Users {user_id} page is updated to {item_id}')
+
     # Getting data of item from ITEM_ID
     item = await get_user_item_metadata(user_dict, db_engine)
     if item != None:

@@ -41,9 +41,11 @@ async def catalogue_show(
         catalogue_list.append(item)
     logger.info(f'Catalogue list is {catalogue_list}')
 
-    return {'catalogue_list': catalogue_list,
+    return {
+            'catalogue_list': catalogue_list,
             'button_back': i18n.button.back(),
-            'item_list': i18n.item.list()}
+            'item_list': i18n.item.list()
+            }
 
 
 # Show selected item from catalogue

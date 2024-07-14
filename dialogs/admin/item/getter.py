@@ -100,7 +100,7 @@ async def start_previous_getter(
 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.item.show(
                     name=name,
@@ -111,7 +111,7 @@ async def start_previous_getter(
     else: 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.no.stack(),
                 "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
@@ -200,7 +200,7 @@ async def start_next_getter(
 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.item.show(
                     name=name,
@@ -211,7 +211,7 @@ async def start_next_getter(
     else: 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.no.stack(),
                 "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'
@@ -227,11 +227,7 @@ async def show_item_getter(
         **kwargs
 ):
     user_dict = dialog_manager.start_data
-    if type(user_dict) is None:
-        logger.error(f'User dict from DialogManager is {user_dict}')
-    else:
-        logger.info(f'User dict from DialogManager is {user_dict}')
-
+    
     user_id = user_dict['user_id']
     item_id = user_dict['item_id']
 
@@ -260,7 +256,7 @@ async def show_item_getter(
 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.item.show(
                     name=name,
@@ -271,7 +267,7 @@ async def show_item_getter(
     else: 
         return {"button_back": i18n.button.back(),
                 "button_next": i18n.button.next(),
-                "button_delete_row": i18n.button.delete.row(),
+                "button_edit_row": i18n.button.edit.row(),
                 "button_catalogue": i18n.button.catalogue(),
                 "item_show": i18n.no.stack(),
                 "image": 'https://idea-promotion.ru/upload/medialibrary/37f/37fb74036d9876cb12ac5b49d2d77857.jpeg'

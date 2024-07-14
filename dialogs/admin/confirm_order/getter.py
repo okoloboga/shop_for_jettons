@@ -5,7 +5,8 @@ from aiogram.types import User
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_order_data, get_orders_list
+from services import (get_order_data, get_orders_list, change_order_status,
+                      decline_order_process)
 
 
 logger = logging.getLogger(__name__)
@@ -105,9 +106,62 @@ async def order_getter(
                 status=selected_order[11]
                 )
             }
+    
+    
+# Complete changing status afterm Confirming (Accept, Decline, Complete)
+async def status_changed_getter(dialog_manager: DialogManager,
+                       			db_engine: AsyncEngine,
+                       			i18n: TranslatorRunner,
+                       			event_from_user: User,
+                       			**kwargs
+):  
+    user_id = event_from_user.id
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    updated_status = dialog_manager.current_context().dialog_data['updated_status']
+    order = int((dialog_manager.current_context().dialog_data['order'])[1:])
+        
+    logger.info(f'User {user_id} changed status of order {order} to {updated_status}')
+        
+    if updated_status == 'accepted' or updated_status == 'completed':
+        costumer = await change_order_status(i18n=i18n,
+                                             db_engine=db_engine,
+                                             user_id=user_id,
+                                             order=order,  
+                                             updated_status=updated_status
+                                    		 )
+        if updated_status == 'accepted':			
+            return {"status_changed": i18n.accept.costumers.username(username=costumer),
+					"button_new_orders": i18n.button.new.orders(),
+					"button_accepted_orders": i18n.button.accepted.orders(),
+					"button_declined_orders": i18n.button.declined.orders(),
+					"button_back": i18n.button.back()
+					}
+            
+        elif updated_status == 'completed':
+            return {"status_changed": i18n.complete.costumers.username(username=costumer),
+					"button_new_orders": i18n.button.new.orders(),
+					"button_accepted_orders": i18n.button.accepted.orders(),
+					"button_declined_orders": i18n.button.declined.orders(),
+					"button_back": i18n.button.back()
+					}
+    elif updated_status == 'declined':
+        reason = dialog_manager.current_context().dialog_data['reason']
+        order_data = await decline_order_process(i18n=i18n,
+                                        	     db_engine=db_engine,
+                                        	     user_id=user_id,
+                                        	     order=order,
+                                        	     reason=reason
+                                    		     )
+       	return {"status_changed": i18n.decline.costumers.username(username=order_data[0],
+                                                                  income=order_data[1],
+                                                                  wallet=order_data[2]),
+				"button_new_orders": i18n.button.new.orders(),
+				"button_accepted_orders": i18n.button.accepted.orders(),
+				"button_declined_orders": i18n.button.declined.orders(),
+				"button_back": i18n.button.back()
+		}
 
-
-
+    
 
     
         

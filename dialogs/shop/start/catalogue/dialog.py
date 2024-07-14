@@ -19,7 +19,7 @@ catalogue_dialog = Dialog(
                 items='catalogue_list',
                 on_click=item_selection
             ),
-            width=1
+            width=2
         ),
         Button(Format('{button_back}'), id='b_back', on_click=go_start),
         getter=catalogue_show,

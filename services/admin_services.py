@@ -133,6 +133,19 @@ def check_price_count(text: str) -> str:
     raise ValueError
 
 
+'''
+                                   __    __                             
+                                  |  \  |  \                            
+ _______    ______   __   __   __  \$$ _| $$_     ______   ______ ____  
+|       \  /      \ |  \ |  \ |  \|  \|   $$ \   /      \ |      \    \ 
+| $$$$$$$\|  $$$$$$\| $$ | $$ | $$| $$ \$$$$$$  |  $$$$$$\| $$$$$$\$$$$\
+| $$  | $$| $$    $$| $$ | $$ | $$| $$  | $$ __ | $$    $$| $$ | $$ | $$
+| $$  | $$| $$$$$$$$| $$_/ $$_/ $$| $$  | $$|  \| $$$$$$$$| $$ | $$ | $$
+| $$  | $$ \$$     \ \$$   $$   $$| $$   \$$  $$ \$$     \| $$ | $$ | $$
+ \$$   \$$  \$$$$$$$  \$$$$$\$$$$  \$$    \$$$$   \$$$$$$$ \$$  \$$  \$$
+'''
+
+
 # Writing new Item to database
 async def new_item(
         db_engine: AsyncEngine,
@@ -190,8 +203,8 @@ async def new_item(
         category=new_item_data['category'],
         name=new_item_data['name'],
         count=new_item_data['count'],
-        income_sellprice=int(new_item_data['count']) * int(new_item_data['sell_price']),
-        income_selfprice=int(new_item_data['count']) * int(new_item_data['self_price']),
+        income=int(new_item_data['count']) * int(new_item_data['sell_price']),
+        pure_income=int(new_item_data['count']) * int(new_item_data['self_price']),
     )
 
     async with db_engine.connect() as conn:
@@ -235,6 +248,18 @@ async def delete_item(
         logger.info(f'User {admin_id} deleted item #{page}')
 
 
+'''
+                 __  __    __                                             
+                |  \|  \  |  \                                            
+  ______    ____| $$ \$$ _| $$_           ______    ______   __   __   __ 
+ /      \  /      $$|  \|   $$ \         /      \  /      \ |  \ |  \ |  \
+|  $$$$$$\|  $$$$$$$| $$ \$$$$$$        |  $$$$$$\|  $$$$$$\| $$ | $$ | $$
+| $$    $$| $$  | $$| $$  | $$ __       | $$   \$$| $$  | $$| $$ | $$ | $$
+| $$$$$$$$| $$__| $$| $$  | $$|  \      | $$      | $$__/ $$| $$_/ $$_/ $$
+ \$$     \ \$$    $$| $$   \$$  $$      | $$       \$$    $$ \$$   $$   $$
+  \$$$$$$$  \$$$$$$$ \$$    \$$$$        \$$        \$$$$$$   \$$$$$\$$$$
+'''
+
 # Validate changes entered by Admin
 def check_changes(changes: str) -> dict:
     logger.info(f'Checking for changes {changes}')
@@ -248,26 +273,31 @@ def check_changes(changes: str) -> dict:
                      'count': int
     }
     if changes[0] == '#':
-
+        
         # drop #
         changes_raw = changes[1:].split()
-
+        
         # is correct type of change
-        if changes_raw[0] in changes_types:
+        if len(changes_raw) == 2 and changes_raw[0] in changes_types:
             
             logger.info(f'changes_raw[0]: {changes_raw[0]}')
-
+            
             # unite changes description, like {'description': 'very taste banana'}
-            changes_united = {changes_raw[0]: ' '.join(changes_raw[1:])}
-    
+            if changes_raw[1].isdigit:
+                changes_raw[1] = int(changes_raw[1])
+                changes_united = {changes_raw[0]: changes_raw[1]}
+            else:
+                changes_united = {changes_raw[0]: ' '.join(changes_raw[1:])}
+                
+            logger.info(f'Changes raw: {changes_raw}')
             logger.info(f'changes_united: {changes_united}')
-            logger.info(f'changes_types[changes_united[0]]: {changes_types[changes_united[0]]}')
+            logger.info(f'changes type {changes_types[changes_raw[0]]} is {type(changes_raw[1])}')
             
             # check for data type of changes
-            if changes_types[changes_united[0]] is type(changes_united[1]):
-                if (((changes_united[0] == 'image')
-                        and validators.url(changes_united[1]))
-                        or changes_united[0] != 'image'):
+            if changes_types[changes_raw[0]] is type(changes_raw[1]):
+                if (((changes_raw[0] == 'image')
+                        and validators.url(changes_raw[1]))
+                        or changes_raw[0] != 'image'):
                     return changes_united
                 raise ValueError
             raise ValueError
@@ -279,8 +309,7 @@ def check_changes(changes: str) -> dict:
 async def change_item(
         db_engine: AsyncEngine,
         admin_id: int,
-        new_data: str | int,
-        feature: str
+        new_data: str
 ):
     logger.info(f'change_item({admin_id}, {new_data})')
     len_edited: int  # Number of items in Edited table
@@ -318,10 +347,12 @@ async def change_item(
             logger.info(f'Catalogue table length is {len_edited}')
 
     # Getting item metadata
-    item = await get_item_metadata(
+    item = await get_admin_item_metadata(
         int(page),
         db_engine
     )
+    
+    logger.info(f'Getted item metadata {item}')
 
     # Insert new row to Edited table
     edited_statement = insert(edited).values(
@@ -333,12 +364,10 @@ async def change_item(
         name=item['name'],
         commit=(f'{type}: {new_data}')
     )
-    
-    update_dict = {f'{feature}': f'{new_data}'}
 
     # Update data in Catalogue table
     update_catalogue = (catalogue.update()
-                        .values(**update_dict)
+                        .values(**new_data)
                         .where(catalogue.c.index == page)
                         )
 
@@ -409,6 +438,20 @@ async def get_order_data(
             
     return selected_order
 
+'''
+                                                    __     
+                                                   |  \    
+  ______    _______   _______   ______    ______  _| $$_   
+ |      \  /       \ /       \ /      \  /      \|   $$ \  
+  \$$$$$$\|  $$$$$$$|  $$$$$$$|  $$$$$$\|  $$$$$$\\$$$$$$  
+ /      $$| $$      | $$      | $$    $$| $$  | $$ | $$ __ 
+|  $$$$$$$| $$_____ | $$_____ | $$$$$$$$| $$__/ $$ | $$|  \
+ \$$    $$ \$$     \ \$$     \ \$$     \| $$    $$  \$$  $$
+  \$$$$$$$  \$$$$$$$  \$$$$$$$  \$$$$$$$| $$$$$$$    \$$$$ 
+                                        | $$               
+                                        | $$               
+                                         \$$                
+'''
 
 
 # Changing status for Accepted or Completed
@@ -418,7 +461,7 @@ async def change_order_status(
         user_id: int,
         order: int,
         updated_status: str
-):
+) -> str:
     logger.info(f'{updated_status} order {order} by {user_id}')
     costumer_id: int  # ID of costumer for sending notification
     coustumers_username: str  # @username of costumer for contact
@@ -429,7 +472,7 @@ async def change_order_status(
                             .select_from(orders)
                             .where(orders.c.index == order))
     
-    update_status_statement = (catalogue.update()
+    update_status_statement = (orders.update()
                                .values(status=updated_status)
                                .where(orders.c.index == order)
                                )
@@ -437,10 +480,10 @@ async def change_order_status(
     async with db_engine.connect() as conn:
         raw_order_data = await conn.execute(order_data_statement)
         await conn.execute(update_status_statement)
-        await conn.commit()      
+        await conn.commit()
         for row in raw_order_data:
             order_data = list(row)
-            logger.info(f'User {user_id} executed order #{order} for {status}')
+            logger.info(f'User {user_id} executed order #{order} for {updated_status}')
 
     costumer_id = order_data[1]
     coustumers_username = order_data[2]
@@ -453,22 +496,22 @@ async def change_order_status(
     # Send notification to Customer
     if updated_status == 'accepted':
         await bot.send_message(chat_id=costumer_id,
-                            text=i18n.order.accepted.notification(
-                                date_and_time=order_data[4],
-                                count=order_data[8],
-                                name=order_data[7],
-                                income=order_data[9]
+                               text=i18n.order.accepted.notification(
+                                    date_and_time=order_data[4],
+                                    count=order_data[8],
+                                    name=order_data[7],
+                                    income=order_data[9]
                             ))
     
-    elif updated_status =='completed':
+    elif updated_status == 'completed':
         len_outcome: int  # Number of items in Outcome Table
         
         await bot.send_message(chat_id=costumer_id,
-                           text=i18n.order.completed.notification(
-                               date_and_time=order_data[4],
-                               count=order_data[8],
-                               name=order_data[7],
-                               income=order_data[9]
+                               text=i18n.order.completed.notification(
+                                    date_and_time=order_data[4],
+                                    count=order_data[8],
+                                    name=order_data[7],
+                                    income=order_data[9]
                            ))
         
         # Add order to Outcome table
@@ -478,7 +521,16 @@ async def change_order_status(
             .select_from(outcome)
         )
         
+        # Updating Total Purchase Sum and Count in user data
+        update_user = (users.update()
+                       .values(purchase = users.c.purchase + 1,
+                               purchase_sum = users.c.purchase_sum + order_data[9])
+                       .where(users.c.telegram_id == int(costumer_id))
+                       )
+                    
         async with db_engine.connect() as conn:
+            await conn.execute(update_user)
+            await conn.commit()
             raw_outcome_len = await conn.execute(len_outcome_statement)
             for row in raw_outcome_len:
                 len_outcome = int(row[0])
@@ -507,6 +559,20 @@ async def change_order_status(
     return coustumers_username
 
 
+'''
+       __                      __  __                     
+      |  \                    |  \|  \                    
+  ____| $$  ______    _______ | $$ \$$ _______    ______  
+ /      $$ /      \  /       \| $$|  \|       \  /      \ 
+|  $$$$$$$|  $$$$$$\|  $$$$$$$| $$| $$| $$$$$$$\|  $$$$$$\
+| $$  | $$| $$    $$| $$      | $$| $$| $$  | $$| $$    $$
+| $$__| $$| $$$$$$$$| $$_____ | $$| $$| $$  | $$| $$$$$$$$
+ \$$    $$ \$$     \ \$$     \| $$| $$| $$  | $$ \$$     \
+  \$$$$$$$  \$$$$$$$  \$$$$$$$ \$$ \$$ \$$   \$$  \$$$$$$$
+'''
+
+
+
 # Declining order
 async def decline_order_process(
         i18n: TranslatorRunner,
@@ -514,7 +580,7 @@ async def decline_order_process(
         user_id: int,
         order: int,
         reason: str
-):
+) -> str:
     logger.info(f'Declining order {order} by {user_id}')
     costumer_id: int  # ID of costumer for sending notification
     coustumers_username: str  # @username of costumer for contact
@@ -553,6 +619,7 @@ async def decline_order_process(
     costumers_dict = get_user_data(int(costumer_id),
                                      db_engine)
     wallet = costumers_dict['address']
+    income = order_data[9]
     
     # Init Bot
     bot_config = get_config(BotConfig, "bot")
@@ -570,7 +637,7 @@ async def decline_order_process(
                                reason=reason
                            ))
     
-    return coustumers_username
+    return [coustumers_username, income, wallet]
     
     
 # Parse selecting order for #number form
