@@ -38,6 +38,7 @@ async def process_start_command(callback: CallbackQuery,
                                 ):
     
     wallet = dialog_manager.current_context().dialog_data['wallet']
+    mnemonics = dialog_manager.current_context().dialog_data['mnemonics']
     logger.info(f'User {callback.from_user.id} enter the Game')
     logger.info(f'Users {callback.from_user.id} wallet is {wallet}')
 
@@ -56,7 +57,8 @@ async def process_start_command(callback: CallbackQuery,
             'rating': 0,
             'current_game': 0,
             'last_message': 0,
-            'wallet': wallet
+            'wallet': wallet,
+            'mnemonics': mnemonics
             }
         
         await r.hmset(str(callback.from_user.id), new_user_template)

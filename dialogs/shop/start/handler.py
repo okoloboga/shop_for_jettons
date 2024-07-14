@@ -50,7 +50,7 @@ async def command_start_process(
 
     # Read users data from database
     statement = (
-        select(column('wallet'))
+        select(column('wallet'), column('mnemonics'))
         .select_from(users)
         .where(users.c.telegram_id == message.from_user.id)
     )
@@ -71,13 +71,15 @@ async def command_start_process(
                                 payload)
         await dialog_manager.start(state=StartSG.start,
                                    data={'user_id': message.from_user.id},
-                                   wallet={'wallet': wallet}
+                                   wallet={'wallet': wallet[0]},
+                                   mnemonics={'mnemonics': wallet[1]}
                                    )
     else:
         logger.info(f'{message.from_user.id} is old user')
         await dialog_manager.start(state=StartSG.start,
                                    data={'user_id': message.from_user.id},
-                                   wallet={'wallet': user[0]}
+                                   wallet={'wallet': user[0]},
+                                   mnemonics={'mnemonics': user[1]}
                                    )
 
 

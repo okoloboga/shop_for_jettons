@@ -33,7 +33,8 @@ async def process_game_confirm_button(callback: CallbackQuery,
                                       bot: Bot, 
                                       i18n: TranslatorRunner
                                       ):
-
+    logger.info(f'User {callback.from_user.id} confirmed new Game!')
+    
     await asyncio.sleep(2)
     r = aioredis.Redis(host='localhost', port=6379)
 
@@ -91,11 +92,28 @@ async def process_game_button(callback: CallbackQuery,
     _game[move] = callback.data
     await r.hmset('g_' + str(room_id), _game)
     game = await r.hgetall('g_' + str(room_id))
+    
+    '''
+               __                            __        __                     
+              |  \                          |  \      |  \                    
+      _______ | $$____    ______    ______ _| $$   __  \$$ _______    ______  
+     /       \| $$    \  /      \  /       \| $$  /  \|  \|       \  /      \ 
+    |  $$$$$$$| $$$$$$$\|  $$$$$$\|  $$$$$$$| $$_/  $$| $$| $$$$$$$\|  $$$$$$\
+    | $$      | $$  | $$| $$    $$| $$      | $$   $$ | $$| $$  | $$| $$  | $$
+    | $$_____ | $$  | $$| $$$$$$$$| $$_____ | $$$$$$\ | $$| $$  | $$| $$__| $$
+     \$$     \| $$  | $$ \$$     \ \$$     \| $$  \$$\| $$| $$  | $$ \$$    $$
+      \$$$$$$$ \$$   \$$  \$$$$$$$  \$$$$$$$ \$$   \$$ \$$ \$$   \$$ _\$$$$$$$
+                                                                    |  \__| $$
+                                                                    \$$    $$
+                                                                    \$$$$$$
+    '''
 
     # If both players made move
     if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
+        
         # Checking result of turn, losers health decreasing
         result = await turn_result(game[b'player1_move'], game[b'player2_move'], room_id, i_am)
+        
         # If health of both players is not zero
         if result == 'you_caused_damage':
             try:
@@ -149,9 +167,24 @@ async def process_game_button(callback: CallbackQuery,
         game[b'player2_move'] = b'0'
         await r.hmset(enemy_id, enemy)
         await r.hmset('g_'+str(room_id), game)
+        
+        '''
+                     __          __                               
+           _/  \        |  \                              
+  ______  |   $$        | $$  ______    _______   ______  
+ /      \  \$$$$        | $$ /      \  /       \ /      \ 
+|  $$$$$$\  | $$        | $$|  $$$$$$\|  $$$$$$$|  $$$$$$\
+| $$  | $$  | $$        | $$| $$  | $$ \$$    \ | $$    $$
+| $$__/ $$ _| $$_       | $$| $$__/ $$ _\$$$$$$\| $$$$$$$$
+| $$    $$|   $$ \      | $$ \$$    $$|       $$ \$$     \
+| $$$$$$$  \$$$$$$       \$$  \$$$$$$  \$$$$$$$   \$$$$$$$
+| $$                                                      
+| $$                                                      
+ \$$       
+        '''
 
         # Checking player1 health for zero
-        if game[b'player1_health'] == 0 or game[b'player1_health'] == 0:
+        if game[b'player1_health'] == b'0' or game[b'player1_health'] == 0:
             if i_am == b'player1':
                 total_result = 'lose'
                 try:
@@ -185,7 +218,24 @@ async def process_game_button(callback: CallbackQuery,
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
             await state.clear()
-        # Checking player1 health for zero
+            
+            '''
+                        ______         __                               
+                       /      \       |  \                              
+              ______  |  $$$$$$\      | $$  ______    _______   ______  
+             /      \  \$$__| $$      | $$ /      \  /       \ /      \ 
+            |  $$$$$$\ /      $$      | $$|  $$$$$$\|  $$$$$$$|  $$$$$$\
+            | $$  | $$|  $$$$$$       | $$| $$  | $$ \$$    \ | $$    $$
+            | $$__/ $$| $$_____       | $$| $$__/ $$ _\$$$$$$\| $$$$$$$$
+            | $$    $$| $$     \      | $$ \$$    $$|       $$ \$$     \
+            | $$$$$$$  \$$$$$$$$       \$$  \$$$$$$  \$$$$$$$   \$$$$$$$
+            | $$                                                        
+            | $$                                                        
+             \$$             
+            '''            
+            
+            
+        # Checking player2 health for zero
         elif game[b'player2_health'] == b'0' or game[b'player2_health'] == 0:
             if i_am == b'player2':
                 total_result = 'lose'
@@ -269,11 +319,11 @@ async def process_end_game_button(callback: CallbackQuery,
 @router_game_process.message(CommandStart(), 
                              StateFilter(FSMMain.in_game)
                              )
-async def process_end_game_button(message: Message, 
-                                  bot: Bot, 
-                                  state: FSMContext, 
-                                  i18n: TranslatorRunner
-                                  ):
+async def process_end_game_button_2(message: Message, 
+                                    bot: Bot, 
+                                    state: FSMContext, 
+                                    i18n: TranslatorRunner
+                                    ):
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Vars initialization

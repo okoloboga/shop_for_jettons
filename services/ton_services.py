@@ -92,6 +92,22 @@ async def jetton_value(wallet: str) -> int:
     return int(int(jetton_wallet_data.balance) / 1000000000)
 
 
+# Checking for TON value
+async def ton_value(wallet: str) -> int:
+
+    logger.info(f'TON value of wallet {wallet}')
+
+    # Connecting to TonCenterClient TESTNET
+    config = _load_config()
+    client = TonCenterClient(key=config[1], testnet=False)
+    logger.info('TonCenterClient started')
+
+    wallet = Wallet(provider=client, address=wallet, version='v4r2')
+    balance = await wallet.get_balance()
+
+    return balance
+
+
 # Send jettons for purchase
 async def jetton_transfer(value: int,
                           costumer_mnemonics: str):
@@ -114,21 +130,32 @@ async def jetton_transfer(value: int,
         jettons_amount=int(value)
     )
 
-    logger.info(f'Jettons transferes from {costumers_wallet.address} to {config[5]}')
+    logger.info(f'Jettons transfered from {costumers_wallet.address} to {config[5]}')
+    
+    
+# Jetton transfer in game - from one player to another
+async def jetton_transfer_game(value: int,
+                               loser_mnemonics: str,
+                               winner_wallet: str):
+    
+    logger.info(f'Send {value} jettons for game')
 
-
-# Checking for TON value
-async def ton_value(wallet: str) -> int:
-
-    logger.info(f'TON value of wallet {wallet}')
-
-    # Connecting to TonCenterClient TESTNET
+    # Connecting to TonCenterClient and central wallet
     config = _load_config()
     client = TonCenterClient(key=config[1], testnet=False)
     logger.info('TonCenterClient started')
+    
+    loser_wallet = Wallet(provider=client, mnemonics=loser_mnemonics.split(), version='v4r2')
+    logger.info(f'Losers wallet activated {loser_wallet.address}')
+    
+    await loser_wallet.transfer_jetton(
+        destination_address=winner_wallet,
+        jetton_master_address=config[4],
+        jetton_amount=int(value)
+    )
+    
+    logger.info(f'Jettons transfered from {loser_wallet.address} to {winner_wallet}')
+    
 
-    wallet = Wallet(provider=client, address=wallet, version='v4r2')
-    balance = await wallet.get_balance()
 
-    return balance
 

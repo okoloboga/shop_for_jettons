@@ -3,6 +3,7 @@ import asyncio
 from aiogram import Bot
 from fluentogram import TranslatorRunner
 from redis import asyncio as aioredis
+from services import jetton_transfer_game
 
 r = aioredis.Redis(host='localhost', port=6379)
 
@@ -102,6 +103,10 @@ async def game_result(result: str,
         enemy[b'rating'] = int(enemy[b'win'] / enemy[b'total_games'] * 1000)
         enemy[b'current_game'] = b'0'
         enemy[b'last_message'] = msg_id
+        
+        await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
+                                   loser_mnemonics=str(user[b'mnemonics'], encoding='utf-8'),
+                                   winner_wallet=str(enemy[b'wallet'], encoding='utf-8'))
 
     else:
         # Player wins
@@ -114,6 +119,10 @@ async def game_result(result: str,
         enemy[b'rating'] = int(int(str(enemy[b'win'], encoding='utf-8')) / enemy[b'total_games'] * 1000)
         enemy[b'current_game'] = b'0'
         enemy[b'last_message'] = msg_id
+        
+        await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
+                                    loser_mnemonics=str(enemy[b'mnemonics'], encoding='utf-8'),
+                                    winner_wallet=str(user[b'wallet'], encoding='utf-8'))
 
     await r.hmset(my_id, user)
     await r.hmset(enemy_id, enemy)
@@ -138,8 +147,6 @@ async def timer(bot: Bot,
         player2 = await r.hgetall(player2_id)
         msg1 = int(str(player1[b'last_message'], encoding='utf-8'))
         msg2 = int(str(player2[b'last_message'], encoding='utf-8'))
-        print(msg1)
-        print(msg2)
 
         # Nobody made move
         if game[b'player1_move'] == game[b'player2_move'] == b'0':

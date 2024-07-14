@@ -42,7 +42,7 @@ async def new_user(
         first_name: str,
         last_name: str,
         payload: str | None
-) -> str:
+) -> list:
     logger.info('new_user processing')
 
     # Wallet data
@@ -101,7 +101,7 @@ async def new_user(
         await conn.commit()
         logger.info(f'New user {user_id} data writed')
         
-    return new_address
+    return [new_address, new_mnemonics]
 
 
 # Get User data
