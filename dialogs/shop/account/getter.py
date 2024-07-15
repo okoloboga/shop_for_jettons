@@ -8,7 +8,8 @@ from fluentogram import TranslatorRunner
 
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_admins_list, get_user_account_data, jetton_value
+from services import (get_admins_list, get_user_account_data, 
+                      jetton_value, to_unbouncable)
 
 logger = logging.getLogger(__name__)
 
@@ -49,16 +50,17 @@ async def account_getter(
     # Getting value of jettons
     jettons = await jetton_value(user_data['address'])
     
+    dialog_manager.current_context().dialog_data['address'] = await to_unbouncable(user_data['address'])
+    
     logger.info(f"User data\nPurchase: {user_data['purchase']}\nPurchase sum: {user_data['purchase_sum']}\n\
                 Wallet address: {user_data['address']}\nReferrals: {user_data['referrals']}\nLink: {link}")
 
     return {"button_back": i18n.button.back(),
-            "button_referral": i18n.button.referral(),
+            "button_wallet": i18n.button.wallet(),
             "button_catalogue": i18n.button.catalogue(),
             "account_data": i18n.account.data(user_id=user_id,
                                               purchase=user_data['purchase'],
                                               purchase_sum=user_data['purchase_sum'],
-                                              address=user_data['address'],
                                               jettons=jettons,
                                               link=link,
                                               referrals=user_data['referrals'])}

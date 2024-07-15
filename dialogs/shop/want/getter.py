@@ -34,7 +34,7 @@ async def item_info_getter(
                                                  db_engine)
     wallet = costumers_dict['address']    
     
-    # Write jettons and TONvalue to dialog data
+    # Write jettons and TON value to dialog data
     dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
     dialog_manager.current_context().dialog_data['ton'] = await ton_value(wallet)
     dialog_manager.current_context().dialog_data['wallet'] = wallet
@@ -159,12 +159,12 @@ async def complete_order_getter(
 
     # Getting variables
     current_count = int(dialog_manager.current_context().dialog_data['current_count'])
-    ton_value = dialog_manager.current_context().dialog_data['ton'] / 1000000000
+    ton_value = dialog_manager.current_context().dialog_data['ton']
     wallet = dialog_manager.current_context().dialog_data['wallet']
 
-    logger.info(f'TON Value of wallet {wallet} is {ton_value}')
+    logger.info(f'TON Value of wallet {wallet} is {round(ton_value, 2)}')
 
-    if ton_value >= 0.09:
+    if round(ton_value, 2) > 0.09:
         # Place new order and return index of order
         index_and_data = await new_order(
             db_engine,

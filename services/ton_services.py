@@ -104,8 +104,10 @@ async def ton_value(wallet: str) -> int:
 
     wallet = Wallet(provider=client, address=wallet, version='v4r2')
     balance = await wallet.get_balance()
+    
+    logger.info(f'Wallet {wallet} have {balance / 1000000000}')
 
-    return balance
+    return balance / 1000000000
 
 
 # Send jettons for purchase
@@ -155,6 +157,11 @@ async def jetton_transfer_game(value: int,
     )
     
     logger.info(f'Jettons transfered from {loser_wallet.address} to {winner_wallet}')
+    
+    
+# To Unbouncable addres
+async def to_unbouncable(wallet: str) -> str:
+    return Address(wallet).to_string(True, True, False)
     
 
 

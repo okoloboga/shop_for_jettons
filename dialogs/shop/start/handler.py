@@ -1,4 +1,5 @@
 import logging
+import pprint
 
 from aiogram import Router
 from aiogram.utils.deep_linking import decode_payload
@@ -6,8 +7,9 @@ from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager
 
-from sqlalchemy import select
+from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
+from redis import asyncio as aioredis
 
 from states import StartSG
 from services import new_user
@@ -36,11 +38,14 @@ async def command_start_process(
         command: CommandObject
 ) -> None:
     logger.info(f'==== Message: {message.text} ====')
+    logger.info(f'==== command: {command} ====')
     logger.info(f'==== Command.args: {command.args} ====')
+    
+    r = aioredis.Redis(host='localhost', port=6379)
 
     # If user start bot by referral link
     if command.args:
-        logger.warning(f'CommandObject is {command}')
+        logger.info(f'CommandObject is {command}')
         args = command.args
         payload = decode_payload(args)
     else:
@@ -50,36 +55,55 @@ async def command_start_process(
 
     # Read users data from database
     statement = (
-        select(column('wallet'), column('mnemonics'))
+        select(column('address'), column('mnemonics'))
         .select_from(users)
         .where(users.c.telegram_id == message.from_user.id)
     )
     async with db_engine.connect() as conn:
         user_data = await conn.execute(statement)
         for row in user_data:
-            user.append(row)
-            logger.info(f'User data of {message.from_user.id} appended. Wallet: {user[0]}')
+            user.append(row[0])
+            user.append(row[1])
+            logger.info(f'User {message.from_user.id} data is loaded.\
+                        \nWallet is {row[1]}')
 
     # If User is New...
     if len(user) == 0:
 
+        i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+        await message.answer(text=i18n.hello())
+        
         logger.warning(f'{message.from_user.id} is new user')
-        wallet = await new_user(db_engine,
-                                message.from_user.id,
-                                message.from_user.first_name,
-                                message.from_user.last_name,
-                                payload)
+        wallet_data = await new_user(db_engine,
+                                     message.from_user.id,
+                                     message.from_user.first_name,
+                                     message.from_user.last_name,
+                                     payload)
+        
+        # User first time in Redis DB - add him to DB      
+        new_user_template = {
+            'total_games': 0,
+            'win': 0,
+            'lose': 0,
+            'rating': 0,
+            'current_game': 0,
+            'last_message': 0,
+            'wallet': wallet_data[0],
+            'mnemonics': wallet_data[1]
+            }
+            
+        await r.hmset(str(message.from_user.id), new_user_template)
+            
+        logger.info(f'User {message.from_user.id} is New.\
+            Added to Redis\n{pprint.pprint(new_user_template)}')
+        
         await dialog_manager.start(state=StartSG.start,
-                                   data={'user_id': message.from_user.id},
-                                   wallet={'wallet': wallet[0]},
-                                   mnemonics={'mnemonics': wallet[1]}
+                                   data={'user_id': message.from_user.id}
                                    )
     else:
         logger.info(f'{message.from_user.id} is old user')
         await dialog_manager.start(state=StartSG.start,
-                                   data={'user_id': message.from_user.id},
-                                   wallet={'wallet': user[0]},
-                                   mnemonics={'mnemonics': user[1]}
+                                   data={'user_id': message.from_user.id}
                                    )
 
 

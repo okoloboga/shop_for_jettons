@@ -4,6 +4,7 @@ from aiogram import Router
 from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input.text import ManagedTextInput
+from aiogram_dialog.widgets.kbd import Button
 
 from fluentogram import TranslatorRunner
 
@@ -49,5 +50,15 @@ async def wrong_input(callback: CallbackQuery,
     logger.info(f'User {user_id} entered wrong command')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     await callback.answer(text=i18n.unknown.message())
+    
+
+# Show wallet address
+async def show_address(callback: CallbackQuery,
+                       button: Button,
+                       dialog_manager: DialogManager
+                       ):
+    address = dialog_manager.current_context().dialog_data['address']
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    await callback.message.answer(text=i18n.wallet.address(address=address))
     
     

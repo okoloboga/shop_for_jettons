@@ -80,8 +80,8 @@ async def process_yes_answer(callback: CallbackQuery,
     logger.info(f'User {callback.from_user.id} data {pprint.pprint(user)}')
     
     # Getting value of jettons and TON for fee    
-    jettons = jetton_value(wallet)
-    ton = ton_value(wallet)
+    jettons = await jetton_value(wallet)
+    ton = await ton_value(wallet)
     
     logger.info(f'User {callback.from_user.id} made bet: {bet}.\
         \n User have {jettons} jettons and {ton} TON')    
@@ -222,8 +222,8 @@ async def select_enemy_button(callback: CallbackQuery,
     enemy = await r.hgetall(id)
     user_wallet = str(user[b'wallet'], encoding='utf-8')
     enemy_wallet = str(enemy[b'wallet'], encoding='utf-8')
-    user_jettons = jetton_value(user_wallet)
-    user_ton = ton_value(user_wallet)
+    user_jettons = await jetton_value(user_wallet)
+    user_ton = await ton_value(user_wallet)
     user_mnemonics = str(user[b'mnemonics'], encoding='utf-8')
     enemy_mnemonics = str(enemy[b'mnemonics'], encoding='utf-8')
     rooms = {}

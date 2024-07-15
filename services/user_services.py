@@ -127,7 +127,7 @@ async def get_user_account_data(user_id: int,
         'address': user_data[3],
         'purchase': user_data[5],
         'purchase_sum': user_data[6],
-        'referrals': user_data[7]
+        'referrals': user_data[7],
     }
     
     return user

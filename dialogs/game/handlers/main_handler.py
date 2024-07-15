@@ -1,4 +1,5 @@
 import logging
+import pprint
 
 from aiogram import F, Router
 from aiogram.filters import StateFilter
@@ -35,37 +36,14 @@ async def process_start_command(callback: CallbackQuery,
                                 button: Button,
                                 dialog_manager: DialogManager
                                 ):
-    
-    wallet = dialog_manager.current_context().dialog_data['wallet']
-    mnemonics = dialog_manager.current_context().dialog_data['mnemonics']
     logger.info(f'User {callback.from_user.id} enter the Game')
-    logger.info(f'Users {callback.from_user.id} wallet is {wallet}')
 
     await dialog_manager.reset_stack()
      
-    r = aioredis.Redis(host='localhost', port=6379)
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    
-    # User first time in game - add him to DB
-    if await r.exists(str(callback.from_user.id)) == 0:
-        
-        new_user_template = {
-            'total_games': 0,
-            'win': 0,
-            'lose': 0,
-            'rating': 0,
-            'current_game': 0,
-            'last_message': 0,
-            'wallet': wallet,
-            'mnemonics': mnemonics
-            }
-        
-        await r.hmset(str(callback.from_user.id), new_user_template)
-        logger.info(f'User {callback.from_user.id} is New. Added to Redis')
         
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
-    
     # Init Bot
     bot_config = get_config(BotConfig, "bot")
     bot = Bot(token=bot_config.token.get_secret_value(),
@@ -92,7 +70,7 @@ async def process_back_waiting_button(callback: CallbackQuery,
                                          reply_markup=play_account_kb(i18n))
         
         user = await r.hgetall(str(callback.from_user.id))
-        logger.info(f'Users {callback.from_user.id} data: {user}')
+        logger.info(f'Users {callback.from_user.id} data: {pprint.pprint(user)}')
         
         user[b'current_game'] = 0
         await r.hmset(str(callback.from_user.id), user)

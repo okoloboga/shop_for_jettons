@@ -14,6 +14,7 @@ account_dialog = Dialog(
     # Main information
     Window(
         Format('{account_data}'),
+        Button(Format('{button_wallet}'), id='b_wallet', on_click=show_address),
         Row(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_back}'), id='b_back', on_click=go_start),
@@ -28,3 +29,4 @@ account_dialog = Dialog(
         state=AccountSG.account
     )
 )
+
