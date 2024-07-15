@@ -91,7 +91,7 @@ async def process_yes_answer(callback: CallbackQuery,
         logger.info(f'User {callback.from_user.id} have not enough jettons')
         await callback.message.edit_text(text=i18n.notenough(),
                                          reply_markup=bet_kb(i18n))
-    elif float(ton) < 0.09:
+    elif float(ton) < 0.065:
         logger.info(f'User {callback.from_user.id} have not enough TON')
         await callback.message.edit_text(text=i18n.notenough.ton(
                                                 wallet=wallet
@@ -262,7 +262,7 @@ async def select_enemy_button(callback: CallbackQuery,
             await callback.answer()
             
     # Player have not enough TON to pay fee
-    elif float(ton) < 0.09:
+    elif float(user_ton) < 0.065:
         logger.info(f'User {callback.from_user.id} have not enough TON for fee')
         try:
             await callback.message.edit_text(text=i18n.notenough.ton(
@@ -319,11 +319,10 @@ async def select_enemy_button(callback: CallbackQuery,
                                           reply_markup=game_confirm(i18n))
             await bot.delete_message(room_id, mes_id)
             enemy[b'last_message'] = msg1.message_id
-            print(msg1.message_id)
             await r.hmset(room_id, enemy)
         except TelegramBadRequest:
             await callback.answer()
 
-        await asyncio.create_task(timer(bot, i18n, room_id))
+        await asyncio.create_task(timer(bot, i18n, room_id, play_account_kb))
 
-        logger.info(f'Game {game['player_1']} is started, timer started')
+        logger.info(f'Game {game['player1']} is started, timer started')

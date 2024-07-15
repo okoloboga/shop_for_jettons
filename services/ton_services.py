@@ -153,7 +153,7 @@ async def jetton_transfer_game(value: int,
     await loser_wallet.transfer_jetton(
         destination_address=winner_wallet,
         jetton_master_address=config[4],
-        jetton_amount=int(value)
+        jettons_amount=int(value)
     )
     
     logger.info(f'Jettons transfered from {loser_wallet.address} to {winner_wallet}')

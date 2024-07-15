@@ -113,7 +113,10 @@ async def order_confirmation_getter(
 
     # User data
     user_dict = dialog_manager.start_data
-    username = user_dict['username']
+    if user_dict['username'] is None:
+        username = 'no_username'
+    else:
+        username = user_dict['username']
 
     # Getting data of item from PAGE
     item = await get_user_item_metadata(user_dict, 
@@ -164,7 +167,7 @@ async def complete_order_getter(
 
     logger.info(f'TON Value of wallet {wallet} is {round(ton_value, 2)}')
 
-    if round(ton_value, 2) > 0.09:
+    if round(ton_value, 2) > 0.065:
         # Place new order and return index of order
         index_and_data = await new_order(
             db_engine,

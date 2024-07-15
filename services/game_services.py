@@ -103,12 +103,12 @@ async def game_result(result: str,
         enemy[b'rating'] = int(enemy[b'win'] / enemy[b'total_games'] * 1000)
         enemy[b'current_game'] = b'0'
         enemy[b'last_message'] = msg_id
-        
+
         await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
                                    loser_mnemonics=str(user[b'mnemonics'], encoding='utf-8'),
                                    winner_wallet=str(enemy[b'wallet'], encoding='utf-8'))
 
-    else:
+    elif result == 'win':
         # Player wins
         user[b'total_games'] = int(str(user[b'total_games'], encoding='utf-8')) + 1
         user[b'win'] = int(str(user[b'win'], encoding='utf-8')) + 1
@@ -121,8 +121,8 @@ async def game_result(result: str,
         enemy[b'last_message'] = msg_id
         
         await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
-                                    loser_mnemonics=str(enemy[b'mnemonics'], encoding='utf-8'),
-                                    winner_wallet=str(user[b'wallet'], encoding='utf-8'))
+                                   loser_mnemonics=str(enemy[b'mnemonics'], encoding='utf-8'),
+                                   winner_wallet=str(user[b'wallet'], encoding='utf-8'))
 
     await r.hmset(my_id, user)
     await r.hmset(enemy_id, enemy)

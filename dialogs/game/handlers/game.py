@@ -195,6 +195,7 @@ async def process_game_button(callback: CallbackQuery,
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
+                await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
                                              reply_markup=play_account_kb(i18n))
                 await bot.delete_message(enemy_id, msg.message_id - 1)
@@ -212,6 +213,7 @@ async def process_game_button(callback: CallbackQuery,
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
+                await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
                                              reply_markup=play_account_kb(i18n))
                 await bot.delete_message(enemy_id, msg.message_id - 1)
@@ -247,6 +249,7 @@ async def process_game_button(callback: CallbackQuery,
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
+                await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
                                              reply_markup=play_account_kb(i18n))
                 await bot.delete_message(enemy_id, msg.message_id - 1)
@@ -262,6 +265,7 @@ async def process_game_button(callback: CallbackQuery,
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
+                await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
                                              reply_markup=play_account_kb(i18n))
                 await bot.delete_message(enemy_id, msg.message_id - 1)

@@ -252,12 +252,15 @@ async def new_order(db_engine: AsyncEngine,
                     new_order_data: dict,
                     current_count: int
                     ) -> list:
+    
     logger.info(f'Placing new order by user {user_dict['user_id']}')
 
     order_counter: int  # Index of last order
-
     manager_id: int  # ID of manager for notification sending
     costumers_mnemonics: str  # Mnemonics of TON wallet for transaction
+    
+    if user_dict['username'] is None:
+        user_dict['username'] = 'no_username'
     
     # Getting current date and time
     now = datetime.now()

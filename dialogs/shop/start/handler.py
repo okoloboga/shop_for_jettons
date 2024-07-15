@@ -101,6 +101,21 @@ async def command_start_process(
                                    data={'user_id': message.from_user.id}
                                    )
     else:
+        if await r.exists(str(message.from_user.id)) == 0:
+            # User first time in Redis DB - add him to DB      
+            new_user_template = {
+                'total_games': 0,
+                'win': 0,
+                'lose': 0,
+                'rating': 0,
+                'current_game': 0,
+                'last_message': 0,
+                'wallet': user[0],
+                'mnemonics': user[1]
+                }
+                
+            await r.hmset(str(message.from_user.id), new_user_template)
+        
         logger.info(f'{message.from_user.id} is old user')
         await dialog_manager.start(state=StartSG.start,
                                    data={'user_id': message.from_user.id}
