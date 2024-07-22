@@ -53,6 +53,7 @@ async def switch_to_account(callback: CallbackQuery,
                             ):
     logger.info(f'Switch to Account dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=AccountSG.account,
+                               mode=StartMode.RESET_STACK,
                                data={'user_id': callback.from_user.id}
                                )
 
@@ -73,6 +74,7 @@ async def switch_to_want(callback: CallbackQuery,
                          ):
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
     await dialog_manager.start(state=WantSG.want,
+                               mode=StartMode.RESET_STACK,
                                data={'user_id': callback.from_user.id,
                                      'username': callback.from_user.username}
                                )
@@ -120,7 +122,10 @@ async def go_back(callback: CallbackQuery,
             await conn.commit()
             logger.info(f'User {callback.from_user.id} page changed to {user_page[0]-1}')
 
-    await dialog_manager.switch_to(state=StartSG.start)
+    await dialog_manager.start(state=StartSG.start,
+                               mode=StartMode.RESET_STACK,
+                               data={'user_id': callback.from_user.id}
+                               )
 
 
 # Process NEXT button
