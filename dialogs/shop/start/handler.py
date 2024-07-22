@@ -5,7 +5,7 @@ from aiogram import Router
 from aiogram.utils.deep_linking import decode_payload
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import CallbackQuery, Message
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
