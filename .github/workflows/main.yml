@@ -5,7 +5,7 @@ on:
       - 'main'
 jobs:
   build_and_push:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
       steps:
         -
           name: Login to Docker Hub
