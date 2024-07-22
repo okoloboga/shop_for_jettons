@@ -98,6 +98,7 @@ async def command_start_process(
             Added to Redis\n{pprint.pprint(new_user_template)}')
         
         await dialog_manager.start(state=StartSG.start,
+                                   mode=StartMode.RESET_STACK,
                                    data={'user_id': message.from_user.id}
                                    )
     else:
@@ -118,6 +119,7 @@ async def command_start_process(
         
         logger.info(f'{message.from_user.id} is old user')
         await dialog_manager.start(state=StartSG.start,
+                                   mode=StartMode.RESET_STACK,
                                    data={'user_id': message.from_user.id}
                                    )
 

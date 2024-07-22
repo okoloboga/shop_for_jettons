@@ -41,7 +41,7 @@ async def item_info_getter(
 
     # Getting data of item by Page in Users table
     item = await get_user_item_metadata(user_dict, db_engine)
-
+    
     category = item['category']
     name = item['name']
     description = item['description']
