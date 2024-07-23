@@ -1,5 +1,3 @@
-#bot #github #readme
-
 ### Shop template in Telegram
 Empty template for Market based in Telegram Bot. 
 Working example: https://t.me/nitrogen_market_bot
