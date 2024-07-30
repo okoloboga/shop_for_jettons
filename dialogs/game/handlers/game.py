@@ -49,7 +49,6 @@ async def process_game_confirm_button(callback: CallbackQuery,
         await callback.message.edit_text(text=i18n.rules(),
                                          reply_markup=game_process_kb(i18n))
         await bot.delete_message(chat_id, id)
-        await (await bot.get_session()).close()
         
     except TelegramBadRequest:
         await callback.answer()
@@ -97,22 +96,8 @@ async def process_game_button(callback: CallbackQuery,
 
     # Timing for writing
     await asyncio.sleep(2)
+    logger.info(f'MOVES: P1 {game[b'player1_move'] P2 {game[b'player2_move]}')
     
-    '''
-               __                            __        __                     
-              |  \                          |  \      |  \                    
-      _______ | $$____    ______    ______ _| $$   __  \$$ _______    ______  
-     /       \| $$    \  /      \  /       \| $$  /  \|  \|       \  /      \ 
-    |  $$$$$$$| $$$$$$$\|  $$$$$$\|  $$$$$$$| $$_/  $$| $$| $$$$$$$\|  $$$$$$
-    | $$      | $$  | $$| $$    $$| $$      | $$   $$ | $$| $$  | $$| $$  | $$
-    | $$_____ | $$  | $$| $$$$$$$$| $$_____ | $$$$$$\ | $$| $$  | $$| $$__| $$
-     \$$     \| $$  | $$ \$$     \ \$$     \| $$  \$$\| $$| $$  | $$ \$$    $$
-      \$$$$$$$ \$$   \$$  \$$$$$$$  \$$$$$$$ \$$   \$$ \$$ \$$   \$$ _\$$$$$$$
-                                                                    |  \__| $$
-                                                                    \$$    $$
-                                                                    \$$$$$$
-    '''
-
     # If both players made move
     if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
         
@@ -176,21 +161,6 @@ async def process_game_button(callback: CallbackQuery,
         game[b'player2_move'] = b'0'
         await r.hmset(enemy_id, enemy)
         await r.hmset('g_'+str(room_id), game)
-        
-        '''
-                     __          __                               
-           _/  \        |  \                              
-  ______  |   $$        | $$  ______    _______   ______  
- /      \  \$$$$        | $$ /      \  /       \ /      \ 
-|  $$$$$$\  | $$        | $$|  $$$$$$\|  $$$$$$$|  $$$$$$
-| $$  | $$  | $$        | $$| $$  | $$ \$$    \ | $$    $$
-| $$__/ $$ _| $$_       | $$| $$__/ $$ _\$$$$$$\| $$$$$$$$
-| $$    $$|   $$ \      | $$ \$$    $$|       $$ \$$     
-| $$$$$$$  \$$$$$$       \$$  \$$$$$$  \$$$$$$$   \$$$$$$$
-| $$                                                      
-| $$                                                      
- \$$       
-        '''
 
         # Checking player1 health for zero
         if game[b'player1_health'] == b'0' or game[b'player1_health'] == 0:
@@ -230,23 +200,7 @@ async def process_game_button(callback: CallbackQuery,
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
             await state.clear()
-            
-            '''
-                        ______         __                               
-                       /      \       |  \                              
-              ______  |  $$$$$$\      | $$  ______    _______   ______  
-             /      \  \$$__| $$      | $$ /      \  /       \ /      \ 
-            |  $$$$$$\ /      $$      | $$|  $$$$$$\|  $$$$$$$|  $$$$$$
-            | $$  | $$|  $$$$$$       | $$| $$  | $$ \$$    \ | $$    $$
-            | $$__/ $$| $$_____       | $$| $$__/ $$ _\$$$$$$\| $$$$$$$$
-            | $$    $$| $$     \      | $$ \$$    $$|       $$ \$$     
-            | $$$$$$$  \$$$$$$$$       \$$  \$$$$$$  \$$$$$$$   \$$$$$$$
-            | $$                                                        
-            | $$                                                        
-             \$$             
-            '''            
-            
-            
+                  
         # Checking player2 health for zero
         elif game[b'player2_health'] == b'0' or game[b'player2_health'] == 0:
             if i_am == b'player2':
