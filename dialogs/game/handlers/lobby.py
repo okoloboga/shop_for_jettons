@@ -282,8 +282,7 @@ async def select_enemy_button(callback: CallbackQuery,
 
         user[b'current_game'] = room_id
         await r.hmset(str(callback.from_user.id), user)
-        game = {
-                'player1': int(room_id),
+        game = {'player1': int(room_id),
                 'player2': int(callback.from_user.id),
                 'bet': int(rooms['r_'+str(room_id)]),
                 'player1_move': 0,
@@ -291,10 +290,9 @@ async def select_enemy_button(callback: CallbackQuery,
                 'player1_health': 2,
                 'player2_health': 2,
                 'player1_msg_id': 0,
-                'player2_msg_id': 0
-                }
-        
-        logger.info(f'Game created {pprint.pprint(game)}')
+                'player2_msg_id': 0}
+        print(game)
+        logger.info(f'Game created {game}')
         
         await r.hmset('g_'+str(room_id), game)
 
