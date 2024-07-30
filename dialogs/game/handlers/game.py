@@ -77,7 +77,7 @@ async def process_game_button(callback: CallbackQuery,
     room_id = int(str(user[b'current_game'], encoding='utf-8'))
     _game = await r.hgetall('g_'+str(room_id))
 
-    logger.info(f'Before writing move {_game}')
+    logger.info(f"Before writing move: P1 {_game[b'player1_move']}; P2 {_game[b'player2_move']}")
 
     user[b'last_message'] = callback.message.message_id
     i_am = None
@@ -89,6 +89,8 @@ async def process_game_button(callback: CallbackQuery,
         i_am = b'player2'
         enemy_am = b'player1'
     move = (f"{i_am}+b'_move'")
+    logger.info(f'Move is {move}')
+
     enemy_id = str(_game[enemy_am], encoding='utf-8')
     enemy = await r.hgetall(enemy_id)
 
@@ -99,7 +101,7 @@ async def process_game_button(callback: CallbackQuery,
 
     # Timing for writing
     await asyncio.sleep(2)
-    logger.info(f"After writing move {game}")
+    logger.info(f"After writing move: P1 {game[b'player1_move']}; P2 {game[b'player2_move']}")
     
     # If both players made move
     if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
