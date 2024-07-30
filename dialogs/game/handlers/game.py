@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import pprint
 
 from aiogram import F, Router, Bot
 from aiogram.types import CallbackQuery, Message
@@ -78,7 +77,7 @@ async def process_game_button(callback: CallbackQuery,
     room_id = int(str(user[b'current_game'], encoding='utf-8'))
     _game = await r.hgetall('g_'+str(room_id))
 
-    logger.info(f'Before writing move {pprint.pprint(_game)}')
+    logger.info(f'Before writing move {_game)}')
 
     user[b'last_message'] = callback.message.message_id
     i_am = None
@@ -100,7 +99,7 @@ async def process_game_button(callback: CallbackQuery,
 
     # Timing for writing
     await asyncio.sleep(2)
-    logger.info(f"After writing move {pprint.pprint(game)}")
+    logger.info(f"After writing move {game}")
     
     # If both players made move
     if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
