@@ -77,7 +77,7 @@ async def process_game_button(callback: CallbackQuery,
     room_id = int(str(user[b'current_game'], encoding='utf-8'))
     _game = await r.hgetall('g_'+str(room_id))
 
-    logger.info(f'Before writing move {_game)}')
+    logger.info(f'Before writing move {_game}')
 
     user[b'last_message'] = callback.message.message_id
     i_am = None
