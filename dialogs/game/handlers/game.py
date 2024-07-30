@@ -86,7 +86,7 @@ async def process_game_button(callback: CallbackQuery,
     elif int(str(_game[b'player2'], encoding='utf-8')) == callback.from_user.id:
         i_am = b'player2'
         enemy_am = b'player1'
-    move = i_am+b'_move'
+    move = (f"{i_am}+b'_move'")
     enemy_id = str(_game[enemy_am], encoding='utf-8')
     enemy = await r.hgetall(enemy_id)
 
@@ -94,6 +94,9 @@ async def process_game_button(callback: CallbackQuery,
     _game[move] = callback.data
     await r.hmset('g_' + str(room_id), _game)
     game = await r.hgetall('g_' + str(room_id))
+
+    # Timing for writing
+    await asyncio.sleep(2)
     
     '''
                __                            __        __                     

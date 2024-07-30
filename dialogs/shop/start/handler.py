@@ -7,6 +7,7 @@ from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, StartMode
 
+from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from redis import asyncio as aioredis
