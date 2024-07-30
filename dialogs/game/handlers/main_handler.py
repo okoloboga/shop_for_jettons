@@ -34,10 +34,12 @@ logging.basicConfig(
 # START command
 @router_game_menu.callback_query(StateFilter(StartSG.start))
 async def process_start_command(callback: CallbackQuery,
-                                bot: Bot,
+                                button: Button,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
+    logger.info(f'{dialog_manager.middleware_data()}')
+    logger.info(f'{dialog_manager.current_context()}')
 
     session = aiohttp.ClientSession()
     session.close()
