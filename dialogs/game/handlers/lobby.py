@@ -66,7 +66,7 @@ async def process_create_button(callback: CallbackQuery,
 @router_game_lobby.callback_query(F.data.in_(['b1', 'b2', 'b3', 'b4', 'b5', 'b25']), 
                                   StateFilter(FSMMain.make_bet)
                                   )
-async def process_yes_answer(callback: CallbackQuery, 
+async def process_bet_button(callback: CallbackQuery, 
                              state: FSMContext, 
                              i18n: TranslatorRunner
                              ):
@@ -156,10 +156,10 @@ async def process_wait_button(callback: CallbackQuery,
 @router_game_lobby.callback_query(F.data == 'join', 
                                   StateFilter(default_state)
                                   )
-async def process_yes_answer(callback: CallbackQuery, 
-                             state: FSMContext, 
-                             i18n: TranslatorRunner
-                             ):
+async def process_join_answer(callback: CallbackQuery, 
+                              state: FSMContext, 
+                              i18n: TranslatorRunner
+                              ):
     
     logger.info(f'User {callback.from_user.id} pressed button Join')
     
@@ -193,7 +193,7 @@ async def process_yes_answer(callback: CallbackQuery,
             except TelegramBadRequest:
                 await callback.answer()
         else:
-            logger.info(f'User {callback.from_user.id} go to select enemy...')
+            logger.info(f'User {callback.from_user.id} go to select enemy, rooms {rooms}')
             try:
                 await callback.message.edit_text(text=i18n.select.enemy(),
                                                  reply_markup=select_enemy(rooms, i18n))
@@ -274,10 +274,12 @@ async def select_enemy_button(callback: CallbackQuery,
     
     # All is great, game starts
     else:
-        
-        logger.info(f'User {callback.from_user.id} game could be start...')
-        
+       
         room_id = callback.data[0:(callback.data.find(' '))]
+         
+        logger.info(f'User {callback.from_user.id} game could be start in room id {room_id}')
+        logger.info(f"Bet: {rooms['r_'+str(room_id)]}")
+
         user[b'current_game'] = room_id
         await r.hmset(str(callback.from_user.id), user)
         game = {
