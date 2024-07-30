@@ -48,7 +48,7 @@ async def process_start_command(callback: CallbackQuery,
 
     await bot.delete_message(callback.from_user.id, msg.message_id - 1)
     
-    session = await aiohttp.ClientSession()
+    session = aiohttp.ClientSession()
     await session.close()
 
     await dialog_manager.reset_stack()
