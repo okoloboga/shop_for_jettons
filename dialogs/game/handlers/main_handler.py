@@ -38,19 +38,21 @@ async def process_start_command(callback: CallbackQuery,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
-    logger.info(f'{pprint.pprint(dialog_manager.middleware_data)}')
-    session = aiohttp.ClientSession()
-    session.close()
-
-    await dialog_manager.reset_stack()
-     
+ #   logger.info(f'{pprint.pprint(dialog_manager.middleware_data)}')
+    
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    bot: Bot = dialog_manager.middleware_data.get('bot')
         
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
 
-    # await bot.delete_message(callback.from_user.id, msg.message_id - 1)
+    await bot.delete_message(callback.from_user.id, msg.message_id - 1)
+    
+    session = aiohttp.ClientSession()
+    session.close()
 
+    await dialog_manager.reset_stack()
+ 
     logger.info(f'Last message {msg.message_id - 1} is deleted')
     
 
