@@ -96,7 +96,7 @@ async def process_game_button(callback: CallbackQuery,
 
     # Timing for writing
     await asyncio.sleep(2)
-    logger.info(f'MOVES: P1 {game[b'player1_move'] P2 {game[b'player2_move]}')
+    logger.info(f"MOVES: P1 {game[b'player1_move']} P2 {game[b'player2_move']}")
     
     # If both players made move
     if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
