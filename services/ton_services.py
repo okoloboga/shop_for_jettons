@@ -83,7 +83,7 @@ async def central_check() -> bool:
     central_wallet = Wallet(provider=client, mnemonics=config[3].split(), version='v4r2')
     logger.info('Central wallet activated')
     
-    balance = (await wallet.get_balance()) / 1000000000
+    balance = (await central_wallet.get_balance()) / 1000000000
 
     logger.info(f'Central Wallet Ton calue is {balance}')
     

@@ -38,7 +38,6 @@ async def process_start_command(callback: CallbackQuery,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
- #   logger.info(f'{pprint.pprint(dialog_manager.middleware_data)}')
     
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     bot: Bot = dialog_manager.middleware_data.get('bot')

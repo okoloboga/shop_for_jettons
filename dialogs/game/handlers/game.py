@@ -9,7 +9,7 @@ from aiogram.filters import StateFilter, CommandStart
 from redis import asyncio as aioredis
 from fluentogram import TranslatorRunner
 
-from ..keyboards import game_process_kb, play_account_kb, enemy_leaved_ok
+from ..keyboards import game_process_kb, play_account_kb, enemy_leaved_ok, back_kb
 from services import turn_result, game_result
 from states import FSMMain
 
@@ -174,14 +174,14 @@ async def process_game_button(callback: CallbackQuery,
                 try:
                     # Return result and return to main menu
                     await callback.message.edit_text(text=i18n.lose(),
-                                                     reply_markup=play_account_kb(i18n))
+                                                     reply_markup=back_kb(i18n))
                     await bot.delete_message(chat_id, id)
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
-                                             reply_markup=play_account_kb(i18n))
+                                             reply_markup=back_kb(i18n))
                 # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
@@ -193,14 +193,14 @@ async def process_game_button(callback: CallbackQuery,
                 try:
                     # Return result and return to main menu
                     await callback.message.edit_text(text=i18n.win(),
-                                                     reply_markup=play_account_kb(i18n))
+                                                     reply_markup=back_kb(i18n))
                     await bot.delete_message(chat_id, id)
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
-                                             reply_markup=play_account_kb(i18n))
+                                             reply_markup=back_kb(i18n))
                 # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
@@ -213,14 +213,14 @@ async def process_game_button(callback: CallbackQuery,
                 try:
                     # Return result and return to main menu
                     await callback.message.edit_text(text=i18n.lose(),
-                                                     reply_markup=play_account_kb(i18n))
+                                                     reply_markup=back_kb(i18n))
                     await bot.delete_message(chat_id, id)
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
-                                             reply_markup=play_account_kb(i18n))
+                                             reply_markup=back_kb(i18n))
                 # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
@@ -230,14 +230,14 @@ async def process_game_button(callback: CallbackQuery,
                 try:
                     # Return result and return to main menu
                     await callback.message.edit_text(text=i18n.win(),
-                                                     reply_markup=play_account_kb(i18n))
+                                                     reply_markup=back_kb(i18n))
                     await bot.delete_message(chat_id, id)
                 except TelegramBadRequest:
                     await callback.answer()
                 # Return result to opponent and return to main menu
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
-                                             reply_markup=play_account_kb(i18n))
+                                             reply_markup=back_kb(i18n))
                 # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)

@@ -136,7 +136,7 @@ async def timer(bot: Bot,
                 play_account_kb
                 ):
     
-    await asyncio.sleep(120)
+    await asyncio.sleep(300)
     if await r.exists('g_' + str(room_id)) == 0:
         pass
     else:
