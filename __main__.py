@@ -74,6 +74,8 @@ async def main():
 
     setup_dialogs(dp)
 
+    setup_middlewares(dp=dp)
+
     # Skipping old updates
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, _translator_hub=translator_hub)
