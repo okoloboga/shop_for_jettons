@@ -88,7 +88,7 @@ async def process_game_button(callback: CallbackQuery,
     elif int(str(_game[b'player2'], encoding='utf-8')) == callback.from_user.id:
         i_am = b'player2'
         enemy_am = b'player1'
-    move = (f"{i_am}+b'_move'")
+    move = (f"{i_am}_move")
     logger.info(f'Move is {move}')
 
     enemy_id = str(_game[enemy_am], encoding='utf-8')
