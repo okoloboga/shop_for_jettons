@@ -2,7 +2,7 @@ import logging
 import pprint
 import aiohttp
 
-from aiogram import F, Router
+from aiogram import F, Router, Bot
 from aiogram.filters import StateFilter
 from aiogram.fsm.state import default_state
 from aiogram.fsm.context import FSMContext
@@ -34,7 +34,7 @@ logging.basicConfig(
 # START command
 @router_game_menu.callback_query(StateFilter(StartSG.start))
 async def process_start_command(callback: CallbackQuery,
-                                button: Button,
+                                bot: Bot,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
@@ -48,13 +48,8 @@ async def process_start_command(callback: CallbackQuery,
         
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
-    # Init Bot
-    bot_config = get_config(BotConfig, "bot")
-    bot = Bot(token=bot_config.token.get_secret_value(),
-              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-    
+
     await bot.delete_message(callback.from_user.id, msg.message_id - 1)
-    await (await bot.get_session()).close()
 
     logger.info(f'Last message {msg.message_id - 1} is deleted')
     
