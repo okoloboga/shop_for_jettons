@@ -70,6 +70,25 @@ async def wallet_deploy() -> list:
     return [new_wallet.address, new_wallet.mnemonics]
 
 
+# Checking Ton value on central_wallet before registration new user
+async def central_check() -> bool:
+    
+    logger.info(f'checking central wallet for minimal value of TON')
+    
+    # Connecting to TonCenterClient
+    config = _load_config()
+    client = TonCenterClient(key=config[1], testnet=False)
+    logger.info('TonCenterClient started')
+
+    central_wallet = Wallet(provider=client, mnemonics=config[3].split(), version='v4r2')
+    logger.info('Central wallet activated')
+    
+    balance = (await wallet.get_balance()) / 1000000000
+
+    logger.info(f'Central Wallet Ton calue is {balance}')
+    
+    return False if balance < 0.5 else True
+
 # Jettons value in wallet
 async def jetton_value(wallet: str) -> int:
 

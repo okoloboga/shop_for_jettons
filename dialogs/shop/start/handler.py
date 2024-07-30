@@ -11,8 +11,9 @@ from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from redis import asyncio as aioredis
 
+from services.ton_services import central_check
 from states import StartSG
-from services import new_user
+from services import new_user, central_check
 from database import users
 
 
@@ -36,7 +37,7 @@ async def command_start_process(
         db_engine: AsyncEngine,
         dialog_manager: DialogManager,
         command: CommandObject
-) -> None:
+        ) -> None:
     logger.info(f'==== Message: {message.text} ====')
     logger.info(f'==== command: {command} ====')
     logger.info(f'==== Command.args: {command.args} ====')
@@ -69,38 +70,45 @@ async def command_start_process(
 
     # If User is New...
     if len(user) == 0:
-
+    
         i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-        await message.answer(text=i18n.hello())
-        
-        logger.warning(f'{message.from_user.id} is new user')
-        wallet_data = await new_user(db_engine,
-                                     message.from_user.id,
-                                     message.from_user.first_name,
-                                     message.from_user.last_name,
-                                     payload)
-        
-        # User first time in Redis DB - add him to DB      
-        new_user_template = {
-            'total_games': 0,
-            'win': 0,
-            'lose': 0,
-            'rating': 0,
-            'current_game': 0,
-            'last_message': 0,
-            'wallet': wallet_data[0],
-            'mnemonics': wallet_data[1]
-            }
+
+        # Central wallet has enough TON for deploy new wallet?
+        if await central_check():
+            await message.answer(text=i18n.hello())
             
-        await r.hmset(str(message.from_user.id), new_user_template)
+            logger.warning(f'{message.from_user.id} is new user')
+            wallet_data = await new_user(db_engine,
+                                         message.from_user.id,
+                                         message.from_user.first_name,
+                                         message.from_user.last_name,
+                                         payload)
             
-        logger.info(f'User {message.from_user.id} is New.\
-            Added to Redis\n{pprint.pprint(new_user_template)}')
-        
-        await dialog_manager.start(state=StartSG.start,
-                                   mode=StartMode.RESET_STACK,
-                                   data={'user_id': message.from_user.id}
-                                   )
+            # User first time in Redis DB - add him to DB      
+            new_user_template = {
+                'total_games': 0,
+                'win': 0,
+                'lose': 0,
+                'rating': 0,
+                'current_game': 0,
+                'last_message': 0,
+                'wallet': wallet_data[0],
+                'mnemonics': wallet_data[1]
+                }
+                
+            await r.hmset(str(message.from_user.id), new_user_template)
+                
+            logger.info(f'User {message.from_user.id} is New.\
+                Added to Redis\n{pprint.pprint(new_user_template)}')
+            
+            await dialog_manager.start(state=StartSG.start,
+                                       mode=StartMode.RESET_STACK,
+                                       data={'user_id': message.from_user.id}
+                                       )
+        else:
+            await message.answer(text=i18n.registration.closed())
+
+
     else:
         if await r.exists(str(message.from_user.id)) == 0:
             # User first time in Redis DB - add him to DB      
