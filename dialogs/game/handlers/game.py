@@ -49,6 +49,8 @@ async def process_game_confirm_button(callback: CallbackQuery,
         await callback.message.edit_text(text=i18n.rules(),
                                          reply_markup=game_process_kb(i18n))
         await bot.delete_message(chat_id, id)
+        await (await bot.get_session()).close()
+        
     except TelegramBadRequest:
         await callback.answer()
 
@@ -129,9 +131,11 @@ async def process_game_button(callback: CallbackQuery,
                                          reply_markup=game_process_kb(i18n))
             try:
                 await bot.delete_message(enemy_id, msg.message_id - 1)
+            
             except TelegramBadRequest:
                 await bot.delete_message(enemy_id, msg.message_id)
             game[enemy_am + b'_health'] = int(str(game[enemy_am + b'_health'], encoding='utf-8')) - 1
+        
         elif result == 'enemy_caused_damaged':
             try:
                 # Return result of turn and keyboard for next move
@@ -146,9 +150,11 @@ async def process_game_button(callback: CallbackQuery,
                                          reply_markup=game_process_kb(i18n))
             try:
                 await bot.delete_message(enemy_id, msg.message_id - 1)
+
             except TelegramBadRequest:
                 await bot.delete_message(enemy_id, msg.message_id)
             game[i_am + b'_health'] = int(str(game[i_am + b'_health'], encoding='utf-8')) - 1
+
         elif result == 'nobody_won':
             try:
                 # Return result of turn and keyboard for next move
@@ -203,6 +209,7 @@ async def process_game_button(callback: CallbackQuery,
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
                 # Delete game process data
                 await r.delete('g_'+str(room_id))
+            
             else:
                 total_result = 'win'
                 try:
@@ -255,6 +262,7 @@ async def process_game_button(callback: CallbackQuery,
                 await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
+
             else:
                 total_result = 'win'
                 try:

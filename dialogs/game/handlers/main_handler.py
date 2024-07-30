@@ -1,5 +1,6 @@
 import logging
 import pprint
+import aiohttp
 
 from aiogram import F, Router
 from aiogram.filters import StateFilter
@@ -38,6 +39,9 @@ async def process_start_command(callback: CallbackQuery,
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
 
+    session = aiohttp.ClientSession()
+    session.close()
+
     await dialog_manager.reset_stack()
      
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -50,7 +54,8 @@ async def process_start_command(callback: CallbackQuery,
               default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     await bot.delete_message(callback.from_user.id, msg.message_id - 1)
-    
+    await (await bot.get_session()).close()
+
     logger.info(f'Last message {msg.message_id - 1} is deleted')
     
 

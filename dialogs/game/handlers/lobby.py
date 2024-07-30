@@ -318,6 +318,8 @@ async def select_enemy_button(callback: CallbackQuery,
                                           text=i18n.game.confirm(),
                                           reply_markup=game_confirm(i18n))
             await bot.delete_message(room_id, mes_id)
+            await (await bot.get_session()).close()
+            
             enemy[b'last_message'] = msg1.message_id
             await r.hmset(room_id, enemy)
         except TelegramBadRequest:
