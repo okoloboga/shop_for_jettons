@@ -38,7 +38,7 @@ async def process_start_command(callback: CallbackQuery,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
-    logger.info(f'{dialog_manager.middleware_data}')
+    logger.info(f'{pprint.pprint(dialog_manager.middleware_data)}')
     session = aiohttp.ClientSession()
     session.close()
 
@@ -49,7 +49,7 @@ async def process_start_command(callback: CallbackQuery,
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
 
-    await bot.delete_message(callback.from_user.id, msg.message_id - 1)
+    # await bot.delete_message(callback.from_user.id, msg.message_id - 1)
 
     logger.info(f'Last message {msg.message_id - 1} is deleted')
     
