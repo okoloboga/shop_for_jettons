@@ -161,7 +161,7 @@ async def process_game_button(callback: CallbackQuery,
             try:
                 await bot.delete_message(enemy_id, msg.message_id - 1)
             except TelegramBadRequest:
-                await bot.delete_message(enemy_id, message_id - 1)
+                await bot.delete_message(enemy_id, msg.message_id)
         game[b'player1_move'] = b'0'
         game[b'player2_move'] = b'0'
         await r.hmset(enemy_id, enemy)
