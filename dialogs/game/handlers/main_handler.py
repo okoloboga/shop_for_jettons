@@ -38,9 +38,7 @@ async def process_start_command(callback: CallbackQuery,
                                 dialog_manager: DialogManager
                                 ):
     logger.info(f'User {callback.from_user.id} enter the Game')
-    logger.info(f'{dialog_manager.middleware_data()}')
-    logger.info(f'{dialog_manager.current_context()}')
-
+    logger.info(f'{dialog_manager.middleware_data}')
     session = aiohttp.ClientSession()
     session.close()
 
