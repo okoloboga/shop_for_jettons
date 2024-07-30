@@ -182,7 +182,7 @@ async def process_game_button(callback: CallbackQuery,
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
                                              reply_markup=play_account_kb(i18n))
-                await bot.delete_message(enemy_id, msg.message_id - 1)
+                # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
                 # Delete game process data
@@ -201,7 +201,7 @@ async def process_game_button(callback: CallbackQuery,
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
                                              reply_markup=play_account_kb(i18n))
-                await bot.delete_message(enemy_id, msg.message_id - 1)
+                # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
             await state.clear()
@@ -221,7 +221,7 @@ async def process_game_button(callback: CallbackQuery,
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.win(),
                                              reply_markup=play_account_kb(i18n))
-                await bot.delete_message(enemy_id, msg.message_id - 1)
+                # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
 
@@ -238,7 +238,7 @@ async def process_game_button(callback: CallbackQuery,
                 await asyncio.sleep(2)
                 msg = await bot.send_message(enemy_id, text=i18n.lose(),
                                              reply_markup=play_account_kb(i18n))
-                await bot.delete_message(enemy_id, msg.message_id - 1)
+                # await bot.delete_message(enemy_id, msg.message_id - 1)
                 # Counting total wins, loses, games, jettons
                 await game_result(total_result, str(callback.from_user.id), enemy_id, room_id, msg.message_id)
             await state.clear()
