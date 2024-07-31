@@ -5,7 +5,7 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
@@ -36,7 +36,8 @@ async def main():
 
     # Config
     db_config = get_config(DbConfig, "db")
-    storage = RedisStorage(Redis())
+    storage = RedisStorage(Redis(),
+                           key_builder=DefaultKeyBuilder(with_destiny=True))
 
     engine = create_async_engine(
         url=str(db_config.dsn),
