@@ -59,7 +59,7 @@ async def process_game_confirm_button(callback: CallbackQuery,
 """MAIN GAME PROCESS IN ONE HANDLER"""
 
 
-@router_game_process.callback_query(F.data.in_(['rock', 'paper', 'scissors']), 
+@router_game_process.callback_query(F.data.in_(['rock', 'paper', 'scissors', 'check']), 
                                     StateFilter(FSMMain.in_game)
                                     )
 async def process_game_button(callback: CallbackQuery, 
@@ -89,14 +89,14 @@ async def process_game_button(callback: CallbackQuery,
         i_am = b'player2'
         enemy_am = b'player1'
     move = i_am + b'_move'
-    logger.info(f'Move is {move}')
-
     enemy_id = str(_game[enemy_am], encoding='utf-8')
     enemy = await r.hgetall(enemy_id)
 
-    # Setting players move
-    _game[move] = callback.data
-    await r.hmset('g_' + str(room_id), _game)
+    if callback.data != 'check':
+        # Setting players move
+        _game[move] = callback.data
+        await r.hmset('g_' + str(room_id), _game)
+
     game = await r.hgetall('g_' + str(room_id))
 
     # Timing for writing

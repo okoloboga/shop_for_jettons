@@ -13,6 +13,7 @@ button-take-it = TAKE!
 button-game = 🎲 Play 🎲
 button-shop = 🏷 Shop 🏷
 button-rooms = { $user_id } bet: { $bet }
+button-check = Wait
 create-button = 💥 Create 💥
 join-button = 🔍 Find 🔍
 

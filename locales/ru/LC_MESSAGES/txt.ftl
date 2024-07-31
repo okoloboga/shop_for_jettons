@@ -12,6 +12,7 @@ button-great = 👌 Отлично! 👌
 button-take-it = БЕРУ!
 button-game = 🎲 Играть 🎲
 button-shop = 🏷 Магазин 🏷
+button-check = Ждём
 button-rooms = { $user_id } ставка: { $bet }
 create-button = 💥 Создать 💥
 join-button = 🔍 Найти 🔍

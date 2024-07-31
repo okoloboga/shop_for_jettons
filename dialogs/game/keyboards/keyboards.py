@@ -107,3 +107,10 @@ def digit_inline(i18n: TranslatorRunner):
     digit_keyboard.append([button_back])
 
     return InlineKeyboardMarkup(inline_keyboard=digit_keyboard)
+
+
+# Checking for opponents turn
+def check_kb(i18n: TranslatorRunner):
+    button = InlineKeyboardButton(text=i18n.button.check(),
+                                  callback_data='check')
+    return InlineKeyboardMarkup(inline_keyboard=[[button]])
