@@ -5,11 +5,12 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.fsm.storage.redis import RedisStorage
 from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
 from fluentogram import TranslatorHub
+from redis.asyncio.client import Redis
 
 from config import get_config, BotConfig, DbConfig, Config, load_config
 from dialogs import (shop_dialogs, shop_routers, game_routers, admin_dialogs,
@@ -35,7 +36,7 @@ async def main():
 
     # Config
     db_config = get_config(DbConfig, "db")
-    storage = MemoryStorage()
+    storage = RedisStorage(Redis())
 
     engine = create_async_engine(
         url=str(db_config.dsn),
