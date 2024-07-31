@@ -45,8 +45,11 @@ async def process_start_command(callback: CallbackQuery,
     msg = await callback.message.answer(text=i18n.chose.action(),
                                         reply_markup=play_account_kb(i18n))
 
-    await bot.delete_message(callback.from_user.id, msg.message_id - 1)
-    
+    try:
+        await bot.delete_message(callback.from_user.id, msg.message_id - 1)
+    except TelegramBadRequest:
+        await callback.answer()
+
     session = aiohttp.ClientSession()
     await session.close()
 
