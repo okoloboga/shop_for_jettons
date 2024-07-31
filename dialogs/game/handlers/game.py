@@ -9,6 +9,8 @@ from aiogram.filters import StateFilter, CommandStart
 from redis import asyncio as aioredis
 from fluentogram import TranslatorRunner
 
+from dialogs.game.keyboards.keyboards import check_kb
+
 from ..keyboards import game_process_kb, play_account_kb, enemy_leaved_ok, back_kb
 from services import turn_result, game_result
 from states import FSMMain
@@ -245,7 +247,8 @@ async def process_game_button(callback: CallbackQuery,
     else:
         # Suggest you wait
         try:
-            await callback.message.edit_text(text=i18n.choice.made())
+            await callback.message.edit_text(text=i18n.choice.made(),
+                                             reply_markup=check_kb(i18n))
             await bot.delete_message(chat_id, id)
         except TelegramBadRequest:
             await callback.answer()
