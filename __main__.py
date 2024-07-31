@@ -5,7 +5,7 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
-from aiogram.fsm.storage.redis import RedisStorage, Redis
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy import text
@@ -35,8 +35,7 @@ async def main():
 
     # Config
     db_config = get_config(DbConfig, "db")
-    redis = Redis(host='localhost')
-    storage = RedisStorage(redis=redis)
+    storage = MemoryStorage()
 
     engine = create_async_engine(
         url=str(db_config.dsn),
@@ -73,9 +72,7 @@ async def main():
     dp.workflow_data.update({'admins': await get_admins_list(engine)})
 
     setup_dialogs(dp)
-
-    setup_middlewares(dp=dp)
-
+ 
     # Skipping old updates
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, _translator_hub=translator_hub)
