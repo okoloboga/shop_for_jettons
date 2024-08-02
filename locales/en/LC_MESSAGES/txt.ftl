@@ -56,6 +56,8 @@ button-count = ✖️ Count
                                \$$    
 #########################################
 
+registration-closed = Registration is closed!
+
 hello = 🌟 Hello! 🌟
         Welcome to our store!
         Here you can <b>buy</b> products

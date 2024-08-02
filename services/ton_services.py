@@ -85,9 +85,10 @@ async def central_check() -> bool:
     
     balance = (await central_wallet.get_balance()) / 1000000000
 
-    logger.info(f'Central Wallet Ton calue is {balance}')
+    logger.info(f'Central Wallet Ton value is {balance}')
     
     return False if balance < 0.5 else True
+
 
 # Jettons value in wallet
 async def jetton_value(wallet: str) -> int:
