@@ -28,7 +28,9 @@ If you try to build project, you may have problems with install TonTools.
 Two types problems: 
 - no c++ compiler (on Windows - just install <code>Microsoft Visual C++</code>, on Linux for Python - install <code>cmake</code> 
 - <code>Pydantic</code> versions conflict. <code>aiogram</code> use last version 2.8.X, but <code>TonTools</code> - 1.X. To fix that problem:
-  after installing <code>aiogram</code> and <code>TonTools</code> remove <code>pydantic</code> and install it again. 
+  after installing <code>aiogram</code> and <code>TonTools</code> remove <code>pydantic</code> and install it again.
+
+TonTools isn't good choice, it doestn't updated for a year, and have some problems...
 
 ## I18N
 Ready for EN and RU
