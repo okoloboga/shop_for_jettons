@@ -6,8 +6,8 @@ from aiogram.types import CallbackQuery
 from aiogram_dialog import DialogManager
 from aiogram_dialog.widgets.input.text import TextInput, ManagedTextInput
 
+from aiogram_dialog.widgets.kbd import Button
 from fluentogram import TranslatorRunner
-from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from states import WantSG
 
@@ -26,7 +26,7 @@ logging.basicConfig(
 # User pressed button TAKE IT ot start order process
 async def take_it(
         callback: CallbackQuery,
-        db_config: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):  
     logger.info(f'User {callback.from_user.id} starts TAKE IT process')

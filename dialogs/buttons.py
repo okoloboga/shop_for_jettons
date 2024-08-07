@@ -8,7 +8,7 @@ from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from fluentogram import TranslatorRunner
 
-from states import StartSG, AccountSG, CatalogueSG, WantSG
+from states import StartSG, AccountSG, CatalogueSG, WantSG, LobbySG
 from database import users, catalogue
 
 router_buttons = Router()
@@ -48,7 +48,7 @@ async def go_start(callback: CallbackQuery,
 
 # Switch to Account dialogue
 async def switch_to_account(callback: CallbackQuery,
-                            db_engine: AsyncEngine,
+                            button: Button,
                             dialog_manager: DialogManager
                             ):
     logger.info(f'Switch to Account dialog by user {callback.from_user.id}')
@@ -78,6 +78,16 @@ async def switch_to_want(callback: CallbackQuery,
                                data={'user_id': callback.from_user.id,
                                      'username': callback.from_user.username}
                                )
+
+# Switch to Game Lobby Dialog
+async def switch_to_game(callback: CallbackQuery,
+                         button: Button,
+                         dialog_manager: DialogManager
+                         ):
+
+    logger.info(f'Switch to Game Lobby dialog by user {callback.from_user.id}')
+    await dialog_manager.start(state=LobbySG.main,
+                               mode=StartMode.RESET_STACK)
 
 
 # Process BACK button

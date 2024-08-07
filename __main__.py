@@ -8,12 +8,11 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.redis import DefaultKeyBuilder, RedisStorage
 from aiogram_dialog import setup_dialogs
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy import text
 from fluentogram import TranslatorHub
 from redis.asyncio.client import Redis
 
 from config import get_config, BotConfig, DbConfig, Config, load_config
-from dialogs import (shop_dialogs, shop_routers, game_routers, admin_dialogs,
+from dialogs import (shop_dialogs, shop_routers, game_routers, game_dialogs, admin_dialogs,
                      admin_routers, router_unknown)
 from utils import TranslatorHub, create_translator_hub
 from middlewares import TranslatorRunnerMiddleware
@@ -44,13 +43,11 @@ async def main():
         echo=db_config.is_echo
     )
 
-    # Connection tes with database
-    async with engine.begin() as conn:
-        await conn.execute(text("SELECT 1"))
-
     # Create Tables
-    async with engine.begin() as conn:
-        await conn.run_sync(metadata.create_all)
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(metadata.drop_all)
+    #     await conn.run_sync(metadata.create_all)
+ 
     config: Config = load_config()
 
     # Init Bot in Dispatcher
@@ -63,13 +60,10 @@ async def main():
     translator_hub: TranslatorHub = create_translator_hub()
 
     # Routers, dialogs, middlewares
-    dp.include_routers(*shop_dialogs)
-    dp.include_routers(*shop_routers)
-    dp.include_routers(*game_routers)
-    dp.include_routers(*admin_dialogs)
-    dp.include_routers(*admin_routers)
-    dp.include_routers(router_unknown)
-    
+    dp.include_routers(*shop_dialogs, *shop_routers, game_dialogs, *game_routers,
+                       *admin_dialogs, *admin_routers)
+    dp.include_router(router_unknown)
+
     dp.update.middleware(TranslatorRunnerMiddleware())
     dp.workflow_data.update({'admins': await get_admins_list(engine)})
 

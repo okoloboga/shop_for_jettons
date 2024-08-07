@@ -16,6 +16,8 @@ button-rooms = { $user_id } bet: { $bet }
 button-check = Wait
 create-button = 💥 Create 💥
 join-button = 🔍 Find 🔍
+button-game-confirm = Start game!
+button-wait = Waiting...
 
 ##################
 # Admins Buttons #
@@ -506,9 +508,11 @@ you-first = No one created the 🎲<b>Game</b>🎲
 
             💥 Be the first to start! 💥
 
-select-enemy = Select your opponent
+search-game = Opponent ID - Bet
 
 game-confirm = 💥 Opponent found! 💥
+
+owner-notready = Opponent not ready yet!
 
 rules = The game goes until 2 losses.
         If you refuse 🎲<b>Game</b>🎲

@@ -7,8 +7,10 @@ from aiogram_dialog.widgets.kbd import Button, Row
 
 from .getter import *
 from .handler import *
-from dialogs.buttons import switch_to_account, switch_to_catalogue, switch_to_want
-from dialogs.game import process_start_command
+from states import StartSG
+from dialogs.buttons import (switch_to_account, switch_to_catalogue, 
+                             switch_to_want, switch_to_game) 
+
 
 '''Starting Menu with Items'''
 start_dialog = Dialog(
@@ -27,10 +29,10 @@ start_dialog = Dialog(
             Button(Format('{button_catalogue}'), id='b_catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_account}'), id='b_account', on_click=switch_to_account),
         ),
-        Button(Format('{button_game}'), id='b_game', on_click=process_start_command),
+        Button(Format('{button_game}'), id='b_game', on_click=switch_to_game),
         getter=start_getter,
         state=StartSG.start
-    ),
+        ),
     Window(
         Format('{item_show}'),
         StaticMedia(
@@ -46,10 +48,10 @@ start_dialog = Dialog(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_account}'), id='account', on_click=switch_to_account),
         ),
-        Button(Format('{button_game}'), id='b_game', on_click=process_start_command),
+        Button(Format('{button_game}'), id='b_game', on_click=switch_to_game),
         getter=start_previous_getter,
         state=StartSG.start_previous
-    ),
+        ),
     Window(
         Format('{item_show}'),
         StaticMedia(
@@ -65,10 +67,10 @@ start_dialog = Dialog(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_account}'), id='account', on_click=switch_to_account),
         ),
-        Button(Format('{button_game}'), id='b_game', on_click=process_start_command),
+        Button(Format('{button_game}'), id='b_game', on_click=switch_to_game),
         getter=start_next_getter,
         state=StartSG.start_next
-    ),
+        ),
     Window(
         Format('{item_show}'),
         StaticMedia(
@@ -84,8 +86,8 @@ start_dialog = Dialog(
             Button(Format('{button_catalogue}'), id='catalogue', on_click=switch_to_catalogue),
             Button(Format('{button_account}'), id='account', on_click=switch_to_account),
         ),
-        Button(Format('{button_game}'), id='b_game', on_click=process_start_command),
+        Button(Format('{button_game}'), id='b_game', on_click=switch_to_game),
         getter=show_item_getter,
         state=StartSG.show_item
+        )
     )
-)

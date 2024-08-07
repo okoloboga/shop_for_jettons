@@ -68,6 +68,7 @@ class EditRowSG(StatesGroup):
     delete_confirmed = State()
     changes_confirmed = State()
 
+
 class ConfirmOrderSG(StatesGroup):
     select_status = State()
     select_order = State()
@@ -79,11 +80,17 @@ class ConfirmOrderSG(StatesGroup):
     declined_order = State()
     completed_order = State()
 
-# Game states
-class FSMMain(StatesGroup):
-    
+
+# Game Lobby states
+class LobbySG(StatesGroup):
     main = State()
+    create_join = State()
     make_bet = State()
     wait_game = State()
     select_enemy = State()
-    in_game = State()
+    game_confirm = State()
+
+# Game Process state
+class GameSG(StatesGroup):
+    main = State()
+

@@ -4,8 +4,32 @@ from aiogram import Bot
 from fluentogram import TranslatorRunner
 from redis import asyncio as aioredis
 from services import jetton_transfer_game
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-r = aioredis.Redis(host='localhost', port=6379)
+from database import stats, users
+
+
+# Get User stats from database
+async def get_user_stats(db_engine: AsyncEngine,
+                         user_id: int) -> dict:
+
+    stats_stmt = (
+        select("*")
+        .select_from(stats)
+        .where(stats.c.telegram_id == user_id)
+    )
+
+    async with db_engine.connect() as conn:
+        stats_data_raw = await conn.execute(stats_stmt)
+        for row in stats_data_raw:
+            user_stats = list(row)
+
+    return {"telegram_id": user_stats[0],
+            "total_games": user_stats[1],
+            "wins": user_stats[2],
+            "loses": user_stats[3],
+            "rate": user_stats[4]}
 
 
 # Returns key of dict by users answer as value
@@ -28,6 +52,8 @@ async def _get_winner(player1_move: str | bytes,
                       room_id: str | int
                       ) -> str:
     
+    r = aioredis.Redis(host='localhost', port=6379)
+
     game = await r.hgetall('g_'+str(room_id))
     rules = {b'rock': b'scissors',
              b'scissors': b'paper',
@@ -88,8 +114,9 @@ async def game_result(result: str,
                       msg_id: int
                       ):
     
-    user = await r.hgetall(my_id)
-    enemy = await r.hgetall(enemy_id)
+    r = aioredis.Redis(host='localhost', port=6379)
+
+
     game = await r.hgetall('g_'+str(room_id))
 
     if result == 'lose': 
@@ -129,6 +156,7 @@ async def game_result(result: str,
     await r.delete('g_' + str(room_id))
 
 
+'''
 # Timing starts
 async def timer(bot: Bot, 
                 i18n: TranslatorRunner, 
@@ -178,3 +206,4 @@ async def timer(bot: Bot,
                                    reply_markup=play_account_kb(i18n))
             await bot.send_message(player1_id, text=i18n.lose(),
                                    reply_markup=play_account_kb(i18n))
+'''

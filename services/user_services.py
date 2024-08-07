@@ -86,12 +86,23 @@ async def new_user(
         status='user'
     )
 
+    # New user in Stats table (for Game)
+    new_stats = insert(stats).values(
+        telegram_id=user_id,
+        total_games=0,
+        wins=0,
+        loses=0,
+        rate=0
+        )
+
     # If user already exists in database
-    do_ignore = new_user.on_conflict_do_nothing(index_elements=["telegram_id"])
+    do_ignore_user = new_user.on_conflict_do_nothing(index_elements=["telegram_id"])
+    do_ignore_stats = new_stats.on_conflict_do_nothing(index_elements=["telegram_id"])
 
     # Commit to Database
     async with db_engine.connect() as conn:
-        await conn.execute(do_ignore)
+        await conn.execute(do_ignore_user)
+        await conn.execute(do_ignore_stats)
         await conn.commit()
         logger.info(f'New user {user_id} data writed')
         

@@ -6,7 +6,7 @@ from aiogram.utils.deep_linking import decode_payload
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import CallbackQuery, Message
 from aiogram_dialog import DialogManager, StartMode
-
+from aiogram_dialog.widgets.kbd import Button
 from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
@@ -137,7 +137,7 @@ async def command_start_process(
 # Pressing on Previous Page button
 async def previous_page(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):
     user_id = callback.from_user.id
@@ -148,7 +148,7 @@ async def previous_page(
 # Pressing on Next Page button
 async def next_page(
         callback: CallbackQuery,
-        db_engine: AsyncEngine,
+        button: Button,
         dialog_manager: DialogManager
 ):
     user_id = callback.from_user.id

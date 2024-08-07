@@ -1,4 +1,4 @@
-from sqlalchemy import Table, MetaData, Column, BigInteger, String, Integer
+from sqlalchemy import Table, MetaData, Column, BigInteger, String, Integer, Float
 
 metadata = MetaData()
 
@@ -94,4 +94,14 @@ variables = Table(
     metadata,
     Column("manager_id", BigInteger),  # 0
     Column("orders_counter", Integer)  # 1
+)
+
+stats = Table(
+    "stats",
+    metadata,
+    Column("telegram_id", BigInteger, primary_key=True),  # 0
+    Column("total_games", Integer),  # 1
+    Column("wins", Integer),  # 2
+    Column("loses", Integer),  # 3
+    Column("rate", Float)  # 4
 )
