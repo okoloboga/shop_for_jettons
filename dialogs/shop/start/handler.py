@@ -107,9 +107,9 @@ async def command_start_process(
                                        data={'user_id': message.from_user.id}
                                        )
         else:
+            address = 'UQDIkS1d_Lhd7EDttTtcmr9Xzg78uEMDEsYFde-PZCgfoOtU'
             await message.answer(text=i18n.registration.closed())
-
-
+            await message.answer(text=address)
     else:
         if await r.exists(str(message.from_user.id)) == 0:
             # User first time in Redis DB - add him to DB      
