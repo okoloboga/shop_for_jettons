@@ -10,9 +10,9 @@ def game_process_kb(i18n: TranslatorRunner):
                                     callback_data='scissors')
     button_3 = InlineKeyboardButton(text=i18n.paper(),
                                     callback_data='paper')
-    button_end_game = InlineKeyboardButton(text=i18n.end.game(),
-                                           callback_data='end_game')
-    return InlineKeyboardMarkup(inline_keyboard=[[button_1], [button_2], [button_3], [button_end_game]])
+    button_leave_game = InlineKeyboardButton(text=i18n.leave.game(),
+                                           callback_data='leave_game')
+    return InlineKeyboardMarkup(inline_keyboard=[[button_1], [button_2], [button_3], [button_leave_game]])
 
 
 # Confirm leaved enemy

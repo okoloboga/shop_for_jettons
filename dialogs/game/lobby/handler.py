@@ -1,5 +1,6 @@
 import logging
-import pprint
+import asyncio
+import services.game_services
 
 from aiogram import Router
 from aiogram.types import CallbackQuery
@@ -11,12 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from redis import asyncio as aioredis
 
 from states import LobbySG, StartSG
-from services import get_user_stats
+
 
 router_lobby = Router()
 
 logger = logging.getLogger(__name__)
-
 logging.basicConfig(level=logging.INFO,
                     format='%(filename)s:%(lineno)d #%(levelname)-8s '
                            '[%(asctime)s] - %(name)s - %(message)s')
@@ -89,7 +89,8 @@ async def lobby_join(callback: CallbackQuery,
 async def lobby_stats(callback: CallbackQuery,
                       button: Button,
                       dialog_manager: DialogManager):
-    
+
+    get_user_stats = services.game_services.get_user_stats
     user_id = callback.from_user.id
     logger.info(f"Getting stats of User {user_id}")
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -111,6 +112,7 @@ async def bet(callback: CallbackQuery,
     user_id = callback.from_user.id
     jettons = dialog_manager.current_context().dialog_data['jettons']
     ton = dialog_manager.current_context().dialog_data['ton']
+    wallet = dialog_manager.current_context().dialog_data['wallet']
     logger.info(f"User {user_id} made bet {bet}")
 
     # Get wallet balance of user
@@ -203,7 +205,7 @@ async def game_selection(callback: CallbackQuery,
     
     # All is great, game starts
     else:
-         
+        timer = services.game_services.timer
         logger.info(f'User {user_id} game could be start in room id {enemy_id}')
         logger.info(f"Bet: {selected_game[1]}")
 
@@ -220,10 +222,11 @@ async def game_selection(callback: CallbackQuery,
         
         await r.hmset('g_'+str(enemy_id), game)
 
-        # Deleting waiting/lobby room
+        # Deleting waiting/lobby room and start timer
         await r.delete('r_'+str(enemy_id))
 
         await dialog_manager.switch_to(LobbySG.game_confirm)
+
 
 
 # Process Exit from game - from lobby and game

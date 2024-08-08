@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from aiogram import Bot
 from aiogram.types import CallbackQuery, InlineKeyboardMarkup
@@ -6,12 +7,23 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram_dialog import DialogManager, StartMode
 from fluentogram import TranslatorRunner
 from redis import asyncio as aioredis
-from services import jetton_transfer_game
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import stats, users
 from states import LobbySG
+from .ton_services import jetton_transfer_game
+from .admin_services import get_user_data
+from dialogs.game.game import game_end
+
+logger = logging.getLogger(__name__)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(filename)s:%(lineno)d #%(levelname)-8s '
+           '[%(asctime)s] - %(name)s - %(message)s')
+
+r = aioredis.Redis(host='localhost', port=6379)
 
 
 # Get User stats from database
@@ -103,6 +115,53 @@ async def turn_result(player1_move: str | bytes,
             return 'you_lose'
 
 
+# Writing data from Game Result to Database
+async def write_game_result(db_engine: AsyncEngine,
+                            result: dict):
+    logger.info(f'Writing data about result of game in database: {result}')
+
+    # Get wallets from Database
+    winner_wallet = (await get_user_data(int(result['winner']), 
+                                         db_engine))['address']
+    loser_mnemonics = (await get_user_data(int(result['loser']), 
+                                           db_engine))['mnemonics']
+
+    logger.info(f"Winner wallet: {winner_wallet}\nLoser mnemonics {loser_mnemonics}")
+    
+    winner_old_stats = await get_user_stats(db_engine, 
+                                             int(result['winner']))
+    loser_old_stats = await get_user_stats(db_engine,
+                                           int(result['loser']))
+
+    logger.info(f"Winner old stats: {winner_old_stats}\n Loser old stats: {loser_old_stats}")
+
+    winner_stats_stmt = (stats.update()
+                         .values(total_games = int(winner_old_stats['total_games']) + 1,
+                                 wins = int(winner_old_stats['wins']) + 1,
+                                 rate = (int(winner_old_stats['wins']) + 1) / (int(winner_old_stats['total_games']) + 1))
+                         .where(stats.c.telegram_id == int(result['winner'])))
+
+    loser_stats_stms = (stats.update()
+                        .values(total_games = int(loser_old_stats['total_games']) + 1,
+                                loses = int(loser_old_stats['loses']) + 1,
+                                rate = int(loser_old_stats['wins']) / (int(loser_old_stats['total_games']) + 1))
+                        .where(stats.c.telegram_id == int(result['loser'])))
+
+    async with db_engine.connect() as conn:
+        await conn.execute(winner_stats_stmt)
+        await conn.execute(loser_stats_stms)
+        await conn.commit()
+        logger.info(f"New stats writed for winner {result['winner']} and loser {result['loser']}")
+    
+    '''
+    DISABLED FOR TESTS
+    await jetton_transfer_game(value=int(result['bet']),
+                               loser_mnemonics,
+                               winner_wallet)
+    '''
+    logger.info(f'Jetton for game transfered')
+
+
 # Making dict with game results
 async def game_result(callback: CallbackQuery,
                       dialog_manager: DialogManager,
@@ -114,134 +173,159 @@ async def game_result(callback: CallbackQuery,
                       bot: Bot,
                       game_end: InlineKeyboardMarkup):
 
-    bet = str(game[b'bet'], encoding='utf-8')
-    message_map = {'lose': i18n.lose(),
-                   'win': i18n.win()}
 
-    result = {'winner': enemy_id if game_result == 'lose' else user_id,
-              'loser': enemy_id if game_result == 'win' else user_id,
+    logger.info(f"Game result: total_result - {total_result}, enemy_id - {enemy_id}, user_id - {user_id}")
+    game_id = str(game[b'player1'], encoding='utf-8')
+    task = [task for task in asyncio.all_tasks() if task.get_name() == f'timer_{game_id}']
+    print(task)
+    task[0].cancel()
+    bet = str(game[b'bet'], encoding='utf-8')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
+    message_map = {'loser': i18n.lose(),
+                   'winner': i18n.win()}
+    result = {'winner': enemy_id if total_result == 'lose' else user_id,
+              'loser': enemy_id if total_result == 'win' else user_id,
               'bet': bet}
 
+    # Clear cache of Redis
+    await r.delete('g_'+str(game[b'player1'], encoding='utf-8'))
+    await r.delete(str(user_id))
+    await r.delete(str(enemy_id))
+    await r.delete('wait_'+str(user_id))
+    await r.delete('wait_'+str(enemy_id))
+    await r.delete('result_'+str(user_id))
+    await r.delete('result_'+str(enemy_id))
+
+    # Writing Game results to Database
+    await write_game_result(db_engine, result)
+
+    user_msg = await bot.send_message(user_id, 
+                                      text=message_map[
+                                          'winner' if result['winner'] == user_id else 'loser'
+                                          ])
     try:
-        # Return result and return to main menu
-        await callback.message.edit_text(text=message_map[total_result])
-    except TelegramBadRequest:
-        await callback.answer()
+        await bot.delete_messages(user_id, [msg for msg in range(user_msg.message_id-1, user_msg.message_id - 10, -1)])
+    except TelegramBadRequest as ex:
+                   logger.info(f'{ex.message}')
 
     await dialog_manager.start(state=LobbySG.main,
                                mode=StartMode.RESET_STACK,
                                data={**result})
 
     # Return result to opponent and return to main menu
-    await asyncio.sleep(1)
-    msg = await bot.send_message(enemy_id, 
-                                 text=message_map[total_result],
-                                 reply_markup=game_end(i18n))
+    enemy_msg = await bot.send_message(enemy_id, 
+                                       text=message_map[
+                                           'winner' if result['winner'] == enemy_id else 'loser'
+                                           ],
+                                       reply_markup=game_end(i18n))
     try: 
-        await bot.delete_message(enemy_id, msg.message_id - 1)
-    except TelegramBadRequest:
-        await callback.answer()
-
-
-'''
-# Changing account stats after game
-async def game_result(result: str, 
-                      my_id: str, 
-                      enemy_id: str, 
-                      room_id: str | int, 
-                      msg_id: int
-                      ):
-    
-    r = aioredis.Redis(host='localhost', port=6379)
-
-
-    game = await r.hgetall('g_'+str(room_id))
-
-    if result == 'lose': 
-        # Player lose
-        user[b'total_games'] = int(str(user[b'total_games'], encoding='utf-8')) + 1
-        user[b'lose'] = int(str(user[b'lose'], encoding='utf-8')) + 1
-        user[b'rating'] = int(int(str(user[b'win'], encoding='utf-8')) / user[b'total_games'] * 1000)
-        user[b'current_game'] = b'0'
-        enemy[b'total_games'] = int(str(enemy[b'total_games'], encoding='utf-8')) + 1
-        enemy[b'win'] = int(str(enemy[b'win'], encoding='utf-8')) + 1
-        enemy[b'rating'] = int(enemy[b'win'] / enemy[b'total_games'] * 1000)
-        enemy[b'current_game'] = b'0'
-        enemy[b'last_message'] = msg_id
-
-        await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
-                                   loser_mnemonics=str(user[b'mnemonics'], encoding='utf-8'),
-                                   winner_wallet=str(enemy[b'wallet'], encoding='utf-8'))
-
-    elif result == 'win':
-        # Player wins
-        user[b'total_games'] = int(str(user[b'total_games'], encoding='utf-8')) + 1
-        user[b'win'] = int(str(user[b'win'], encoding='utf-8')) + 1
-        user[b'rating'] = int(user[b'win'] / user[b'total_games'] * 1000)
-        user[b'current_game'] = b'0'
-        enemy[b'total_games'] = int(str(enemy[b'total_games'], encoding='utf-8')) + 1
-        enemy[b'lose'] = int(str(enemy[b'lose'], encoding='utf-8')) + 1
-        enemy[b'rating'] = int(int(str(enemy[b'win'], encoding='utf-8')) / enemy[b'total_games'] * 1000)
-        enemy[b'current_game'] = b'0'
-        enemy[b'last_message'] = msg_id
-        
-        await jetton_transfer_game(value=int(str(game[b'bet'], encoding='utf-8')),
-                                   loser_mnemonics=str(enemy[b'mnemonics'], encoding='utf-8'),
-                                   winner_wallet=str(user[b'wallet'], encoding='utf-8'))
-
-    await r.hmset(my_id, user)
-    await r.hmset(enemy_id, enemy)
-    await r.delete('g_' + str(room_id))
-
+        await bot.delete_messages(enemy_id, [msg for msg in range(enemy_msg.message_id-1, enemy_msg.message_id - 10, -1)])
+    except TelegramBadRequest as ex:
+        logger.info(f'{ex.message}')
 
 
 # Timing starts
-async def timer(bot: Bot, 
-                i18n: TranslatorRunner, 
-                room_id: int,
-                play_account_kb
-                ):
-    
-    await asyncio.sleep(300)
-    if await r.exists('g_' + str(room_id)) == 0:
+async def timer(dialog_manager: DialogManager, 
+                room_id: int):
+    await asyncio.sleep(120)
+    game = await r.hgetall('g_' + str(room_id))
+    if len(game) == 0:
+        logger.info(f"g_{room_id} doesn't exist")
+        await dialog_manager
         pass
     else:
         game = await r.hgetall('g_' + str(room_id))
-        player1_id = str(game[b'player1'], encoding='utf-8')
-        player2_id = str(game[b'player2'], encoding='utf-8')
-        player1 = await r.hgetall(player1_id)
-        player2 = await r.hgetall(player2_id)
-        msg1 = int(str(player1[b'last_message'], encoding='utf-8'))
-        msg2 = int(str(player2[b'last_message'], encoding='utf-8'))
+        player1 = str(game[b'player1'], encoding='utf-8')
+        player2 = str(game[b'player2'], encoding='utf-8')
+        i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+        bot: Bot = dialog_manager.middleware_data.get('bot')
 
         # Nobody made move
         if game[b'player1_move'] == game[b'player2_move'] == b'0':
-            # Nobody won
-            await r.delete('r_' + str(room_id))
-            await bot.delete_message(player1_id, msg1)
-            await bot.delete_message(player2_id, msg2)
-            await bot.send_message(chat_id=player1_id,
-                                   text=i18n.chose.action(),
-                                   reply_markup=play_account_kb(i18n))
-            await bot.send_message(chat_id=player2_id,
-                                   text=i18n.chose.action(),
-                                   reply_markup=play_account_kb(i18n))
-        # Player1 win
-        elif game[b'player1_move'] != b'0':
-            await game_result('win', player1_id, player2_id, room_id, msg2)
-            await bot.delete_message(player1_id, msg1)
-            await bot.delete_message(player2_id, msg2)
-            await bot.send_message(player1_id, text=i18n.win(),
-                                   reply_markup=play_account_kb(i18n))
-            await bot.send_message(player2_id, text=i18n.lose(),
-                                   reply_markup=play_account_kb(i18n))
-        # Player2 win
-        elif game[b'player2_move'] != b'0':
-            await game_result('win', player2_id, player1_id, room_id, msg1)
-            await bot.delete_message(player1_id, msg1)
-            await bot.delete_message(player2_id, msg2)
-            await bot.send_message(player2_id, text=i18n.win(),
-                                   reply_markup=play_account_kb(i18n))
-            await bot.send_message(player1_id, text=i18n.lose(),
-                                   reply_markup=play_account_kb(i18n))
-'''
+            
+            # Writig result to database, clearing Redis cache
+            await r.delete(str(player1))
+            await r.delete(str(player2))
+            await r.delete('g_'+str(game[b'player1'], encoding='utf-8'))
+            await r.delete('wait_'+str(player1))
+            await r.delete('wait_'+str(player2))
+            await r.delete('result_'+str(player1))
+            await r.delete('result_'+str(player2))
+
+            # Send Notifivations to players
+            player1_msg = await bot.send_message(player1, 
+                                                 text=i18n.time.end(),
+                                                 reply_markup=game_end(i18n))
+            try:
+                await bot.delete_messages(player1, 
+                                          [msg for msg in range(player1_msg.message_id-1, player1_msg.message_id - 10, -1)])
+            except TelegramBadRequest as ex:
+                logger.info(f'{ex.message}')
+            
+            player2_msg = await bot.send_message(player2, 
+                                                 text=i18n.time.end(),
+                                                 reply_markup=game_end(i18n))
+            try: 
+                await bot.delete_messages(player2, 
+                                          [msg for msg in range(player2_msg.message_id-1, player2_msg.message_id - 10, -1)])
+            except TelegramBadRequest as ex:
+                logger.info(f'{ex.message}')
+
+        else:
+            result: dict  # Init dict to write results of game
+            # Player1 win
+            if game[b'player1_move'] != b'0':
+                
+                # Writing data to Database and clearing Redis cache
+                result = {'winner':  player1,
+                          'loser': player2,
+                          'bet': int(str(game[b'bet'], encoding='utf-8'))}
+                 
+            # Player2 win
+            elif game[b'player2_move'] != b'0':
+                result = {'winner':  player2,
+                          'loser': player1,
+                          'bet': int(str(game[b'bet'], encoding='utf-8'))}
+            
+            # Writig result to database, clearing Redis cache
+            db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
+            await write_game_result(db_engine, result)
+            await r.delete(str(player1))
+            await r.delete(str(player2))
+            await r.delete('g_'+str(game[b'player1'], encoding='utf-8'))
+            await r.delete('wait_'+str(player1))
+            await r.delete('wait_'+str(player2))
+            await r.delete('result_'+str(player1))
+            await r.delete('result_'+str(player2))
+            
+            message_map = {'loser': i18n.lose(),
+                           'winner': i18n.win()}
+
+            logger.info(f"Winner: {result['winner']}; Loser: {result['loser']}")
+            logger.info(f'Player1: {player1}; Player2 {player2}')
+            
+            # Send Notifivations to players
+            winner_msg = await bot.send_message(player1, 
+                                                text=message_map[
+                                                  'winner' if int(result['winner']) == int(player1) else 'loser'
+                                                  ],
+                                                reply_markup=game_end(i18n))
+            try:
+                await bot.delete_messages(player1, 
+                                          [msg for msg in range(winner_msg.message_id-1, winner_msg.message_id - 10, -1)])
+            except TelegramBadRequest as ex:
+                logger.info(f'{ex.message}')
+            
+            loser_msg = await bot.send_message(player2, 
+                                               text=message_map[
+                                                   'winner' if int(result['winner']) == int(player2) else 'loser'
+                                                   ],
+                                               reply_markup=game_end(i18n))
+            try: 
+                await bot.delete_messages(player2, 
+                                          [msg for msg in range(loser_msg.message_id-2, loser_msg.message_id - 10, -1)])
+            except TelegramBadRequest as ex:
+                logger.info(f'{ex.message}')
+
+
+

@@ -8,7 +8,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 from redis import asyncio as aioredis
 
-from services import get_user_account_data, jetton_value, ton_value, write_game_result
+from services import get_user_account_data, jetton_value, ton_value
 
 
 logger = logging.getLogger(__name__)
@@ -26,9 +26,8 @@ async def lobby_menu_getter(dialog_manager: DialogManager,
                             event_from_user: User,
                             **kwargs) -> dict:
     
-    result = dalog_manager.start_data if dialog_manager.start_data is not None else None
     user_id = event_from_user.id
-    logger.info(f'User {user_id} in lobby_menu_getter, Result is {result}')
+    logger.info(f'User {user_id} in lobby_menu_getter')
     costumers_dict = await get_user_account_data(user_id,
                                                  db_engine)
     wallet = costumers_dict['address']    
@@ -37,10 +36,6 @@ async def lobby_menu_getter(dialog_manager: DialogManager,
     dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
     dialog_manager.current_context().dialog_data['ton'] = await ton_value(wallet)
     dialog_manager.current_context().dialog_data['wallet'] = wallet     
-
-    if result is not None:
-        await write_game_result(db_engine,                                
-                                result)) 
 
     return {'lobby_menu': i18n.chose.action(),
             'button_play': i18n.play(),

@@ -527,7 +527,9 @@ paper = 📜 Paper 📜
 
 scissors = ✂ Scissors ✂
 
-end-game = 🪦 End the game 🪦
+leave-game = 🪦 Leave the game 🪦
+
+end-game = End the game
 
 you-leaved = You left the 🎲<b>Game</b>🎲!
              You've been counted defeated 🪦
@@ -565,6 +567,9 @@ no = Sorry...
      keyboard and press the "Go!" button.
 
 enemy-won = He won! Shall we play again?
+
+time-end = Time is ended!
+           Draw
 
 user-won = <b>You win!</b>
            🌟 Congratulations! 🌟

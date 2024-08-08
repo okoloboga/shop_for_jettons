@@ -1,18 +1,18 @@
 import asyncio
 import logging
+import services.game_services
 
 from aiogram import F, Router, Bot
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.filters import StateFilter, CommandStart
+from aiogram.filters import StateFilter
 from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from redis import asyncio as aioredis
 from fluentogram import TranslatorRunner
 
-from .keyboards import game_process_kb, game_confirm_kb, check_kb, game_end
-from services import turn_result, game_result
+from .keyboards import game_process_kb, game_end
 from states import GameSG, LobbySG
 
 router_game = Router()
@@ -37,7 +37,6 @@ async def game_confirm(callback: CallbackQuery,
     r = aioredis.Redis(host='localhost', port=6379)
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    bot: Bot = dialog_manager.middleware_data.get('bot')
     state: FSMContext = dialog_manager.middleware_data.get('state')
     game = dialog_manager.current_context().dialog_data['game']
     user_id = callback.from_user.id
@@ -56,6 +55,12 @@ async def game_confirm(callback: CallbackQuery,
     
     elif int(game) != int(user_id):
         await callback.message.answer(text=i18n.owner.notready())
+    await asyncio.sleep(1)
+    
+    if int(user_id) == int(game):
+        timer = services.game_services.timer
+        await asyncio.create_task(timer(dialog_manager, int(user_id)), name=f'timer_{game}')
+
 
 
 
@@ -78,8 +83,10 @@ async def process_game_button(callback: CallbackQuery,
         r = aioredis.Redis(host='localhost', port=6379)
 
         # Vars initialization
+        turn_result = services.game_services.turn_result
+        game_result = services.game_services.game_result
+
         user_id = callback.from_user.id
-        chat_id = callback.chat_instance
         room_id = str(await r.get(user_id), encoding='utf-8')
         logger.info(f'room_id: {room_id}')
         _game = await r.hgetall('g_'+str(room_id))
@@ -110,7 +117,7 @@ async def process_game_button(callback: CallbackQuery,
         await asyncio.sleep(1)
         logger.info(f"After writing move: P1 {game[b'player1_move']}; P2 {game[b'player2_move']}")
         logger.info(f"user_id = {user_id}, enemy_id = {enemy_id}")
-        
+
         # If both players made move
         if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
             
@@ -204,19 +211,19 @@ async def process_game_button(callback: CallbackQuery,
             # Checking player1 health for zero
             if game[b'player1_health'] == b'0' or game[b'player1_health'] == 0:
                 if i_am == b'player1':
-                    await game_result(callback, dialog_manager, total_result='lose',
+                    await game_result(callback, dialog_manager, 'lose',
                                       enemy_id, user_id, game, i18n, bot, game_end)
                 else:
-                    await game_result(callback, dialog_manager, total_result='win',
+                    await game_result(callback, dialog_manager, 'win',
                                       enemy_id, user_id, game, i18n, bot, game_end)
 
             # Checking player2 health for zero
             elif game[b'player2_health'] == b'0' or game[b'player2_health'] == 0:
                 if i_am == b'player2':
-                    await game_result(callback, dialog_manager, total_result='lose',
+                    await game_result(callback, dialog_manager, 'lose',
                                       enemy_id, user_id, game, i18n, bot, game_end)
                 else:
-                    await game_result(callback, dialog_manager, total_result='win',
+                    await game_result(callback, dialog_manager, 'win',
                                       enemy_id, user_id, game, i18n, bot, game_end)
         else:
             if game[b'player1_move'] == b'0' and game[b'player2_move'] == b'0':
@@ -232,15 +239,15 @@ async def process_game_button(callback: CallbackQuery,
             else:
                 # Suggest you wait
                 try:
-                    wait = await callback.message.edit_text(text=i18n.choice.made(),
-                                                            reply_markup=check_kb(i18n))
+                    wait = await callback.message.edit_text(text=i18n.choice.made())
+                                                            #reply_markup=check_kb(i18n))
                     await r.set('wait_'+str(user_id), wait.message_id)
                 except TelegramBadRequest:
                     await callback.answer()
 
 
-    # Canceling game before by Player
-@router_game.callback_query(F.data == 'end_game', 
+# Canceling game before by Player
+@router_game.callback_query(F.data == 'leave_game', 
                             StateFilter(GameSG.main)
                             )
 async def process_end_game_button(callback: CallbackQuery,  
@@ -249,59 +256,25 @@ async def process_end_game_button(callback: CallbackQuery,
                                   dialog_manager: DialogManager,
                                   bot: Bot
                                   ):
+
     r = aioredis.Redis(host='localhost', port=6379)
 
     # Vars initialization
+    game_result = services.game_services.game_result
     user_id = callback.from_user.id
-    room_id = dialog_manager.current_context().dialog_data['game']
+    room_id = str(await r.get(user_id), encoding='utf-8')
+    _game = await r.hgetall('g_'+str(room_id))
+
+    player1 = int(str(_game[b'player1'], encoding='utf-8'))
+    player2 = int(str(_game[b'player2'], encoding='utf-8'))
+
+    enemy_id = player1 if player1 != user_id else player2
     game = await r.hgetall('g_' + str(room_id))
-    if int(str(game[b'player1'], encoding='utf-8')) == callback.from_user.id:
-        enemy_am = b'player2'
-    elif int(str(game[b'player1'], encoding='utf-8')) == callback.from_user.id:
-        enemy_am = b'player1'
-    enemy_id = game[b'player1'] if game[b'player1'] != user_id else game[b'player2']
-
-    try:
-        await callback.message.edit_text(text=i18n.you.leaved(),
-                                         reply_markup=play_account_kb(i18n))
-        msg = await bot.send_message(enemy_id, 
-                                     text=i18n.enemy.leaved(),
-                                     reply_markup=game_confirm_kb(i18n))
-        await bot.delete_message(enemy_id, enemy_last_msg)
-        await game_result('lose', str(callback.from_user.id), enemy_id, room_id, msg.message_id)
-    except TelegramBadRequest:
-        await callback.answer()
-
-    await r.delete('g_' + str(room_id))
+    
+    logger.info(f"User {user_id} leaved the game!")
+    await game_result(callback, dialog_manager, 'lose',
+                      enemy_id, user_id, game, i18n, bot, game_end)
 
 
-@router_game.message(CommandStart(), 
-                    StateFilter(GameSG.main)
-                    )
-async def process_end_game_button_2(message: Message,  
-                                    state: FSMContext, 
-                                    i18n: TranslatorRunner,
-                                    dialog_manager: DialogManager,
-                                    bot: Bot
-                                    ):
-    r = aioredis.Redis(host='localhost', port=6379)
 
-    # Vars initialization
-    user_id = message.from_user.id
-    room_id = dialog_manager.current_context().dialog_data['game']
-    game = await r.hgetall('g_' + str(room_id))
-    if int(str(game[b'player1'], encoding='utf-8')) == message.from_user.id:
-        enemy_am = b'player2'
-    elif int(str(game[b'player1'], encoding='utf-8')) == message.from_user.id:
-        enemy_am = b'player1'
-    enemy_id = game[b'player1'] if game[b'player1'] != user_id else game[b'player2']
 
-    await message.edit_text(text=i18n.you.leaved(),
-                            reply_markup=play_account_kb(i18n))
-    msg = await bot.send_message(enemy_id, 
-                                 text=i18n.enemy.leaved(),
-                                 reply_markup=game_confirm_kb(i18n))
-    await bot.delete_message(enemy_id, enemy_last_msg)
-    await game_result('lose', str(message.from_user.id), enemy_id, room_id, msg.message_id)
-
-    await r.delete('g_' + str(room_id))
