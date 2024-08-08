@@ -1,7 +1,9 @@
 # Shop template in Telegram
 Empty template for Market based in Telegram Bot. 
 Working example: https://t.me/nitrogen_market_bot
-But, you should write me to tg, to get access...
+If registration is closed - you can write me in Telegram to get access
+or support the project in TON, to open registration.
+<code>UQDIkS1d_Lhd7EDttTtcmr9Xzg78uEMDEsYFde-PZCgfoOtU</code>
 
 ## How it works?
 Three entities: Shop, Game, Admin panel. 

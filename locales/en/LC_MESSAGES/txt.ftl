@@ -59,8 +59,14 @@ button-count = ✖️ Count
                                \$$    
 #########################################
 
-registration-closed = Registration is closed!
+registration-closed = Registration closed!
 
+                      To resume registration you
+                      need to top up our 💳 Wallet 💳
+                      with 🪙0.1 TON🪙
+                      Support the Project =)
+
+                      👇 Address 👇
 hello = 🌟 Hello! 🌟
         Welcome to our store!
         Here you can <b>buy</b> products
