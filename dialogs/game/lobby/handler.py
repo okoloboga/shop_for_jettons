@@ -199,7 +199,7 @@ async def game_selection(callback: CallbackQuery,
         await callback.message.answer(text=i18n.notenough())
 
     # Player have not enough TON to pay fee
-    elif float(user_ton) < 0.065:
+    elif float(user_ton) < 0.001:
         logger.info(f'User {callback.from_user.id} have not enough TON for fee')
         await callback.message.answer(text=i18n.notenough.ton(wallet=user_ton))
     
