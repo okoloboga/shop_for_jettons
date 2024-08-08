@@ -29,4 +29,10 @@ def check_kb(i18n: TranslatorRunner):
     return InlineKeyboardMarkup(inline_keyboard=[[button]])
 
 
+# Ending Game after result
+def game_end(i18n: TranslatorRunner):
+    button = InlineKeyboardButton(text=i18n.button.endgame(),
+                                  callback_data='end_game')
+    return InlineKeyboardMarkup(inline_keyboard=[[button]])
+
 

@@ -12,9 +12,10 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from fluentogram import TranslatorRunner
 
-from database import users, catalogue, orders, variables
+from database import users, catalogue, orders, variables, stats
 from config import get_config, BotConfig
-from .ton_services import wallet_deploy, jetton_transfer
+from services import (wallet_deploy, jetton_transfer, get_user_data, 
+                      get_user_stats, jetton_transfer_game)
 
 logger = logging.getLogger(__name__)
 
@@ -373,4 +374,51 @@ def is_admin(text: str) -> str:
     if text == '#admin_panel':
         return text
     raise ValueError
-        
+ 
+
+# Writing data from Game Result to Database
+async def write_game_result(db_engine: AsyncEngine,
+                            result: dict):
+    logger.info(f'Writing data about result of game in database: {result}')
+
+    # Get wallets from Database
+    winner_wallet = (await get_user_data(int(result['winner']), 
+                                         db_engine))['address']
+    loser_mnemonics = (await get_user_data(int(result['loser']), 
+                                           db_engine))['mnemonics']
+
+    logger.info(f"Winner wallet: {winner_wallet}\nLoser mnemonics {loser_mnemonics}")
+    
+    winner_old_stats = await get_user_stats(db_engine, 
+                                             int(result['winner']))
+    loser_old_stats = await get_user_stats(db_engine,
+                                           int(result['loser']))
+
+    logger.info(f"Winner old stats: {winner_old_stats}\n Loser old stats: {loser_old_stats}")
+
+    winner_stats_stmt = (stats.update()
+                         .values(total_games = int(winner_old_stats['total_games']) + 1,
+                                 wins = int(winner_old_stats['wins']) + 1,
+                                 rate = (int(winner_old_stats['wins']) + 1) / (int(winner_old_stats['total_games']) + 1))
+                         .where(stats.c.telegram_id == int(result['winner'])))
+
+    loser_stats_stms = (stats.update()
+                        .values(total_games = int(loser_old_stats['total_games']) + 1,
+                                loses = int(loser_old_stats['loses']) + 1,
+                                rate = int(loser_old_stats['wins']) / (int(loser_old_stats['total_games']) + 1))
+                        .where(stats.c.telegram_id == int(result['loser'])))
+
+    async with db_engine.connect() as conn:
+        await conn.execute(winner_stats_stmt)
+        await conn.execute(loser_stats_stms)
+        await conn.commit()
+        logger.info(f"New stats writed for winner {result['winner']} and loser {result['loser']}")
+    
+    '''
+    DISABLED FOR TESTS
+    await jetton_transfer_game(value=int(result['bet']),
+                               loser_mnemonics,
+                               winner_wallet)
+    '''
+    logger.info(f'Jetton for game transfered')
+

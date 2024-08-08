@@ -1,6 +1,9 @@
 import asyncio
 
 from aiogram import Bot
+from aiogram.types import CallbackQuery, InlineKeyboardMarkup
+from aiogram.exceptions import TelegramBadRequest
+from aiogram_dialog import DialogManager, StartMode
 from fluentogram import TranslatorRunner
 from redis import asyncio as aioredis
 from services import jetton_transfer_game
@@ -8,6 +11,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import stats, users
+from states import LobbySG
 
 
 # Get User stats from database
@@ -46,42 +50,35 @@ def normalize_answer(i18n: TranslatorRunner,
     return key
 
 
-# Define winner of turn
-async def _get_winner(player1_move: str | bytes, 
-                      player2_move: str | bytes, 
-                      room_id: str | int
-                      ) -> str:
-    
-    r = aioredis.Redis(host='localhost', port=6379)
-
-    game = await r.hgetall('g_'+str(room_id))
-    rules = {b'rock': b'scissors',
-             b'scissors': b'paper',
-             b'paper': b'rock'}
-    
-    if player1_move == player2_move:
-        return 'nobody_won'
-    elif rules[player1_move] == player2_move:
-        if int(str(game[b'player2_health'], encoding='utf-8')) > 0:
-            return b'player2_damaged'
-        else:
-            return b'player1_won'
-    else:
-        if int(str(game[b'player1_health'], encoding='utf-8')) > 0:
-            return b'player1_damaged'
-        else:
-            return b'player2_won'
-
-
 # Redirection of turn result
 async def turn_result(player1_move: str | bytes, 
                       player2_move: str | bytes, 
+                      player1_health: str | bytes,
+                      player2_health: str | bytes,
                       room_id: str | int, 
                       i_am: str | bytes
                       ) -> str:
     
-    result = await _get_winner(player1_move, player2_move, room_id)
-    
+    # Get winner
+    rules = {b'rock': b'scissors',
+             b'scissors': b'paper',
+             b'paper': b'rock'}
+    result: str  # Result of turn 
+
+
+    if player1_move == player2_move:
+        result = 'nobody_won'
+    elif rules[player1_move] == player2_move:
+        if int(str(player2_health, encoding='utf-8')) > 0:
+            result = b'player2_damaged'
+        else:
+            result = b'player1_won'
+    else:
+        if int(str(player1_health, encoding='utf-8')) > 0:
+            result = b'player1_damaged'
+        else:
+            result = b'player2_won'
+
     if result == 'nobody_won':
         return 'nobody_won'
     elif result == b'player1_damaged':
@@ -106,6 +103,47 @@ async def turn_result(player1_move: str | bytes,
             return 'you_lose'
 
 
+# Making dict with game results
+async def game_result(callback: CallbackQuery,
+                      dialog_manager: DialogManager,
+                      total_result: str,
+                      enemy_id: int,
+                      user_id: int,
+                      game: dict,
+                      i18n: TranslatorRunner,
+                      bot: Bot,
+                      game_end: InlineKeyboardMarkup):
+
+    bet = str(game[b'bet'], encoding='utf-8')
+    message_map = {'lose': i18n.lose(),
+                   'win': i18n.win()}
+
+    result = {'winner': enemy_id if game_result == 'lose' else user_id,
+              'loser': enemy_id if game_result == 'win' else user_id,
+              'bet': bet}
+
+    try:
+        # Return result and return to main menu
+        await callback.message.edit_text(text=message_map[total_result])
+    except TelegramBadRequest:
+        await callback.answer()
+
+    await dialog_manager.start(state=LobbySG.main,
+                               mode=StartMode.RESET_STACK,
+                               data={**result})
+
+    # Return result to opponent and return to main menu
+    await asyncio.sleep(1)
+    msg = await bot.send_message(enemy_id, 
+                                 text=message_map[total_result],
+                                 reply_markup=game_end(i18n))
+    try: 
+        await bot.delete_message(enemy_id, msg.message_id - 1)
+    except TelegramBadRequest:
+        await callback.answer()
+
+
+'''
 # Changing account stats after game
 async def game_result(result: str, 
                       my_id: str, 
@@ -156,7 +194,7 @@ async def game_result(result: str,
     await r.delete('g_' + str(room_id))
 
 
-'''
+
 # Timing starts
 async def timer(bot: Bot, 
                 i18n: TranslatorRunner, 

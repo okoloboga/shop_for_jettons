@@ -18,6 +18,7 @@ create-button = 💥 Create 💥
 join-button = 🔍 Find 🔍
 button-game-confirm = Start game!
 button-wait = Waiting...
+button-endgame = End Game
 
 ##################
 # Admins Buttons #

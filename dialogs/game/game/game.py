@@ -6,12 +6,12 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import StateFilter, CommandStart
-from aiogram_dialog import DialogManager
+from aiogram_dialog import DialogManager, StartMode
 from aiogram_dialog.widgets.kbd import Button
 from redis import asyncio as aioredis
 from fluentogram import TranslatorRunner
 
-from .keyboards import game_process_kb, game_confirm_kb, check_kb
+from .keyboards import game_process_kb, game_confirm_kb, check_kb, game_end
 from services import turn_result, game_result
 from states import GameSG, LobbySG
 
@@ -62,241 +62,184 @@ async def game_confirm(callback: CallbackQuery,
 """MAIN GAME PROCESS IN ONE HANDLER"""
 
 
-@router_game.callback_query(F.data.in_(['rock', 'paper', 'scissors', 'check']), 
-                                    StateFilter(GameSG.main)
-                                    )
+@router_game.callback_query(F.data.in_(['rock', 'paper', 'scissors', 'check', 'end_game']), 
+                            StateFilter(GameSG.main)
+                            )
 async def process_game_button(callback: CallbackQuery, 
                               state: FSMContext, 
                               i18n: TranslatorRunner,
+                              dialog_manager: DialogManager,
                               bot: Bot
                               ):
-
-    r = aioredis.Redis(host='localhost', port=6379)
-
-    # Vars initialization
-    user_id = callback.from_user.id
-    chat_id = callback.chat_instance
-    room_id = str(await r.get(user_id), encoding='utf-8')
-    logger.info(f'room_id: {room_id}')
-    _game = await r.hgetall('g_'+str(room_id))
-
-    logger.info(f"Before writing move: P1 {_game[b'player1_move']}; P2 {_game[b'player2_move']}")
-
-    if int(str(_game[b'player1'], encoding='utf-8')) == callback.from_user.id:
-        i_am = b'player1'
-        enemy_am = b'player2'
-    elif int(str(_game[b'player2'], encoding='utf-8')) == callback.from_user.id:
-        i_am = b'player2'
-        enemy_am = b'player1'
-    move = i_am + b'_move'
-
-    player1 = int(str(_game[b'player1'], encoding='utf-8'))
-    player2 = int(str(_game[b'player2'], encoding='utf-8'))
-
-    enemy_id = player1 if player1 != user_id else player2
-
-    if callback.data != 'check':
-        # Setting players move
-        _game[move] = callback.data
-        await r.hmset('g_' + str(room_id), _game)
-
-    game = await r.hgetall('g_' + str(room_id))
-
-    # Timing for writing
-    await asyncio.sleep(1)
-    logger.info(f"After writing move: P1 {game[b'player1_move']}; P2 {game[b'player2_move']}")
-    logger.info(f"user_id = {user_id}, enemy_id = {enemy_id}")
-    
-    # If both players made move
-    if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
-        
-        # Checking result of turn, losers health decreasing
-        result = await turn_result(game[b'player1_move'], game[b'player2_move'], room_id, i_am)
-        
-        # If health of both players is not zero
-        if result == 'you_caused_damage':
-
-            # Write result to Redis
-            await r.set('result_'+str(user_id), result)
-
-            try:
-                # Return result of turn and keyboard for next move
-                await callback.message.edit_text(text=i18n.enemy.damaged(),
-                                                 reply_markup=game_process_kb(i18n))
-                #await bot.delete_message(chat_id, id)
-            except TelegramBadRequest:
-                await callback.answer()
-            
-            # Return to opponent result of turn and keyboard for next move
-            await asyncio.sleep(1)
-            msg = await bot.send_message(enemy_id, 
-                                         text=i18n.you.damaged(),
-                                         reply_markup=game_process_kb(i18n))
-            try:
-                await bot.delete_message(enemy_id, msg.message_id - 1)
-            
-            except TelegramBadRequest:
-                await callback.answer()
-            game[enemy_am + b'_health'] = int(str(game[enemy_am + b'_health'], encoding='utf-8')) - 1
-        
-        elif result == 'enemy_caused_damaged':
- 
-            # Write result to Redis
-            await r.set('result_'+str(user_id), result)
-
-            try:
-                # Return result of turn and keyboard for next move
-                await callback.message.edit_text(text=i18n.you.damaged(),
-                                                 reply_markup=game_process_kb(i18n))
-                # await bot.delete_message(chat_id, msg.message_id - 1)
-            except TelegramBadRequest:
-                await callback.answer()
- 
-            # Return to opponent result of turn and keyboard for next move
-            await asyncio.sleep(1)
-            msg = await bot.send_message(enemy_id, 
-                                         text=i18n.enemy.damaged(),
-                                         reply_markup=game_process_kb(i18n))
-            try:
-                await bot.delete_message(enemy_id, msg.message_id - 1)
-
-            except TelegramBadRequest:
-                await callback.answer()
-
-            game[i_am + b'_health'] = int(str(game[i_am + b'_health'], encoding='utf-8')) - 1
-
-        elif result == 'nobody_won':
- 
-            # Write result to Redis
-            await r.set('result_'+str(user_id), result)
-
-            try:
-                # Return result of turn and keyboard for next move
-                await callback.message.edit_text(text=i18n.nobody.won(),
-                                                 reply_markup=game_process_kb(i18n))
-                # await bot.delete_message(chat_id, msg.message_id - 1)
-            except TelegramBadRequest:
-                await callback.answer()
-            
-            # Return to opponent result of turn and keyboard for next move
-            await asyncio.sleep(1)
-            msg = await bot.send_message(enemy_id, 
-                                         text=i18n.nobody.won(),
-                                         reply_markup=game_process_kb(i18n))
-            try:
-                wait = str(await r.get('wait_'+str(enemy_id)), encoding='utf-8')
-                await bot.delete_message(enemy_id, int(wait))
-            except TelegramBadRequest:
-                await callback.answer()
-
-        game[b'player1_move'] = b'0'
-        game[b'player2_move'] = b'0'
-        await r.hmset('g_'+str(room_id), game)
-
-        # Checking player1 health for zero
-        if game[b'player1_health'] == b'0' or game[b'player1_health'] == 0:
-            if i_am == b'player1':
-                total_result = 'lose'
-                try:
-                    # Return result and return to main menu
-                    await callback.message.edit_text(text=i18n.lose(),
-                                                     reply_markup=game_confirm_kb(i18n))
-                    #await bot.delete_message(chat_id, id)
-                except TelegramBadRequest:
-                    await callback.answer()
-                # Return result to opponent and return to main menu
-                await asyncio.sleep(1)
-                msg = await bot.send_message(enemy_id, text=i18n.win(),
-                                             reply_markup=game_confirm_kb(i18n))
-                # await bot.delete_message(enemy_id, msg.message_id - 1)
-                # Counting total wins, loses, games, jettons
-                await game_result(total_result, str(user_id), enemy_id, room_id, msg.message_id)
-                # Delete game process data
-                await r.delete('g_'+str(room_id))
-            
-            else:
-                total_result = 'win'
-                try:
-                    # Return result and return to main menu
-                    await callback.message.edit_text(text=i18n.win(),
-                                                     reply_markup=game_confirm_kb(i18n))
-                    #await bot.delete_message(chat_id, id)
-                except TelegramBadRequest:
-                    await callback.answer()
-                # Return result to opponent and return to main menu
-                await asyncio.sleep(1)
-                msg = await bot.send_message(enemy_id, text=i18n.lose(),
-                                             reply_markup=game_confirm_kb(i18n))
-                # await bot.delete_message(enemy_id, msg.message_id - 1)
-                # Counting total wins, loses, games, jettons
-                await game_result(total_result, str(user_id), enemy_id, room_id, msg.message_id)
-            await state.clear()
-                  
-        # Checking player2 health for zero
-        elif game[b'player2_health'] == b'0' or game[b'player2_health'] == 0:
-            if i_am == b'player2':
-                total_result = 'lose'
-                try:
-                    # Return result and return to main menu
-                    await callback.message.edit_text(text=i18n.lose(),
-                                                     reply_markup=back_kb(i18n))
-                    #await bot.delete_message(chat_id, id)
-                except TelegramBadRequest:
-                    await callback.answer()
-
-                # Return result to opponent and return to main menu
-                await asyncio.sleep(1)
-                msg = await bot.send_message(enemy_id, text=i18n.win(),
-                                             reply_markup=game_confirm_kb(i18n))
-                # await bot.delete_message(enemy_id, msg.message_id - 1)
-                # Counting total wins, loses, games, jettons
-                await game_result(total_result, str(user_id), enemy_id, room_id, msg.message_id)
-
-            else:
-                total_result = 'win'
-                try:
-                    # Return result and return to main menu
-                    await callback.message.edit_text(text=i18n.win(),
-                                                     reply_markup=game_confirm_kb(i18n))
-                    #await bot.delete_message(chat_id, id)
-                except TelegramBadRequest:
-                    await callback.answer()
-
-                # Return result to opponent and return to main menu
-                await asyncio.sleep(1)
-                msg = await bot.send_message(enemy_id, text=i18n.lose(),
-                                             reply_markup=game_confirm_kb(i18n))
-                # await bot.delete_message(enemy_id, msg.message_id - 1)
-                # Counting total wins, loses, games, jettons
-                await game_result(total_result, str(user_id), enemy_id, room_id, msg.message_id)
-            await state.clear()
+    if callback.data == 'end_game':
+        await dialog_manager.start(state=LobbySG.main,
+                                   mode=StartMode.RESET_STACK)
     else:
-        if game[b'player1_move'] == b'0' and game[b'player2_move'] == b'0':
-            last_result = await r.get('result_'+str(user_id))
-            result_map = {b'you_caused_damage': i18n.enemy.damaged(),
-                          b'enemy_caused_damaged': i18n.you.damaged(),
-                          b'nobody_won': i18n.nobody.won()}
-            try: 
-                await callback.message.edit_text(text=result_map[last_result],
-                                                 reply_markup=game_process_kb(i18n))
-            except TelegramBadRequest:
-                await callback.answer()
-            #try:
-            #    await bot.delete_message(chat_id, msg.message_id - 1)
-            #except TelegramBadRequest:
-            #    await callback.answer()
+        r = aioredis.Redis(host='localhost', port=6379)
+
+        # Vars initialization
+        user_id = callback.from_user.id
+        chat_id = callback.chat_instance
+        room_id = str(await r.get(user_id), encoding='utf-8')
+        logger.info(f'room_id: {room_id}')
+        _game = await r.hgetall('g_'+str(room_id))
+
+        logger.info(f"Before writing move: P1 {_game[b'player1_move']}; P2 {_game[b'player2_move']}")
+
+        if int(str(_game[b'player1'], encoding='utf-8')) == callback.from_user.id:
+            i_am = b'player1'
+            enemy_am = b'player2'
+        elif int(str(_game[b'player2'], encoding='utf-8')) == callback.from_user.id:
+            i_am = b'player2'
+            enemy_am = b'player1'
+        move = i_am + b'_move'
+
+        player1 = int(str(_game[b'player1'], encoding='utf-8'))
+        player2 = int(str(_game[b'player2'], encoding='utf-8'))
+
+        enemy_id = player1 if player1 != user_id else player2
+
+        if callback.data != 'check':
+            # Setting players move
+            _game[move] = callback.data
+            await r.hmset('g_' + str(room_id), _game)
+
+        game = await r.hgetall('g_' + str(room_id))
+
+        # Timing for writing
+        await asyncio.sleep(1)
+        logger.info(f"After writing move: P1 {game[b'player1_move']}; P2 {game[b'player2_move']}")
+        logger.info(f"user_id = {user_id}, enemy_id = {enemy_id}")
+        
+        # If both players made move
+        if game[b'player1_move'] != b'0' and game[b'player2_move'] != b'0':
+            
+            # Checking result of turn, losers health decreasing
+            result = await turn_result(game[b'player1_move'], 
+                                       game[b'player2_move'], 
+                                       game[b'player1_health'],
+                                       game[b'player2_health'],
+                                       room_id,
+                                       i_am)
+            
+            # If health of both players is not zero
+            if result == 'you_caused_damage':
+
+                # Write result to Redis
+                await r.set('result_'+str(user_id), result)
+
+                try:
+                    # Return result of turn and keyboard for next move
+                    await callback.message.edit_text(text=i18n.enemy.damaged(),
+                                                     reply_markup=game_process_kb(i18n))
+
+                except TelegramBadRequest:
+                    await callback.answer()
+                
+                # Return to opponent result of turn and keyboard for next move
+                await asyncio.sleep(1)
+                msg = await bot.send_message(enemy_id, 
+                                             text=i18n.you.damaged(),
+                                             reply_markup=game_process_kb(i18n))
+                try:
+                    await bot.delete_message(enemy_id, msg.message_id - 1)
+                
+                except TelegramBadRequest:
+                    await callback.answer()
+                game[enemy_am + b'_health'] = int(str(game[enemy_am + b'_health'], encoding='utf-8')) - 1
+            
+            elif result == 'enemy_caused_damaged':
+     
+                # Write result to Redis
+                await r.set('result_'+str(user_id), result)
+
+                try:
+                    # Return result of turn and keyboard for next move
+                    await callback.message.edit_text(text=i18n.you.damaged(),
+                                                     reply_markup=game_process_kb(i18n))
+                except TelegramBadRequest:
+                    await callback.answer()
+     
+                # Return to opponent result of turn and keyboard for next move
+                await asyncio.sleep(1)
+                msg = await bot.send_message(enemy_id, 
+                                             text=i18n.enemy.damaged(),
+                                             reply_markup=game_process_kb(i18n))
+                try:
+                    await bot.delete_message(enemy_id, msg.message_id - 1)
+
+                except TelegramBadRequest:
+                    await callback.answer()
+
+                game[i_am + b'_health'] = int(str(game[i_am + b'_health'], encoding='utf-8')) - 1
+
+            elif result == 'nobody_won':
+     
+                # Write result to Redis
+                await r.set('result_'+str(user_id), result)
+
+                try:
+                    # Return result of turn and keyboard for next move
+                    await callback.message.edit_text(text=i18n.nobody.won(),
+                                                     reply_markup=game_process_kb(i18n))
+                except TelegramBadRequest:
+                    await callback.answer()
+                
+                # Return to opponent result of turn and keyboard for next move
+                await asyncio.sleep(1)
+                msg = await bot.send_message(enemy_id, 
+                                             text=i18n.nobody.won(),
+                                             reply_markup=game_process_kb(i18n))
+                try:
+                    wait = str(await r.get('wait_'+str(enemy_id)), encoding='utf-8')
+                    await bot.delete_message(enemy_id, int(wait))
+                except TelegramBadRequest:
+                    await callback.answer()
+
+            game[b'player1_move'] = b'0'
+            game[b'player2_move'] = b'0'
+
+            await r.hmset('g_'+str(room_id), game)
+
+            # Checking player1 health for zero
+            if game[b'player1_health'] == b'0' or game[b'player1_health'] == 0:
+                if i_am == b'player1':
+                    await game_result(callback, dialog_manager, total_result='lose',
+                                      enemy_id, user_id, game, i18n, bot, game_end)
+                else:
+                    await game_result(callback, dialog_manager, total_result='win',
+                                      enemy_id, user_id, game, i18n, bot, game_end)
+
+            # Checking player2 health for zero
+            elif game[b'player2_health'] == b'0' or game[b'player2_health'] == 0:
+                if i_am == b'player2':
+                    await game_result(callback, dialog_manager, total_result='lose',
+                                      enemy_id, user_id, game, i18n, bot, game_end)
+                else:
+                    await game_result(callback, dialog_manager, total_result='win',
+                                      enemy_id, user_id, game, i18n, bot, game_end)
         else:
-            # Suggest you wait
-            try:
-                wait = await callback.message.edit_text(text=i18n.choice.made(),
-                                                        reply_markup=check_kb(i18n))
-                await r.set('wait_'+str(user_id), wait.message_id)
-                # await bot.delete_message(chat_id, msg.message_id - 1)
-            except TelegramBadRequest:
-                await callback.answer()
+            if game[b'player1_move'] == b'0' and game[b'player2_move'] == b'0':
+                last_result = await r.get('result_'+str(user_id))
+                result_map = {b'you_caused_damage': i18n.enemy.damaged(),
+                              b'enemy_caused_damaged': i18n.you.damaged(),
+                              b'nobody_won': i18n.nobody.won()}
+                try: 
+                    await callback.message.edit_text(text=result_map[last_result],
+                                                     reply_markup=game_process_kb(i18n))
+                except TelegramBadRequest:
+                    await callback.answer()
+            else:
+                # Suggest you wait
+                try:
+                    wait = await callback.message.edit_text(text=i18n.choice.made(),
+                                                            reply_markup=check_kb(i18n))
+                    await r.set('wait_'+str(user_id), wait.message_id)
+                except TelegramBadRequest:
+                    await callback.answer()
 
 
-# Canceling game before by Player
+    # Canceling game before by Player
 @router_game.callback_query(F.data == 'end_game', 
                             StateFilter(GameSG.main)
                             )
