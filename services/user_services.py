@@ -181,7 +181,7 @@ async def get_user_item_metadata(user_dict: dict,
             
     if catalogue_len != 0:
 
-        if catalogue_len < page:
+        if catalogue_len <= page:
             page = catalogue_len - 1
 
         # Getting item by index
