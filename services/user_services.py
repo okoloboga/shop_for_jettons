@@ -189,9 +189,11 @@ async def get_user_item_metadata(user_dict: dict,
                 result_raw = await conn.execute(select("*")
                                                 .select_from(catalogue)
                                                 .where(catalogue.c.index == page + i))
-                logger.info(f'Item with index {page + i} is executed with len {len(result_raw.fetchall())}: {result_raw.fetchall()}')
                 if len(result_raw.fetchall()) == 1:
+                    logger.info(f'Item with index {page + i} is executed with len {len(result_raw.fetchall())}')
+
                     for row in result_raw:
+                        logger.info(f'row is {row[0]}')
                         result = row[0]
                         logger.info(f'Item executed result is {result}')
 
