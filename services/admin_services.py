@@ -262,7 +262,7 @@ async def delete_item(
 
     # Rewrite index of deleted position to catalogue len (last item)
     update_catalogue = (catalogue.update()
-                        .values(catalogue.c.index = page)
+                        .values(index = page)
                         .where(catalogue.c.index == len_catalogue))
                     
     async with db_engine.connect() as conn:
