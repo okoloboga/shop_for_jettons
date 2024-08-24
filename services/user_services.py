@@ -6,7 +6,7 @@ from aiogram import Bot
 from aiogram.enums import ParseMode
 from aiogram.client.default import DefaultBotProperties
 
-from sqlalchemy import insert, select, column, func
+from sqlalchemy import select, column, func
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
@@ -185,31 +185,26 @@ async def get_user_item_metadata(user_dict: dict,
             page = 0
 
         async with db_engine.connect() as conn:
-            for i in range(0, catalogue_len-page-1):
-                result_raw = await conn.execute(select("*")
-                                                .select_from(catalogue)
-                                                .where(catalogue.c.index == page))
-                if len(result_raw.fetchall()) == 1:
-                    logger.info(f'result of page {page + i} raw with length {len(result_raw.fetchall())}: {result_raw.fetchall()}')
-                    break
+            result_raw = await conn.execute(select("*")
+                                            .select_from(catalogue)
+                                            .where(catalogue.c.index == page))
             for row in result_raw:
                 logger.info(f'row is {row[0]}')
                 result = list(row)
                 logger.info(f'Item executed result is {result}')
-                logger.info(f'Item with index {page + i} is executed with len {len(result_raw.fetchall())}')
 
-                # To Dict
-                item = {
-                    "index": result[0],
-                    "category": result[1],
-                    "name": result[2],
-                    "description": result[3],
-                    "image": result[4],
-                    "self_price": result[5],
-                    "sell_price": result[6],
-                    "count": result[7]
-                }
-                return item
+            # To Dict
+            item = {
+                "index": result[0],
+                "category": result[1],
+                "name": result[2],
+                "description": result[3],
+                "image": result[4],
+                "self_price": result[5],
+                "sell_price": result[6],
+                "count": result[7]
+            }
+            return item
     else:
         return None
     
