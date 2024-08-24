@@ -190,7 +190,7 @@ async def get_user_item_metadata(user_dict: dict,
                                                 .select_from(catalogue)
                                                 .where(catalogue.c.index == page))
                 if len(result_raw.fetchall()) == 1:
-                    logger.info(f'result raw with length {len(result_raw.fetchall())}: {result_raw.fetchall()}')
+                    logger.info(f'result of page {page + i} raw with length {len(result_raw.fetchall())}: {result_raw.fetchall()}')
                     break
             for row in result_raw:
                 logger.info(f'row is {row[0]}')
