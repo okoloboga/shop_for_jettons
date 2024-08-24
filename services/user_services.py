@@ -184,34 +184,29 @@ async def get_user_item_metadata(user_dict: dict,
         if int(catalogue_len) <= page:
             page = 0
 
-        # Getting item by index
-        statement = (
-            select("*")
-            .select_from(catalogue)
-            .where(catalogue.c.index == page)
-        )
-
         async with db_engine.connect() as conn:
-            for i in range(0, 10):
+            for i in range(0, catalogue_len - page + 1):
                 result_raw = await conn.execute(select("*")
                                                 .select_from(catalogue)
                                                 .where(catalogue.c.index == page + i))
                 logger.info(f'Item with index {page + i} is executed with len {len(result_raw.fetchall())}: {result_raw.fetchall()}')
-                if len(result_raw.fetchall()) != 0:
+                if len(result_raw.fetchall()) == 1:
                     for row in result_raw:
                         result = row[0]
-                    # To Dict
-                    item = {
-                        "index": result[0],
-                        "category": result[1],
-                        "name": result[2],
-                        "description": result[3],
-                        "image": result[4],
-                        "self_price": result[5],
-                        "sell_price": result[6],
-                        "count": result[7]
-                    }
-                    return item
+                        logger.info(f'Item executed result is {result}')
+
+                        # To Dict
+                        item = {
+                            "index": result[0],
+                            "category": result[1],
+                            "name": result[2],
+                            "description": result[3],
+                            "image": result[4],
+                            "self_price": result[5],
+                            "sell_price": result[6],
+                            "count": result[7]
+                        }
+                        return item
     else:
         return None
     
