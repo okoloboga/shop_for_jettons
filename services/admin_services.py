@@ -218,7 +218,7 @@ async def new_item(
 async def delete_item(
         db_engine: AsyncEngine,
         admin_id: int,
-):
+        ):
     logger.info(f'delete_item({admin_id})')
     page: int  # Current page of user from database
 
@@ -246,6 +246,30 @@ async def delete_item(
         await conn.execute(delete_item_statement)
         await conn.commit()
         logger.info(f'User {admin_id} deleted item #{page}')
+    
+    # Rewrite last index to deleted
+    # Getting length of Edited tables
+    len_catalogue_statement = (
+        select(func.count())
+        .select_from(catalogue)
+    )
+
+    async with db_engine.connect() as conn:
+        raw_catalogue_len = await conn.execute(len_catalogue_statement)
+        for row in raw_catalogue_len:
+            len_catalogue = int(row[0])
+            logger.info(f'Catalogue table length is {len_catalogue}')
+
+    # Rewrite index of deleted position to catalogue len (last item)
+    update_catalogue = (catalogue.update()
+                        .values(catalogue.c.index = page)
+                        .where(catalogue.c.index == len_catalogue))
+                    
+    async with db_engine.connect() as conn:
+        await conn.execute(update_catalogue)
+        await conn.commit()
+
+
 
 '''
                  __  __    __                                             
