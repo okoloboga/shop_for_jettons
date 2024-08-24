@@ -22,7 +22,7 @@ logging.basicConfig(
 async def start_getter(
         dialog_manager: DialogManager,
         db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
+        i18n: TranslatorRunner,       
         event_from_user: User,
         **kwargs
 ) -> dict[str, str]:

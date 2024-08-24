@@ -247,7 +247,6 @@ async def delete_item(
         await conn.commit()
         logger.info(f'User {admin_id} deleted item #{page}')
 
-
 '''
                  __  __    __                                             
                 |  \|  \  |  \                                            

@@ -179,10 +179,10 @@ async def get_user_item_metadata(user_dict: dict,
             catalogue_len = row[0]
             logger.info(f'{catalogue_len} items total in Catalogue')
             
-    if catalogue_len != 0:
+    if int(catalogue_len) != 0:
 
-        if catalogue_len <= page:
-            page = catalogue_len - 1
+        if int(catalogue_len) <= page:
+            page = 0
 
         # Getting item by index
         statement = (
@@ -192,7 +192,14 @@ async def get_user_item_metadata(user_dict: dict,
         )
 
         async with db_engine.connect() as conn:
-            result_raw = await conn.execute(statement)
+            for i in range(0, 100):
+                result_raw = await conn.execute(select("*")
+                                                .select_from(catalogue)
+                                                .where(catalogue.c.index == page + i)
+                                                )
+                logger.info(f'result_raw is {result_raw}')
+                if result_raw is not None:
+                    break
             for row in result_raw:
                 result = list(row)  # row is a tuple!
                 logger.info(f'Item with index {page} is executed: {result}')
