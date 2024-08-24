@@ -197,11 +197,12 @@ async def get_user_item_metadata(user_dict: dict,
                                                 .select_from(catalogue)
                                                 .where(catalogue.c.index == page + i)
                                                 )
-                logger.info(f'result_raw is {result_raw}')
-                if result_raw is not None:
+                for row in result_raw:
+                    result = list(row)
+                    logger.info(f'item is {result}')
+                if result is not None:
                     break
-            for row in result_raw:
-                result = list(row)  # row is a tuple!
+
                 logger.info(f'Item with index {page} is executed: {result}')
                 
             # To Dict
