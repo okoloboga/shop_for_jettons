@@ -192,12 +192,12 @@ async def get_user_item_metadata(user_dict: dict,
         )
 
         async with db_engine.connect() as conn:
-            for i in range(0, 1):
+            for i in range(0, 10):
                 result_raw = await conn.execute(select("*")
                                                 .select_from(catalogue)
                                                 .where(catalogue.c.index == page + i))
                 logger.info(f'Item with index {page} is executed: {result_raw.fetchall()}')
-                if result_raw.fetchall() is None:
+                if len(result_raw.fetchall()) != 0:
                     break
                 
             # To Dict
