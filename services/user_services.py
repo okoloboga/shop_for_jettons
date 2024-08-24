@@ -193,18 +193,18 @@ async def get_user_item_metadata(user_dict: dict,
                 result = list(row)
                 logger.info(f'Item executed result is {result}')
 
-            # To Dict
-            item = {
-                "index": result[0],
-                "category": result[1],
-                "name": result[2],
-                "description": result[3],
-                "image": result[4],
-                "self_price": result[5],
-                "sell_price": result[6],
-                "count": result[7]
-            }
-            return item
+        # To Dict
+        item = {
+            "index": result[0],
+            "category": result[1],
+            "name": result[2],
+            "description": result[3],
+            "image": result[4],
+            "self_price": result[5],
+            "sell_price": result[6],
+            "count": result[7]
+        }
+        return item
     else:
         return None
     
