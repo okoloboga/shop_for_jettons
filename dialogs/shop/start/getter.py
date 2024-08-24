@@ -103,7 +103,7 @@ async def start_previous_getter(
             page = row[0]
             logger.info(f'Statement PAGE: {row[0]} executed of user {user_dict['user_id']}, page is {page}')
 
-    if page < 0 or page > (catalogue_len - 1):
+    if page == 0 or page > (catalogue_len - 1):
         # New page value, if current page is 0
         new_page = catalogue_len - 1
         update_page = (users.update()
