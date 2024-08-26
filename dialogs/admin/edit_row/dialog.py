@@ -5,7 +5,7 @@ from aiogram_dialog.widgets.input.text import TextInput
 from .getter import *
 from .handler import *
 from ..start import go_start
-from services import check_changes
+from services import check_changes, len_check
 
 
 '''Item selected for editing'''

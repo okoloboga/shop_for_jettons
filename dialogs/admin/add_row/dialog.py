@@ -3,7 +3,7 @@ from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.kbd import Button
 from aiogram_dialog.widgets.input.text import TextInput
 
-from services import check_price_count, check_url
+from services import check_price_count, check_url, len_check
 from .getter import *
 from .handler import *
 from ..start import go_start
@@ -46,7 +46,7 @@ add_row_dialog = Dialog(
         Format('{fill_description}'),
         TextInput(
             id='fill_description',
-            type_factory=str,
+            type_factory=len_check,
             on_success=fill_description,
             on_error=wrong_description
         ),

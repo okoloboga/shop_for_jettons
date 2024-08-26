@@ -241,6 +241,7 @@ fill-description = Enter 📑 <b>Product Description</b>
                    This can be a string of letters and numbers
 
 wrong-description = Wrong description entered
+                    Or description is too long!
 
 fill-image = Enter 🔗 link to 🏞 <b>Product Image</b>
              The link must start with <code>https://</code>

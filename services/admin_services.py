@@ -133,6 +133,12 @@ def check_price_count(text: str) -> str:
     raise ValueError
 
 
+# Checking len of description string in new item and item edit
+def len_check(text: str) -> str:
+    if len(text) <= 624:
+        return text
+    raise ValueError
+
 '''
                                    __    __                             
                                   |  \  |  \                            
@@ -318,7 +324,9 @@ def check_changes(changes: str) -> dict:
             
             # check for data type of changes
             if changes_types[changes_raw[0]] is type(changes_raw[1]):
-                if (((changes_raw[0] == 'image')
+                if changes_raw[0] == 'description' and len(changes_raw[1]) <= 624:
+                    return changes_united
+                elif (((changes_raw[0] == 'image')
                         and validators.url(changes_raw[1]))
                         or changes_raw[0] != 'image'):
                     return changes_united
