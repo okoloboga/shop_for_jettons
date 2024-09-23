@@ -16,6 +16,12 @@ class BotConfig(BaseModel):
     token: SecretStr
 
 
+class WalletConfig(BaseModel):
+    privatKey: str
+    centralWallet: str
+    tokenContract: str
+    
+
 class DbConfig(BaseModel):
     dsn: PostgresDsn
     is_echo: bool
