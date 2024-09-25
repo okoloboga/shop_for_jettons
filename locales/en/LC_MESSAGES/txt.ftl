@@ -63,14 +63,14 @@ registration-closed = Registration closed!
 
                       To resume registration you
                       need to top up our 💳 Wallet 💳
-                      with 🪙0.1 TON🪙
+                      with 🪙0.1 TRON🪙
                       Support the Project =)
 
                       👇 Address 👇
 hello = 🌟 Hello! 🌟
         Welcome to our store!
         Here you can <b>buy</b> products
-        for 🪙AZOTH🪙 tokens and win them
+        for 🪙🪙 tokens and win them
         from other users!
 
         Since this is our first meeting with You
@@ -84,7 +84,7 @@ no-stack = No product!
 base-start = <b>Hello!</b>
 
              You have found yourself in an online store where
-             You can pay in 🪙AZOTH🪙 currency!
+             You can pay in 🪙🪙 currency!
              You can also get it in the game
              <b>Rock-Paper-Scissors</b> vs.
              other players.
@@ -117,16 +117,16 @@ wrong-count = Wrong quantity entered
 too-large-count = Too large count entered!
                   There are not so many goods in stock.
 
-notenough-jettons = 🪙 Not enough funds in your wallet! 🪙
+notenough-tokens = 🪙 Not enough funds in your wallet! 🪙
 
                     Total order amount: { $total_order_sum }
-                    Wallet funds: { $jettons }
+                    Wallet funds: { $tokens }
 
-notenough-ton = Not enough TON to pay the commission!
-                Minimum required: 🪙<code>0.1</code>🪙 TON
-                Top up your wallet 💳
+notenough-tron = Not enough TRON to pay the commission!
+                 Minimum required: 🪙<code>0.1</code>🪙 TRON
+                 Top up your wallet 💳
 
-                <code>{ $wallet }</code>
+                 <code>{ $wallet }</code>
 
 fill-address = Enter <b>Shipping Address</b>
 
@@ -152,7 +152,7 @@ order-confirmation = Order summary information
 
 order-complete = Order No.<code>{ $index }</code> from <code>{ $date_and_time }</code>
                  decorated! Wait for the <b>Manager</b>.
-                 He will write in private messages.
+                 He will write in private 
                  Save the order number and the time it was created
                  if there are problems with the order -
                  provide them to the <b>Manager</b> to resolve issues
@@ -179,16 +179,15 @@ order-notification = <b>New order!</b>
 account-data = Account 🆔 <code>{ $user_id }</code>
 
                Purchases made 🛍: <b>{ $purchase }</b>
-               For the amount 🪙: <b>{ $purchase_sum }</b> AZOTH
+               For the amount 🪙: <b>{ $purchase_sum }</b>
                Users invited 😉: <b>{ $referrals }</b>
 
                Invitation link 🤝:
 
                <code>{ $link }</code>
 
-               Wallet balance 🪙: <code>{ $jettons }</code>
-               Buy 🪙 <b>AZOTH</b> 🪙:
-               https://app.ston.fi/swap?chartVisible=false&chartInterval=1w&ft=TON&tt=EQAe5OCV1RkMX9rdbZpNyEtuPkUXZnUzClPXbA06e5bcW35G
+               Wallet balance 🪙: <code>{ $tokens }</code>
+               Buy 🪙 <b></b> 🪙:
 
                Press 💳<b>Wallet</b>💳:
                to show wallet address
@@ -496,15 +495,15 @@ no-game = This 🎲<b>Game</b>🎲 is no more!
 
           Choose a <b>different</b> opponent
 
-notenough = Not enough 🪙AZOTH🪙!
+notenough = Not enough 🪙🪙!
 
-notenough-ton = Not enough 💎TON💎 for
-                payment of commission...
-                You need <code>0.1</code> 💎TON💎 on your wallet
+notenough-tron = Not enough 💎TRON💎 for
+                 payment of commission...
+                 You need <code>0.1</code> 💎TRON💎 on your wallet
 
-                Wallet for replenishment 💳:
+                 Wallet for replenishment 💳:
 
-                <code>{ $wallet }</code>
+                 <code>{ $wallet }</code>
 
 wait = 🔍 Check 🔍
 

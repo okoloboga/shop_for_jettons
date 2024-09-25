@@ -12,10 +12,11 @@ from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from redis import asyncio as aioredis
 
-from services.ton_services import central_check
+from services.requests import get_trx_balance
 from states import StartSG
-from services import new_user, central_check
+from services import new_user
 from database import users
+from config import get_config, WalletConfig
 
 
 router_start = Router()
@@ -33,12 +34,12 @@ logging.basicConfig(
 
 # Process START command
 @router_start.message(CommandStart(deep_link_encoded=True))
-async def command_start_process(
-        message: Message,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager,
-        command: CommandObject
-        ) -> None:
+async def command_start_process(message: Message,
+                                db_engine: AsyncEngine,
+                                dialog_manager: DialogManager,
+                                command: CommandObject
+                                ) -> None:
+
     logger.info(f'==== Message: {message.text} ====')
     logger.info(f'==== command: {command} ====')
     logger.info(f'==== Command.args: {command.args} ====')
@@ -74,8 +75,13 @@ async def command_start_process(
     
         i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
 
-        # Central wallet has enough TON for deploy new wallet?
-        if await central_check():
+        # Central wallet has enough Tron for deploy new wallet?
+        central_wallet = get_config(WalletConfig, 'wallet')
+        central_balance = await get_trx_balance(central_walletprivateKey)
+
+        logger.info(f'Central wallet balance is {central_balance}')
+
+        if central_balance['balance'] > 0.01:
             await message.answer(text=i18n.hello())
             
             logger.warning(f'{message.from_user.id} is new user')
@@ -107,11 +113,11 @@ async def command_start_process(
                                        data={'user_id': message.from_user.id}
                                        )
         else:
-            address = 'UQDIkS1d_Lhd7EDttTtcmr9Xzg78uEMDEsYFde-PZCgfoOtU'
             await message.answer(text=i18n.registration.closed())
-            await message.answer(text=address)
+            await message.answer(text=central_wallet.address)
     else:
         if await r.exists(str(message.from_user.id)) == 0:
+
             # User first time in Redis DB - add him to DB      
             new_user_template = {
                 'total_games': 0,
@@ -135,22 +141,22 @@ async def command_start_process(
 
 
 # Pressing on Previous Page button
-async def previous_page(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def previous_page(callback: CallbackQuery,
+                        button: Button,
+                        dialog_manager: DialogManager
+                        ):
+                        
     user_id = callback.from_user.id
     logger.info(f'User {user_id} pressed PREVIOUS PAGE')
     await dialog_manager.switch_to(state=StartSG.start_previous)
 
 
 # Pressing on Next Page button
-async def next_page(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def next_page(callback: CallbackQuery,
+                    button: Button,
+                    dialog_manager: DialogManager
+                    ):
+
     user_id = callback.from_user.id
     logger.info(f'User {user_id} pressed NEXT PAGE')
     await dialog_manager.switch_to(state=StartSG.start_next)

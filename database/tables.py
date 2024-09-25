@@ -9,7 +9,7 @@ users = Table(
     Column("first_name", String),  # 1
     Column("last_name", String),  # 2
     Column("address", String),  # 3
-    Column("mnemonics", String),  # 4
+    Column("private_key", String),  # 4
     Column("purchase", Integer),  # 5
     Column("purchase_sum", Integer),  # 6
     Column("referrals", Integer),  # 7

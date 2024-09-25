@@ -6,7 +6,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_order_data, get_orders_list, change_order_status,
-                          decline_order_process)
+                      decline_order_process)
 
 
 logger = logging.getLogger(__name__)

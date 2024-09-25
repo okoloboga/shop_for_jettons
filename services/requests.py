@@ -11,9 +11,7 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
 
-privateKey = get_config(WalletConfig, "privateKey")
-owner = get_config(WalletConfig, "centralWallet")
-token = get_config(WalletConfig, "tokenContract")
+wallet = get_config(WalletConfig, "wallet")
 
 BASE_URL = 'http://localhost:3000'
 
@@ -101,8 +99,8 @@ async def get_trx_balance(address):
 async def get_token_balance(address):
     url = f'{BASE_URL}/tokenbalance'
     params = {
-        'owner': owner,
-        'token': token,
+        'owner': wallet.owner,
+        'token': wallet.token,
         'address': address
     }
     response = requests.get(url, params=params)
@@ -115,21 +113,21 @@ async def send_trx(target, amount):
     data = {
         'target': target,
         'amount': amount,
-        'privateKey': privateKey
+        'privateKey': wallet.privateKey
     }
     response = requests.post(url, json=data)
     return response.json()
 
 
 # Send Token
-async def send_token(target, amount):
+async def send_token(owner, private_key, target, amount):
     url = f'{BASE_URL}/sendtoken'
     data = {
         'owner': owner,
-        'token': token,
+        'token': wallet.token,
         'target': target,
         'amount': amount,
-        'privateKey': privateKey
+        'privateKey': private_key
     }
     respone = requests.post(url, json=data)
     return respone.json()

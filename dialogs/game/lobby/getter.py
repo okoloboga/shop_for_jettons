@@ -8,7 +8,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio import AsyncEngine
 from redis import asyncio as aioredis
 
-from services import get_user_account_data, jetton_value, ton_value
+from services import get_user_account_data, get_trx_balance, get_token_balance
 
 
 logger = logging.getLogger(__name__)
@@ -30,11 +30,15 @@ async def lobby_menu_getter(dialog_manager: DialogManager,
     logger.info(f'User {user_id} in lobby_menu_getter')
     costumers_dict = await get_user_account_data(user_id,
                                                  db_engine)
-    wallet = costumers_dict['address']    
-    
-    # Write jettons and TON value to dialog data
-    dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
-    dialog_manager.current_context().dialog_data['ton'] = await ton_value(wallet)
+    wallet = costumers_dict['address']
+    tokens = await get_token_balance(wallet)
+    tron = await get_trx_balance(wallet)
+        
+    logger.info(f'User {user_id} have {tokens} tokens and {tron} Tron')
+
+    # Write tokens and Tron value to dialog data
+    dialog_manager.current_context().dialog_data['tokens'] = tokens
+    dialog_manager.current_context().dialog_data['tron'] = tron
     dialog_manager.current_context().dialog_data['wallet'] = wallet     
 
     return {'lobby_menu': i18n.chose.action(),
@@ -118,7 +122,7 @@ async def waiting_game_getter(dialog_manager: DialogManager,
 # Game is founded - lets join!
 async def game_confirm_getter(dialog_manager: DialogManager,
                               db_engine: AsyncEngine,
-       i18n: TranslatorRunner,
+       						  i18n: TranslatorRunner,
                               event_from_user: User,
                               **kwargs) -> dict:
     

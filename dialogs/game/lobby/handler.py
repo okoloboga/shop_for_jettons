@@ -110,23 +110,23 @@ async def bet(callback: CallbackQuery,
 
     bet = str(callback.data)[6:]
     user_id = callback.from_user.id
-    jettons = dialog_manager.current_context().dialog_data['jettons']
-    ton = dialog_manager.current_context().dialog_data['ton']
+    tokens = dialog_manager.current_context().dialog_data['tokens']
+    tron = dialog_manager.current_context().dialog_data['tron']
     wallet = dialog_manager.current_context().dialog_data['wallet']
     logger.info(f"User {user_id} made bet {bet}")
 
     # Get wallet balance of user
 
-    # If player have not enough jettons
-    if int(bet) > int(jettons):
-        logger.info(f'User {user_id} have not enough jettons')
+    # If player have not enough tokens
+    if int(bet) > int(tokens):
+        logger.info(f'User {user_id} have not enough tokens')
         i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')    
         await callback.message.answer(text=i18n.notenough())
 
-    elif float(ton) < 0.065:
-        logger.info(f'User {user_id} have not enough TON')
+    elif float(tron) < 0.065:
+        logger.info(f'User {user_id} have not enough Tron')
         i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-        await callback.message.answer(text=i18n.notenough.ton(wallet=wallet))
+        await callback.message.answer(text=i18n.notenough.tron(wallet=wallet))
     else:
         # Creating new room
         r = aioredis.Redis(host='localhost', port=6379)
@@ -177,8 +177,8 @@ async def game_selection(callback: CallbackQuery,
     bet = int(selected_game[1])
     enemy_id = int(selected_game[0])
     dialog_manager.current_context().dialog_data['bet'] = bet
-    user_jettons = dialog_manager.current_context().dialog_data['jettons']
-    user_ton = dialog_manager.current_context().dialog_data['ton']
+    user_tokens = dialog_manager.current_context().dialog_data['tokens']
+    user_tron = dialog_manager.current_context().dialog_data['tron']
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
 
     logger.info(f'Vars initializated:\n{user_id} VS {enemy_id}; Bet:')
@@ -193,15 +193,15 @@ async def game_selection(callback: CallbackQuery,
         logger.info(f'User {user_id} selected unexisting Game =(')
         await callback.message.answer(text=i18n.no.game())
 
-    # Player have not enough jettons to make current bet
-    elif int(bet) > int(user_jettons):
-        logger.info(f'User {user_id} have not enought jettons for Bet')
+    # Player have not enough tokens to make current bet
+    elif int(bet) > int(user_tokens):
+        logger.info(f'User {user_id} have not enought tokens for Bet')
         await callback.message.answer(text=i18n.notenough())
 
-    # Player have not enough TON to pay fee
-    elif float(user_ton) < 0.001:
-        logger.info(f'User {callback.from_user.id} have not enough TON for fee')
-        await callback.message.answer(text=i18n.notenough.ton(wallet=user_ton))
+    # Player have not enough Tron to pay fee
+    elif float(user_tron) < 0.001:
+        logger.info(f'User {callback.from_user.id} have not enough Tron for fee')
+        await callback.message.answer(text=i18n.notenough.tron(wallet=user_tron))
     
     # All is great, game starts
     else:
@@ -226,7 +226,6 @@ async def game_selection(callback: CallbackQuery,
         await r.delete('r_'+str(enemy_id))
 
         await dialog_manager.switch_to(LobbySG.game_confirm)
-
 
 
 # Process Exit from game - from lobby and game

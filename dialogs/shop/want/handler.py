@@ -47,19 +47,19 @@ async def fill_count(
     logger.info(f'User {callback.from_user.id} fills count: {count}')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     
-    # Enough jettons in wallet?
+    # Enough tokens in wallet?
     price = dialog_manager.current_context().dialog_data['sell_price']
-    users_jettons = dialog_manager.current_context().dialog_data['jettons']
+    users_tokens = dialog_manager.current_context().dialog_data['tokens']
     total_order_sum = price * count
     
     if count > current_count:
         logger.info(f'Not enough items in catalogue! Asked {count}, total {current_count}')
         await callback.answer(text=i18n.too.large.count())
         
-    elif total_order_sum > floor(users_jettons):
-        logger.info(f'Not enough jettons! Need {total_order_sum}, user have {floor(users_jettons)}')
-        await callback.answer(text=i18n.notenough.jettons(total_order_sum=total_order_sum,
-                                                          jettons=users_jettons
+    elif total_order_sum > floor(users_tokens):
+        logger.info(f'Not enough tokens! Need {total_order_sum}, user have {floor(users_tokens)}')
+        await callback.answer(text=i18n.notenough.tokens(total_order_sum=total_order_sum,
+                                                          tokens=users_tokens
         ))
     else:
         dialog_manager.current_context().dialog_data['count'] = count

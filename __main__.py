@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from fluentogram import TranslatorHub
 from redis.asyncio.client import Redis
 
-from config import get_config, BotConfig, DbConfig, Config, load_config
+from config import get_config, BotConfig, DbConfig
 from dialogs import (shop_dialogs, shop_routers, game_routers, game_dialogs, admin_dialogs,
                      admin_routers, router_unknown)
 from utils import TranslatorHub, create_translator_hub

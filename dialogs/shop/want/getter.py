@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_user_item_metadata, get_user_account_data,
-                          new_order, jetton_value, ton_value)
+                      new_order, get_token_balance, get_trx_balance)
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,12 @@ logging.basicConfig(
 
 
 # Show more information about item
-async def item_info_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def item_info_getter(dialog_manager: DialogManager,
+                           db_engine: AsyncEngine,
+                           i18n: TranslatorRunner,
+                           event_from_user: User,
+                           **kwargs
+                           ) -> dict[str, str]:
 
     page: int  # Current page of user from database
 
@@ -33,10 +32,15 @@ async def item_info_getter(
     costumers_dict = await get_user_account_data(user_dict['user_id'],
                                                  db_engine)
     wallet = costumers_dict['address']    
+
+    tokens = await get_token_balance(wallet)
+    tron = await get_trx_balance(wallet)
+
+    logger.info(f'User {user_dict["user_id"]} have {tokens} tokens and {tron} Tron')
     
-    # Write jettons and TON value to dialog data
-    dialog_manager.current_context().dialog_data['jettons'] = await jetton_value(wallet)
-    dialog_manager.current_context().dialog_data['ton'] = await ton_value(wallet)
+    # Write tokens and Tron value to dialog data
+    dialog_manager.current_context().dialog_data['tokens'] = tokens
+    dialog_manager.current_context().dialog_data['tron'] = tron
     dialog_manager.current_context().dialog_data['wallet'] = wallet
 
     # Getting data of item by Page in Users table
@@ -70,13 +74,12 @@ async def item_info_getter(
 
 
 # Switching to Fill count
-async def fill_count_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def fill_count_getter(dialog_manager: DialogManager,
+                            db_engine: AsyncEngine,
+                            i18n: TranslatorRunner,
+                            event_from_user: User,
+                            **kwargs
+                            ) -> dict[str, str]:
 
     return {
         "fill_count": i18n.fill.count(),
@@ -85,13 +88,12 @@ async def fill_count_getter(
 
 
 # Switching to Fill count
-async def fill_address_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def fill_address_getter(dialog_manager: DialogManager,
+                              db_engine: AsyncEngine,
+                              i18n: TranslatorRunner,
+                              event_from_user: User,
+                              **kwargs
+                              ) -> dict[str, str]:
 
     return {
         "fill_address": i18n.fill.address(),
@@ -100,13 +102,13 @@ async def fill_address_getter(
 
 
 # Order confirmation
-async def order_confirmation_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def order_confirmation_getter(dialog_manager: DialogManager,
+                                    db_engine: AsyncEngine,
+                                    i18n: TranslatorRunner,
+                                    event_from_user: User,
+                                    **kwargs
+                                    ) -> dict[str, str]:
+
     new_order_data = dialog_manager.current_context().dialog_data
 
     page: int  # Current page of user from database
@@ -148,13 +150,13 @@ async def order_confirmation_getter(
 
 
 # Complete order
-async def complete_order_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def complete_order_getter(dialog_manager: DialogManager,
+                                db_engine: AsyncEngine,
+                                i18n: TranslatorRunner,
+                                event_from_user: User,
+                                **kwargs
+                                ) -> dict[str, str]:
+
     user_dict = dialog_manager.start_data
     new_order_data = dialog_manager.current_context().dialog_data
     
@@ -162,12 +164,13 @@ async def complete_order_getter(
 
     # Getting variables
     current_count = int(dialog_manager.current_context().dialog_data['current_count'])
-    ton_value = dialog_manager.current_context().dialog_data['ton']
+    tron_value = dialog_manager.current_context().dialog_data['tron']
     wallet = dialog_manager.current_context().dialog_data['wallet']
 
-    logger.info(f'TON Value of wallet {wallet} is {round(ton_value, 2)}')
+    logger.info(f'TRON Value of wallet {wallet} is {round(tron_value, 2)}')
 
-    if round(ton_value, 2) > 0.065:
+    if round(tron_value, 2) > 0.065:
+
         # Place new order and return index of order
         index_and_data = await new_order(
             db_engine,

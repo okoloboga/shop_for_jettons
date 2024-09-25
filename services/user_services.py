@@ -13,8 +13,8 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from fluentogram import TranslatorRunner
 
 from database import users, catalogue, orders, variables, stats
-from config import get_config, BotConfig
-from .ton_services import wallet_deploy, jetton_transfer
+from config import get_config, BotConfig, WalletConfig
+from .requests import create_wallet, send_token
 
 
 logger = logging.getLogger(__name__)
@@ -31,20 +31,21 @@ newuser
 
 
 # New User creating after first /START pressing
-async def new_user(
-        db_engine: AsyncEngine,
-        user_id: int,
-        first_name: str,
-        last_name: str,
-        payload: str | None
+async def new_user(db_engine: AsyncEngine,
+                   user_id: int,
+                   first_name: str,
+                   last_name: str,
+                   payload: str | None
 ) -> list:
     logger.info('new_user processing')
 
     # Wallet data
-    new_wallet = await wallet_deploy()
-    new_address = new_wallet[0]
-    logger.info(f'New wallet address is {new_address}')
-    new_mnemonics = ' '.join(new_wallet[1])
+    new_wallet = await create_wallet()
+
+    logger.info(f'New wallet: {new_wallet}')
+
+    new_address = new_wallet['address']
+    new_private_key = new_wallet['privateKey']
 
     # If new user invited with referral link, and it is not himself
     if payload and payload != user_id:
@@ -78,7 +79,7 @@ async def new_user(
         first_name=first_name,
         last_name=last_name,
         address=new_address,
-        mnemonics=new_mnemonics,
+        private_key=new_private_key,
         purchase=0,
         purchase_sum=0,
         referrals=0,
@@ -246,7 +247,7 @@ async def new_order(db_engine: AsyncEngine,
 
     order_counter: int  # Index of last order
     manager_id: int  # ID of manager for notification sending
-    costumers_mnemonics: str  # Mnemonics of TON wallet for transaction
+    costumers_private_key: str  # Private Key of Tron wallet for transaction
     
     if user_dict['username'] is None:
         user_dict['username'] = 'no_username'
@@ -323,25 +324,41 @@ async def new_order(db_engine: AsyncEngine,
         .select_from(variables)
     )
     # Get costumers mnemonics from Users table
-    costumers_mnemonics_statement = (
-        select(column("mnemonics"))
+    costumers_private_key_statement = (
+        select(column("private_key"))
         .select_from(users)
         .where(users.c.telegram_id == user_dict['user_id'])
     )
+    # Get costumers address from Users table
+    costumers_wallet_statrment = (
+        select(column("address"))
+        .select_from(users)
+        .where(users.c.telegram_id == user_dict['user_id'])
+    )
+
     async with db_engine.connect() as conn:
         raw_manager_id = await conn.execute(manager_id_statement)
-        raw_costumers_mnemonics = await conn.execute(costumers_mnemonics_statement)
+        raw_costumers_private_key = await conn.execute(costumers_private_key_statement)
+        raw_costumers_wallet = await conn.execute(costumers_wallet_statrment)
         for row in raw_manager_id:
             manager_id = int(row[0])
             logger.info(f'Manager ID for sending notification: {manager_id}')
-        for row in raw_costumers_mnemonics:
-            costumers_mnemonics = row[0]
-            logger.info(f'Costumers Mnemonics are executed')
-            
-    # SEND JETTONS FOR PURCHASE
-    await jetton_transfer(value=int(new_order_data['order_metadata']['sell_price']) *
-                                int(new_order_data['count']),
-                          costumer_mnemonics=costumers_mnemonics)
+        for row in raw_costumers_private_key:
+            costumers_private_key = row[0]
+            logger.info(f'Costumers private key are executed: {costumers_private_key}')
+        for row in raw_costumers_wallet:
+            costumers_wallet = row[0]
+            logger.info(f'Costumers wallet are executed: {costumers_wallet}')
+    
+    # Central wallet for sending tokens
+    wallet = get_config(WalletConfig, 'wallet')
+    # SEND TOKENS FOR PURCHASE
+    await send_token(owner=costumers_wallet,
+                     private_key=costumers_private_key,
+                     target=wallet.owner,
+                     amount=int(new_order_data['order_metadata']['sell_price']) *
+                           int(new_order_data['count']),
+                     )
     
 
     # Init Bot for sending notification to manager

@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import stats, users
 from states import LobbySG
-from .ton_services import jetton_transfer_game
+from .requests import send_token
 from .admin_services import get_user_data
 from dialogs.game.game import game_end
 
@@ -80,7 +80,7 @@ async def turn_result(player1_move: str | bytes,
 
     if player1_move == player2_move:
         result = 'nobody_won'
-    elif rules[player1_move] == player2_move:
+    elif rules[player1_move] == Splayer2_move:
         if int(str(player2_health, encoding='utf-8')) > 0:
             result = b'player2_damaged'
         else:
@@ -123,10 +123,10 @@ async def write_game_result(db_engine: AsyncEngine,
     # Get wallets from Database
     winner_wallet = (await get_user_data(int(result['winner']), 
                                          db_engine))['address']
-    loser_mnemonics = (await get_user_data(int(result['loser']), 
-                                           db_engine))['mnemonics']
+    loser_private_key = (await get_user_data(int(result['loser']), 
+                                             db_engine))['private_key']
 
-    logger.info(f"Winner wallet: {winner_wallet}\nLoser mnemonics {loser_mnemonics}")
+    logger.info(f"Winner wallet: {winner_wallet}\nLoser private key: {private_key}")
     
     winner_old_stats = await get_user_stats(db_engine, 
                                              int(result['winner']))
@@ -155,11 +155,13 @@ async def write_game_result(db_engine: AsyncEngine,
     
     '''
     DISABLED FOR TESTS
-    await jetton_transfer_game(value=int(result['bet']),
-                               loser_mnemonics,
-                               winner_wallet)
+    await send_token(owner=loser_wallet,
+                     private_key=loser_private_key,
+                     target=winner_wallet,
+                     amount=int(result['bet'])
+                     )
     '''
-    logger.info(f'Jetton for game transfered')
+    logger.info(f'Tokens for game transfered')
 
 
 # Making dict with game results

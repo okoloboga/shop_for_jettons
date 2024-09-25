@@ -9,7 +9,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_admins_list, get_user_account_data, 
-                      jetton_value, to_unbouncable)
+                      get_token_balance)
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +20,14 @@ logging.basicConfig(
 
 
 # Getter for Account menu
-async def account_getter(
-    dialog_manager: DialogManager,
-    db_engine: AsyncEngine,
-    i18n: TranslatorRunner,
-    bot: Bot,
-    event_from_user: User,
-    **kwargs
-) -> dict[str, str]:
+async def account_getter(dialog_manager: DialogManager,
+                         db_engine: AsyncEngine,
+                         i18n: TranslatorRunner,
+                         bot: Bot,
+                         event_from_user: User,
+                         **kwargs
+                         ) -> dict[str, str]:
+
     user_data: list  # Result list for user data
 
     # User ID
@@ -47,10 +47,10 @@ async def account_getter(
     # Referral link
     link = await create_start_link(bot, str(user_id), encode=True)
 
-    # Getting value of jettons
-    jettons = await jetton_value(user_data['address'])
+    # Getting value of tokens
+    tokens = await get_token_balance(user_data['address'])
     
-    dialog_manager.current_context().dialog_data['address'] = await to_unbouncable(user_data['address'])
+    dialog_manager.current_context().dialog_data['address'] = user_data['address']
     
     logger.info(f"User data\nPurchase: {user_data['purchase']}\nPurchase sum: {user_data['purchase_sum']}\n\
                 Wallet address: {user_data['address']}\nReferrals: {user_data['referrals']}\nLink: {link}")
@@ -61,6 +61,6 @@ async def account_getter(
             "account_data": i18n.account.data(user_id=user_id,
                                               purchase=user_data['purchase'],
                                               purchase_sum=user_data['purchase_sum'],
-                                              jettons=jettons,
+                                              tokens=tokens,
                                               link=link,
                                               referrals=user_data['referrals'])}
