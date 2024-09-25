@@ -9,7 +9,6 @@ from aiogram_dialog.widgets.kbd import Button
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from fluentogram import TranslatorRunner
 
-from services import change_order_status, decline_order_process
 from states import ConfirmOrderSG
 
 router_confirm_order = Router()
@@ -24,11 +23,11 @@ logging.basicConfig(
 
 
 # Status New selected
-async def new_orders(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager,
-):
+async def new_orders(callback: CallbackQuery,
+                     button: Button,
+                     dialog_manager: DialogManager,
+                     ):
+
     logger.info(f'User {callback.from_user.id} watching for NEW order')
     dialog_manager.current_context().dialog_data['status'] = 'new'
     
@@ -36,11 +35,11 @@ async def new_orders(
  
  
 # Status Accepted selected
-async def accepted_orders(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager,
-):
+async def accepted_orders(callback: CallbackQuery,
+                          button: Button,
+                          dialog_manager: DialogManager,
+                          ):
+
     logger.info(f'User {callback.from_user.id} watching for ACCEPTED orders')
     dialog_manager.current_context().dialog_data['status'] = 'accepted'
     
@@ -48,11 +47,11 @@ async def accepted_orders(
 
 
 # Status Declined selected
-async def declined_orders(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager,
-):
+async def declined_orders(callback: CallbackQuery,
+                          button: Button,
+                          dialog_manager: DialogManager,
+                          ):
+
     logger.info(f'User {callback.from_user.id} watching for DECLINED orders')
     dialog_manager.current_context().dialog_data['status'] = 'declined'
     
@@ -60,12 +59,12 @@ async def declined_orders(
     
 
 # Selecting order from list with saved status
-async def select_order(
-        callback: CallbackQuery,
-        widget: ManagedTextInput, 
-        dialog_manager: DialogManager,
-        order: str
-):  
+async def select_order(callback: CallbackQuery,
+                       widget: ManagedTextInput, 
+                       dialog_manager: DialogManager,
+                       order: str
+                       ):
+
     status = dialog_manager.current_context().dialog_data['status']
     dialog_manager.current_context().dialog_data['order'] = order
     logger.info(f'User {callback.from_user.id} select {order} of {status}')
@@ -95,12 +94,12 @@ async def select_order(
     
 
 # Filled wrong order
-async def wrong_order(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        text_input: TextInput
-):
+async def wrong_order(callback: CallbackQuery,
+                      widget: ManagedTextInput,
+                      dialog_manager: DialogManager,
+                      text_input: TextInput
+                      ):
+
     logger.warning(f'User {callback.from_user.id} fills wrong order')
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -108,11 +107,11 @@ async def wrong_order(
 
 
 # Accepting order
-async def accept_order(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):  
+async def accept_order(callback: CallbackQuery,
+                       button: Button,
+                       dialog_manager: DialogManager
+                       ):  
+
     order = dialog_manager.current_context().dialog_data['order']
     logger.info(f'User {callback.from_user.id} accepting order {order}')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -125,11 +124,11 @@ async def accept_order(
 
 
 # Declining order
-async def decline_order(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):  
+async def decline_order(callback: CallbackQuery,
+                        button: Button,
+                        dialog_manager: DialogManager
+                        ):
+
     order = dialog_manager.current_context().dialog_data['order']
     logger.info(f'User {callback.from_user.id} declining order {order}')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -142,11 +141,11 @@ async def decline_order(
     
 
 # Confirming order accept
-async def confirm_accept_order(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def confirm_accept_order(callback: CallbackQuery,
+                               button: Button,
+                               dialog_manager: DialogManager
+                               ):
+
     user_id = callback.from_user.id
     order = dialog_manager.current_context().dialog_data['order']
     dialog_manager.current_context().dialog_data['updated_status'] = 'accepted'
@@ -157,13 +156,13 @@ async def confirm_accept_order(
 
 
 # Confirming order decline
-async def confirm_decline_order(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        db_engine: AsyncEngine,
-        dialog_manager: DialogManager,
-        reason: str
-):
+async def confirm_decline_order(callback: CallbackQuery,
+                                widget: ManagedTextInput,
+                                db_engine: AsyncEngine,
+                                dialog_manager: DialogManager,
+                                reason: str
+                                ):
+
     dialog_manager.current_context().dialog_data['reason'] = reason
     dialog_manager.current_context().dialog_data['updated_status'] = 'declined'
     
@@ -171,12 +170,12 @@ async def confirm_decline_order(
     
 
 # Filled wrong reason 
-async def wrong_reason(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        text_input: TextInput
-):
+async def wrong_reason(callback: CallbackQuery,
+                       widget: ManagedTextInput,
+                       dialog_manager: DialogManager,
+                       text_input: TextInput
+                       ):
+
     logger.info(f'User {callback.from_user.id} fills wrong reason')
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -184,11 +183,11 @@ async def wrong_reason(
     
     
 # Complete order that in process
-async def complete_order(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def complete_order(callback: CallbackQuery,
+                         button: Button,
+                         dialog_manager: DialogManager
+                         ):
+
     dialog_manager.current_context().dialog_data['updated_status'] = 'completed'
   
     await dialog_manager.switch_to(ConfirmOrderSG.status_changed)

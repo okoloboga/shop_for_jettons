@@ -2,6 +2,7 @@ import logging
 
 from aiogram_dialog import DialogManager
 from aiogram.types import User
+from aiogram import Bot
 from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
@@ -18,13 +19,13 @@ logging.basicConfig(
 
 
 # Showing statuses for select
-async def select_status_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def select_status_getter(dialog_manager: DialogManager,
+                               db_engine: AsyncEngine,
+                               i18n: TranslatorRunner,
+                               event_from_user: User,
+                               **kwargs
+                               ) -> dict:
+
     return {'select_status': i18n.select.status(),
             'button_new_orders': i18n.button.new.orders(),
             'button_accepted_orders': i18n.button.accepted.orders(),
@@ -34,18 +35,16 @@ async def select_status_getter(
 
 
 # Show orders from costumers
-async def orders_list_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
-    user_dict = dialog_manager.start_data
+async def orders_list_getter(dialog_manager: DialogManager,
+                             db_engine: AsyncEngine,
+                             i18n: TranslatorRunner,
+                             event_from_user: User,
+                             **kwargs
+                             ) -> dict:
 
+    user_dict = dialog_manager.start_data
     status = dialog_manager.current_context().dialog_data['status']
     user_id = user_dict['user_id']
-    
     orders_list = await get_orders_list(db_engine,
                                         int(user_id),
                                         str(status))
@@ -66,18 +65,16 @@ async def orders_list_getter(
     
     
 # Selected one of orders... Order information
-async def order_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):  
-    user_dict = dialog_manager.start_data
+async def order_getter(dialog_manager: DialogManager,
+                       db_engine: AsyncEngine,
+                       i18n: TranslatorRunner,
+                       event_from_user: User,
+                       **kwargs
+                       ) -> dict:
 
+    user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']   
     order = dialog_manager.current_context().dialog_data['order']
-    
     selected_order = await get_order_data(db_engine, int(order[1:]))
             
     return {"button_decline": i18n.decline.order(),
@@ -114,16 +111,19 @@ async def status_changed_getter(dialog_manager: DialogManager,
                        			i18n: TranslatorRunner,
                        			event_from_user: User,
                        			**kwargs
-):  
+                                ) -> dict:
+
     user_id = event_from_user.id
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     updated_status = dialog_manager.current_context().dialog_data['updated_status']
     order = int((dialog_manager.current_context().dialog_data['order'])[1:])
+    bot: Bot = dialog_manager.middleware_data.get('bot')
         
     logger.info(f'User {user_id} changed status of order {order} to {updated_status}')
         
     if updated_status == 'accepted' or updated_status == 'completed':
         costumer = await change_order_status(i18n=i18n,
+                                             bot=bot,
                                              db_engine=db_engine,
                                              user_id=user_id,
                                              order=order,  
@@ -147,6 +147,7 @@ async def status_changed_getter(dialog_manager: DialogManager,
     elif updated_status == 'declined':
         reason = dialog_manager.current_context().dialog_data['reason']
         order_data = await decline_order_process(i18n=i18n,
+                                        	     bot=bot,
                                         	     db_engine=db_engine,
                                         	     user_id=user_id,
                                         	     order=order,

@@ -118,6 +118,7 @@ async def turn_result(player1_move: str | bytes,
 # Writing data from Game Result to Database
 async def write_game_result(db_engine: AsyncEngine,
                             result: dict):
+                            
     logger.info(f'Writing data about result of game in database: {result}')
 
     # Get wallets from Database
@@ -229,6 +230,7 @@ async def game_result(callback: CallbackQuery,
 # Timing starts
 async def timer(dialog_manager: DialogManager, 
                 room_id: int):
+
     await asyncio.sleep(120)
     game = await r.hgetall('g_' + str(room_id))
     if len(game) == 0:

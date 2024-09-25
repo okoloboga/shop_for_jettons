@@ -95,7 +95,8 @@ async def search_game_getter(dialog_manager: DialogManager,
     
     for key in await r.keys("r_*"):
         logger.info(f'key of r.keys("r_*) is {key}')
-        rooms_list.append((int(str(key, encoding='utf-8')[2:]), int(str(await r.get(key), encoding='utf-8'))))
+        rooms_list.append((int(str(key, encoding='utf-8')[2:]), 
+                           int(str(await r.get(key), encoding='utf-8'))))
 
     logger.info(f'Total rooms list: {rooms_list}')
 
@@ -122,7 +123,7 @@ async def waiting_game_getter(dialog_manager: DialogManager,
 # Game is founded - lets join!
 async def game_confirm_getter(dialog_manager: DialogManager,
                               db_engine: AsyncEngine,
-       						  i18n: TranslatorRunner,
+       			      i18n: TranslatorRunner,
                               event_from_user: User,
                               **kwargs) -> dict:
     

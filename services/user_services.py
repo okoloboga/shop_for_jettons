@@ -238,6 +238,7 @@ neworder
 # Place new Order
 async def new_order(db_engine: AsyncEngine,
                     i18n: TranslatorRunner,
+                    bot: Bot,
                     user_dict: dict,
                     new_order_data: dict,
                     current_count: int
@@ -352,6 +353,7 @@ async def new_order(db_engine: AsyncEngine,
     
     # Central wallet for sending tokens
     wallet = get_config(WalletConfig, 'wallet')
+    
     # SEND TOKENS FOR PURCHASE
     await send_token(owner=costumers_wallet,
                      private_key=costumers_private_key,
@@ -359,12 +361,6 @@ async def new_order(db_engine: AsyncEngine,
                      amount=int(new_order_data['order_metadata']['sell_price']) *
                            int(new_order_data['count']),
                      )
-    
-
-    # Init Bot for sending notification to manager
-    bot_config = get_config(BotConfig, "bot")
-    bot = Bot(token=bot_config.token.get_secret_value(),
-              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
     # Send notification to manager
     await bot.send_message(chat_id=manager_id,

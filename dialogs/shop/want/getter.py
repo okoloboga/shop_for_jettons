@@ -1,5 +1,6 @@
 import logging
 
+from aiogram import Bot
 from aiogram_dialog import DialogManager
 from aiogram.types import User
 from fluentogram import TranslatorRunner
@@ -171,10 +172,13 @@ async def complete_order_getter(dialog_manager: DialogManager,
 
     if round(tron_value, 2) > 0.065:
 
+        bot: Bot = dialog_manager.middleware_data.get('bot')
+
         # Place new order and return index of order
         index_and_data = await new_order(
             db_engine,
             i18n,
+            bot,
             user_dict,
             new_order_data,
             current_count

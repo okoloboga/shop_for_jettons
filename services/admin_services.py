@@ -486,13 +486,14 @@ async def get_order_data(
 
 
 # Changing status for Accepted or Completed
-async def change_order_status(
-        i18n: TranslatorRunner,
-        db_engine: AsyncEngine,
-        user_id: int,
-        order: int,
-        updated_status: str
-) -> str:
+async def change_order_status(i18n: TranslatorRunner,
+                              bot: Bot,
+                              db_engine: AsyncEngine,
+                              user_id: int,
+                              order: int,
+                              updated_status: str
+                              ) -> str:
+
     logger.info(f'{updated_status} order {order} by {user_id}')
     costumer_id: int  # ID of costumer for sending notification
     coustumers_username: str  # @username of costumer for contact
@@ -518,11 +519,6 @@ async def change_order_status(
 
     costumer_id = order_data[1]
     coustumers_username = order_data[2]
-    
-    # Init Bot
-    bot_config = get_config(BotConfig, "bot")
-    bot = Bot(token=bot_config.token.get_secret_value(),
-              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     # Send notification to Customer
     if updated_status == 'accepted':
@@ -605,13 +601,14 @@ async def change_order_status(
 
 
 # Declining order
-async def decline_order_process(
-        i18n: TranslatorRunner,
-        db_engine: AsyncEngine,
-        user_id: int,
-        order: int,
-        reason: str
-) -> str:
+async def decline_order_process(i18n: TranslatorRunner,
+                                bot: Bot,
+                                db_engine: AsyncEngine,
+                                user_id: int,
+                                order: int,
+                                reason: str
+                                ) -> str:
+
     logger.info(f'Declining order {order} by {user_id}')
     costumer_id: int  # ID of costumer for sending notification
     coustumers_username: str  # @username of costumer for contact
@@ -651,11 +648,6 @@ async def decline_order_process(
                                      db_engine)
     wallet = costumers_dict['address']
     income = order_data[9]
-    
-    # Init Bot
-    bot_config = get_config(BotConfig, "bot")
-    bot = Bot(token=bot_config.token.get_secret_value(),
-              default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
     # Send notification to Customer
     await bot.send_message(chat_id=costumer_id,
