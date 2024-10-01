@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from fluentogram import TranslatorRunner
 
 from database import users, catalogue, orders, variables, stats
-from config import get_config, BotConfig, WalletConfig
+from config import get_config, WalletConfig
 from .requests import create_wallet, send_token, send_trx
 
 
@@ -51,7 +51,10 @@ async def new_user(db_engine: AsyncEngine,
     new_address = new_wallet['data']['address']['base58']
     new_private_key = new_wallet['data']['privateKey']
     send_trx_result = await send_trx(new_address, 0.1)
-    send_token_result = await send_token(central_wallet, new_private_key, new_address, 15)
+    send_token_result = await send_token(central_wallet.centralWallet,
+                                         central_wallet.privateKey, 
+                                         new_address, 
+                                         15)
 
     logger.info(f'send TRX result: {send_trx_result['status']}\nsend token result: {send_token_result["status"]}')
 
@@ -60,6 +63,7 @@ async def new_user(db_engine: AsyncEngine,
         invited = 1
 
         logger.info(f'User {user_id} starts bot with referral link. Parent: {payload}')
+
         # Update referral parent by ID in payload
         update_parent = (users.update()
                          .values(referrals=users.c.referrals + 1)
@@ -255,7 +259,6 @@ async def new_order(db_engine: AsyncEngine,
     
     logger.info(f'Placing new order by user {user_dict['user_id']}')
 
-    order_counter: int  # Index of last order
     manager_id: int  # ID of manager for notification sending
     costumers_private_key: str  # Private Key of Tron wallet for transaction
     
@@ -340,7 +343,7 @@ async def new_order(db_engine: AsyncEngine,
         .where(users.c.telegram_id == user_dict['user_id'])
     )
     # Get costumers address from Users table
-    costumers_wallet_statrment = (
+    costumers_wallet_statement = (
         select(column("address"))
         .select_from(users)
         .where(users.c.telegram_id == user_dict['user_id'])
@@ -349,7 +352,7 @@ async def new_order(db_engine: AsyncEngine,
     async with db_engine.connect() as conn:
         raw_manager_id = await conn.execute(manager_id_statement)
         raw_costumers_private_key = await conn.execute(costumers_private_key_statement)
-        raw_costumers_wallet = await conn.execute(costumers_wallet_statrment)
+        raw_costumers_wallet = await conn.execute(costumers_wallet_statement)
         for row in raw_manager_id:
             manager_id = int(row[0])
             logger.info(f'Manager ID for sending notification: {manager_id}')
@@ -361,12 +364,12 @@ async def new_order(db_engine: AsyncEngine,
             logger.info(f'Costumers wallet are executed: {costumers_wallet}')
     
     # Central wallet for sending tokens
-    wallet = get_config(WalletConfig, 'wallet')
+    central_wallet = get_config(WalletConfig, 'wallet')
     
     # SEND TOKENS FOR PURCHASE
-    await send_token(owner=costumers_wallet,
+    await send_token(owner=central_wallet.centralWallet,
                      private_key=costumers_private_key,
-                     target=wallet.owner,
+                     target=central_wallet.centralWallet,
                      amount=int(new_order_data['order_metadata']['sell_price']) *
                            int(new_order_data['count']),
                      )

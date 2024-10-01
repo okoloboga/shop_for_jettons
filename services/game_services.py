@@ -10,7 +10,8 @@ from redis import asyncio as aioredis
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from database import stats, users
+from database import stats
+from config import get_config, WalletConfig
 from states import LobbySG
 from .admin_services import get_user_data
 from dialogs.game.game import game_end
@@ -153,9 +154,11 @@ async def write_game_result(db_engine: AsyncEngine,
         await conn.commit()
         logger.info(f"New stats writed for winner {result['winner']} and loser {result['loser']}")
     
+    central_wallet = get_config(WalletConfig, 'wallet')
+
     '''
     DISABLED FOR TESTS
-    await send_token(owner=loser_wallet,
+    await send_token(owner=central_wallet.centralWallet,
                      private_key=loser_private_key,
                      target=winner_wallet,
                      amount=int(result['bet'])
