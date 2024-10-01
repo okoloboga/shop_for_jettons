@@ -25,7 +25,8 @@ async def start_getter(
         i18n: TranslatorRunner,       
         event_from_user: User,
         **kwargs
-) -> dict[str, str]:
+        ) -> dict[str, str]:
+
     logger.info('START button processing - start_getter')
 
     # User ID
@@ -71,7 +72,8 @@ async def start_previous_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-) -> dict[str, str]:
+        ) -> dict[str, str]:
+
     user_dict = dialog_manager.start_data
 
     logger.info(f'User {user_dict['user_id']} pressed PREVIOUS button')
@@ -170,7 +172,8 @@ async def start_next_getter(
         i18n: TranslatorRunner,
         event_from_user: User,
         **kwargs
-) -> dict[str, str]:
+        ) -> dict[str, str]:
+        
     user_dict = dialog_manager.start_data
 
     logger.info(f'User {user_dict['user_id']} pressed NEXT button')

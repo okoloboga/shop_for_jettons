@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from database import stats, users
 from states import LobbySG
-from .requests import send_token
 from .admin_services import get_user_data
 from dialogs.game.game import game_end
 

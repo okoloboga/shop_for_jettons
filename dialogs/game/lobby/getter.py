@@ -31,8 +31,8 @@ async def lobby_menu_getter(dialog_manager: DialogManager,
     costumers_dict = await get_user_account_data(user_id,
                                                  db_engine)
     wallet = costumers_dict['address']
-    tokens = await get_token_balance(wallet)
-    tron = await get_trx_balance(wallet)
+    tokens = (await get_token_balance(wallet))['data']
+    tron = (await get_trx_balance(wallet))['data']
         
     logger.info(f'User {user_id} have {tokens} tokens and {tron} Tron')
 

@@ -39,8 +39,8 @@ async def account_getter(dialog_manager: DialogManager,
     user_id = user_dict['user_id']
 
     # Getting user info for display in Account dialog
-    user_data = await get_user_account_data(user_id,
-                                            db_engine)
+    user_data = await get_user_account_data(user_id, db_engine)
+
     # Getting list of admins
     dialog_manager.current_context().dialog_data['admins'] = await get_admins_list(db_engine)
     
@@ -48,12 +48,13 @@ async def account_getter(dialog_manager: DialogManager,
     link = await create_start_link(bot, str(user_id), encode=True)
 
     # Getting value of tokens
-    tokens = await get_token_balance(user_data['address'])
-    
+    tokens = (await get_token_balance(user_data['address']))['data']
+
     dialog_manager.current_context().dialog_data['address'] = user_data['address']
     
     logger.info(f"User data\nPurchase: {user_data['purchase']}\nPurchase sum: {user_data['purchase_sum']}\n\
-                Wallet address: {user_data['address']}\nReferrals: {user_data['referrals']}\nLink: {link}")
+                Wallet address: {user_data['address']}\nReferrals: {user_data['referrals']}\n\
+                Referral Link: {link}\nToken balance: {tokens}")
 
     return {"button_back": i18n.button.back(),
             "button_wallet": i18n.button.wallet(),

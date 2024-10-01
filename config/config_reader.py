@@ -17,7 +17,7 @@ class BotConfig(BaseModel):
 
 
 class WalletConfig(BaseModel):
-    privatKey: str
+    privateKey: str
     centralWallet: str
     tokenContract: str
     

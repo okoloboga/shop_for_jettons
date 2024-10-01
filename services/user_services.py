@@ -14,7 +14,7 @@ from fluentogram import TranslatorRunner
 
 from database import users, catalogue, orders, variables, stats
 from config import get_config, BotConfig, WalletConfig
-from .requests import create_wallet, send_token
+from .requests import create_wallet, send_token, send_trx
 
 
 logger = logging.getLogger(__name__)
@@ -36,16 +36,24 @@ async def new_user(db_engine: AsyncEngine,
                    first_name: str,
                    last_name: str,
                    payload: str | None
-) -> list:
+                   ) -> list:
+
     logger.info('new_user processing')
 
-    # Wallet data
+    # Create new wallet and send init Tron
+    central_wallet = get_config(WalletConfig, 'wallet')
     new_wallet = await create_wallet()
 
-    logger.info(f'New wallet: {new_wallet}')
+    logger.info(f'New wallet: {new_wallet}, lets send 0.1 TRON and 15 tokens to new wallet address:\n\
+        {new_wallet["data"]["address"]["base58"]}')
 
-    new_address = new_wallet['address']
-    new_private_key = new_wallet['privateKey']
+    # Get address and private key of new wallet and transfer 15 start coins there
+    new_address = new_wallet['data']['address']['base58']
+    new_private_key = new_wallet['data']['privateKey']
+    send_trx_result = await send_trx(new_address, 0.1)
+    send_token_result = await send_token(central_wallet, new_private_key, new_address, 15)
+
+    logger.info(f'send TRX result: {send_trx_result['status']}\nsend token result: {send_token_result["status"]}')
 
     # If new user invited with referral link, and it is not himself
     if payload and payload != user_id:
@@ -108,7 +116,7 @@ async def new_user(db_engine: AsyncEngine,
         await conn.commit()
         logger.info(f'New user {user_id} data writed')
         
-    return [new_address, new_mnemonics]
+    return [new_address, new_private_key]
 
 
 # Get User data
@@ -126,7 +134,7 @@ async def get_user_account_data(user_id: int,
         user_data_raw = await conn.execute(statement)
         for row in user_data_raw:
             user_data = list(row)
-        logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
+            logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
 
     user = {
         'first_name': user_data[1],
@@ -148,6 +156,7 @@ newitem
 async def get_user_item_metadata(user_dict: dict,
                                  db_engine: AsyncEngine
                                  ) -> dict:
+
     logger.info(f'get_item_metadata({user_dict['user_id']})')
 
     page: int  # Current page of user from database
@@ -318,13 +327,13 @@ async def new_order(db_engine: AsyncEngine,
         logger.info(f'Orders Counter updated to {len_orders + 1},\
             Catalogue count update by {new_order_data['count']}')
 
-    # Send notification to manager and getting Mnemonics of costumer
+    # Send notification to manager and getting Private Key of costumer
     # Get Manager ID from Variables table
     manager_id_statement = (
         select(column("manager_id"))
         .select_from(variables)
     )
-    # Get costumers mnemonics from Users table
+    # Get costumers Private key from Users table
     costumers_private_key_statement = (
         select(column("private_key"))
         .select_from(users)

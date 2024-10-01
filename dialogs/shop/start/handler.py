@@ -58,7 +58,7 @@ async def command_start_process(message: Message,
 
     # Read users data from database
     statement = (
-        select(column('address'), column('mnemonics'))
+        select(column('address'), column('private_key'))
         .select_from(users)
         .where(users.c.telegram_id == message.from_user.id)
     )
@@ -70,6 +70,8 @@ async def command_start_process(message: Message,
             logger.info(f'User {message.from_user.id} data is loaded.\
                         \nWallet is {row[1]}')
 
+    logger.info(f'User data: {user}')
+
     # If User is New...
     if len(user) == 0:
     
@@ -77,11 +79,11 @@ async def command_start_process(message: Message,
 
         # Central wallet has enough Tron for deploy new wallet?
         central_wallet = get_config(WalletConfig, 'wallet')
-        central_balance = await get_trx_balance(central_walletprivateKey)
+        central_balance = await get_trx_balance(central_wallet.centralWallet)
 
         logger.info(f'Central wallet balance is {central_balance}')
 
-        if central_balance['balance'] > 0.01:
+        if central_balance['data'] > 0.01:
             await message.answer(text=i18n.hello())
             
             logger.warning(f'{message.from_user.id} is new user')
@@ -100,7 +102,7 @@ async def command_start_process(message: Message,
                 'current_game': 0,
                 'last_message': 0,
                 'wallet': wallet_data[0],
-                'mnemonics': wallet_data[1]
+                'private_key': wallet_data[1]
                 }
                 
             await r.hmset(str(message.from_user.id), new_user_template)
@@ -127,7 +129,7 @@ async def command_start_process(message: Message,
                 'current_game': 0,
                 'last_message': 0,
                 'wallet': user[0],
-                'mnemonics': user[1]
+                'private_key': user[1]
                 }
                 
             await r.hmset(str(message.from_user.id), new_user_template)
