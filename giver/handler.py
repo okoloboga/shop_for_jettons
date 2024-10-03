@@ -84,7 +84,7 @@ async def check_eth_address(message: Message,
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
 
-    if response['data'] == False:
+    if response['data'] != False:
         await state.update_data(eth_address=address)
         await dialog_manager.switch_to(MainSG.fill_sol)
     else:
@@ -109,9 +109,9 @@ async def check_sol_address(message: Message,
     
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
-    db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
-    if response['data'] == False:
+    if response['data'] != False:
         await state.update_data(sol_address=address)
         adresses = await state.get_data()
         
@@ -136,7 +136,7 @@ async def select_eth(callback: CallbackQuery,
 
     user = callback.from_user.id
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
     logger.info(f'Select ETH: {user}')
 
@@ -171,7 +171,7 @@ async def select_ftm(callback: CallbackQuery,
 
     user = callback.from_user.id
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
     logger.info(f'Select FTM: {user}')
 
@@ -206,7 +206,7 @@ async def select_sol(callback: CallbackQuery,
 
     user = callback.from_user.id
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
     logger.info(f'Select SOL: {user}')
 
@@ -253,7 +253,7 @@ async def check_address(message: Message,
 
     user = message.from_user.id
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
-    db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
     logger.info(f'Check address: {user} {address}')
 
