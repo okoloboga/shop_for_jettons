@@ -59,3 +59,5 @@ error-ethaddress = Invalid ETH address!
 error-soladdress = Invalid SOL address!
 
 wrong-input = Invalid input!
+
+unknown-message = Can't understand you...

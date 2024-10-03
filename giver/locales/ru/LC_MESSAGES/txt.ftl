@@ -60,3 +60,5 @@ error-ethaddress = Неверный ETH адрес!
 error-soladdress = Неверный SOL адрес!
 
 wrong-input = Неверный ввод!
+
+unknown-message = Не понял, что ты сказал...
