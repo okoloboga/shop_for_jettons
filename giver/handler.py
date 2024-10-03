@@ -84,7 +84,7 @@ async def check_eth_address(message: Message,
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
 
-    if response['status'] == 'OK':
+    if response['data'] == False:
         await state.update_data(eth_address=address)
         await dialog_manager.switch_to(MainSG.fill_sol)
     else:
@@ -111,7 +111,7 @@ async def check_sol_address(message: Message,
     state: FSMContext = dialog_manager.middleware_data.get('state')
     db_engine: AsyncEngine = dialog_manager.middleware_data.get('session')
 
-    if response['status'] == 'OK':
+    if response['data'] == False:
         await state.update_data(sol_address=address)
         adresses = await state.get_data()
         
@@ -262,7 +262,7 @@ async def check_address(message: Message,
 
         logger.info(f'Check ETH address: {response}')
 
-        if response['result'] == 'OK':
+        if response['data'] != False:
             await update_eth_address(user, address[4:], db_engine)
         else:
             await message.answer(text=i18n.error.ethaddress())
@@ -272,7 +272,7 @@ async def check_address(message: Message,
 
         logger.info(f'Check SOL address: {response}')
 
-        if response['result'] == 'OK':
+        if response['data'] != False:
             await update_sol_address(user, address[4:], db_engine)
         else:
             await message.answer(text=i18n.error.soladdress())
