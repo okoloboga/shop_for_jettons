@@ -77,7 +77,7 @@ async def check_eth_address(message: Message,
 
     logger.info(f'Check ETH address: {user} {address}')
 
-    response = await check_eth_address(address)
+    response = await eth_address(address)
 
     logger.info(f'Check ETH address: {response}')
     
@@ -103,7 +103,7 @@ async def check_sol_address(message: Message,
 
     logger.info(f'Check SOL address: {user_id} {address}')
 
-    response = await check_sol_address(address)
+    response = await sol_address(address)
 
     logger.info(f'Check SOL address: {response}')
     
@@ -258,7 +258,7 @@ async def check_address(message: Message,
     logger.info(f'Check address: {user} {address}')
 
     if address[0:3] == 'ETH':
-        response = await check_eth_address(address)
+        response = await eth_address(address)
 
         logger.info(f'Check ETH address: {response}')
 
@@ -268,7 +268,7 @@ async def check_address(message: Message,
             await message.answer(text=i18n.error.ethaddress())
 
     elif address[0:3] == 'SOL':
-        response = await check_sol_address(address)
+        response = await sol_address(address)
 
         logger.info(f'Check SOL address: {response}')
 

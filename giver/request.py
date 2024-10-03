@@ -31,8 +31,8 @@ async def get_eth_balance(address: str
 
 
 # Check Ethereum address
-async def check_eth_address(address: str
-                            ) -> dict:
+async def eth_address(address: str
+                      ) -> dict:
 
     url = f'{BASE_URL}/ethaddress?address={address}'
 
@@ -46,8 +46,8 @@ async def check_eth_address(address: str
 
 
 # Check Solana address
-async def check_sol_address(address: str
-                            ) -> dict:
+async def sol_address(address: str
+                      ) -> dict:
 
     url = f'{BASE_URL}/soladdress?address={address}'
 
