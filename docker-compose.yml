@@ -12,7 +12,7 @@ services:
   market:
     build:
       context: ./market
-    contrainer_name: market
+    container_name: market
     restart: always
     depends_on:
       - postgres_market
@@ -27,7 +27,7 @@ services:
 
   postgres_market:
     image: postgres:latest
-    contrainer_name: postgres_market
+    container_name: postgres_market
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_MARKET_USER}
@@ -38,7 +38,7 @@ services:
 
   postgres_giver:
     image: postgres:latest
-    contrainer_name: postgres_giver
+    container_name: postgres_giver
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_GIVER_USER}
