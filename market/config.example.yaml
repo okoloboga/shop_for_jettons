@@ -1,6 +1,11 @@
 bot:
-  token: "t0k3nfr0mb07Fa7h3r_1n73l39ram"
+  token: "token_from_bot_father"
 
 db:
-  dsn: "postgresql+psycopg://postgres:password@127.0.0.1/postgres"
+  dsn: "postgresql+psycopg://postgres:password@postgres_market:5432/postgres"
   is_echo: "yes"
+
+wallet:
+  privateKey: "tron_wallet_private_key"
+  centralWallet: "tron_central_wallet_address"
+  tokenContract: "tron_token_contract_address"

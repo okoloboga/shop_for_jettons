@@ -23,7 +23,7 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d #%(levelname)-8s '
            '[%(asctime)s] - %(name)s - %(message)s')
 
-r = aioredis.Redis(host='localhost', port=6379)
+r = aioredis.Redis(host='redis', port=6379, db=0)
 
 
 # Get User stats from database

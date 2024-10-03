@@ -12,7 +12,7 @@ logging.basicConfig(
 
 wallet = get_config(WalletConfig, "wallet")
 
-BASE_URL = 'http://localhost:3000/api'
+BASE_URL = 'http://backend:3000/api'
 
 
 # Get Ethereum balance

@@ -59,7 +59,7 @@ async def lobby_join(callback: CallbackQuery,
     user_id = callback.from_user.id
     logger.info(f"User {user_id} pressed lobby_join")
 
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
     rooms = {}
     
     for key in await r.keys("r_*"):
@@ -129,7 +129,7 @@ async def bet(callback: CallbackQuery,
         await callback.message.answer(text=i18n.notenough.tron(wallet=wallet))
     else:
         # Creating new room
-        r = aioredis.Redis(host='localhost', port=6379)
+        r = aioredis.Redis(host='redis', port=6379, db=0)
         await r.set('r_'+str(user_id), bet)
        
         logger.info(f'User {user_id} created new room with bet {bet}')
@@ -147,7 +147,7 @@ async def wait_game(callback: CallbackQuery,
     user_id = callback.from_user.id
     logger.info(f"User {user_id} still waiting for game...")
 
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
 
     # Checking for update of game start
     if await r.exists('g_'+str(user_id)) != 0:
@@ -170,8 +170,10 @@ async def game_selection(callback: CallbackQuery,
 
     selected_game = (selected_game_raw[1:-1]).split(', ')
     user_id = callback.from_user.id
+
     logger.info(f"User {user_id} select enemy {selected_game}")
-    r = aioredis.Redis(host='localhost', port=6379)
+    
+    r = aioredis.Redis(host='redis', port=6379, db=0)
 
     # Vars initialization
     bet = int(selected_game[1])
@@ -235,7 +237,7 @@ async def back(callback: CallbackQuery,
                ):
 
     user_id = callback.from_user.id
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
     if await r.exists('r_'+str(user_id)):
         await r.delete('r_'+str(user_id))
         logger.info(f'room {user_id} - deleted')

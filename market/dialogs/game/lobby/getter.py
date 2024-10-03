@@ -90,7 +90,7 @@ async def search_game_getter(dialog_manager: DialogManager,
                              event_from_user: User,
                              **kwargs) -> dict:
    
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
     rooms_list = []
     
     for key in await r.keys("r_*"):
@@ -133,7 +133,7 @@ async def game_confirm_getter(dialog_manager: DialogManager,
 
     # If User is Game Owner
     if int(user_id) == int(game):
-        r = aioredis.Redis(host='localhost', port=6379)
+        r = aioredis.Redis(host='redis', port=6379, db=0)
         game_data = await r.hgetall('g_'+str(game))
         game_data[b'owner_ready'] = 1
         await r.hmset('g_'+str(game), game_data)

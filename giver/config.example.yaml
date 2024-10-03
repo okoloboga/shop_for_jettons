@@ -1,6 +1,15 @@
 bot:
-  token: "t0k3nfr0mb07Fa7h3r_1n73l39ram"
+  token: "token_from_bot_father"
 
 db:
-  dsn: "postgresql+psycopg://postgres:password@127.0.0.1/postgres"
+  dsn: "postgresql+psycopg://postgres:password@postgres_giver:5432/postgres"
   is_echo: "yes"
+
+wallet:
+  ethAddress: "central_wallet_eth_address"
+  ethPrivateKey: "central_wallet_eth_private_key"
+  solAddress: "central_wallet_sol_address"
+  solPrivateKey: "central_wallet_sol_private_key"
+  ethQuote: "0.001"
+  ftmQuote: "10"
+  solQuote: "0.1"

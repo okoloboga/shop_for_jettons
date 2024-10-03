@@ -34,7 +34,7 @@ async def game_confirm(callback: CallbackQuery,
                        button: Button,
                        dialog_manager: DialogManager
                        ):
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
@@ -80,7 +80,7 @@ async def process_game_button(callback: CallbackQuery,
         await dialog_manager.start(state=LobbySG.main,
                                    mode=StartMode.RESET_STACK)
     else:
-        r = aioredis.Redis(host='localhost', port=6379)
+        r = aioredis.Redis(host='redis', port=6379, db=0)
 
         # Vars initialization
         turn_result = services.game_services.turn_result
@@ -257,7 +257,7 @@ async def process_end_game_button(callback: CallbackQuery,
                                   bot: Bot
                                   ):
 
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
 
     # Vars initialization
     game_result = services.game_services.game_result

@@ -44,7 +44,7 @@ async def command_start_process(message: Message,
     logger.info(f'==== command: {command} ====')
     logger.info(f'==== Command.args: {command.args} ====')
     
-    r = aioredis.Redis(host='localhost', port=6379)
+    r = aioredis.Redis(host='redis', port=6379, db=0)
 
     # If user start bot by referral link
     if command.args:
