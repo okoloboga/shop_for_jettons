@@ -36,6 +36,7 @@ async def command_start_process(message: Message,
                                 command: CommandObject):
     
     user_id = message.from_user.id
+    user: list = []  # Prepare for user data
 
     logger.info(f'Command START by user {user_id}')
     
