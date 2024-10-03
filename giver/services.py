@@ -31,10 +31,7 @@ async def create_new_user(user_id: int,
                 first_name=first_name, 
                 last_name=last_name, 
                 eth_address=eth_address, 
-                sol_address=sol_address, 
-                eth_get=0, 
-                ftm_get=0, 
-                sol_get=0, 
+                sol_address=sol_address,
                 last_get=datetime.now())
     )
     do_ignore_user = statement.on_conflict_do_nothing(index_elements=["telegram_id"])
@@ -65,10 +62,7 @@ async def get_user_data(user_id: int,
         'last_name': user_data[2],
         'eth_address': user_data[3],
         'sol_address': user_data[4],
-        'eth_get': user_data[5],
-        'ftm_get': user_data[6],
-        'sol_get': user_data[7],
-        'last_get': user_data[8]
+        'last_get': user_data[5]
     }
     
     return user

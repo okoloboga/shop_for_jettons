@@ -6,6 +6,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import get_user_data
+from config import get_config, WalletConfig
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,10 @@ async def eth_getter(dialog_manager: DialogManager,
                      event_from_user: User,
                      **kwargs
                      ) -> dict:
+    
+    name = event_from_user.first_name
 
-    return {'fill_eth_address': i18n.fill.eth.address()}
+    return {'fill_eth_address': i18n.fill.eth.address(name=name)}
 
 
 # Offeer to fill SOL address
@@ -46,7 +49,11 @@ async def coin_getter(dialog_manager: DialogManager,
                       **kwargs
                       ) -> dict:
 
-    return {'select_coin': i18n.select.coin(),
+    central_wallet = get_config(WalletConfig, 'wallet')
+
+    return {'select_coin': i18n.select.coin(eth=central_wallet.ethQuote,
+                                            ftm=central_wallet.ftmQuote,
+                                            sol=central_wallet.solQuote),
             'button_eth': i18n.button.eth(),
             'button_sol': i18n.button.sol(),
             'button_ftm': i18n.button.ftm()}

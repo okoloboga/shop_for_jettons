@@ -4,41 +4,53 @@ services:
   backend:
     build:
       context: ./backend
+    container_name: backend
+    restart: always
     ports:
       - "3000:3000"
 
   market:
     build:
       context: ./market
+    contrainer_name: market
+    restart: always
     depends_on:
       - postgres_market
 
   giver:
     build:
       context: ./giver
+    container_name: giver
+    restart: always
     depends_on:
       - postgres_giver
 
   postgres_market:
     image: postgres:latest
+    contrainer_name: postgres_market
+    restart: always
     environment:
-      POSTGRES_USER: market
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: market
+      POSTGRES_USER: ${POSTGRES_MARKET_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_MARKET_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_MARKET_DB}
     volumes:
       - market_data:/var/lib/postgresql/data
 
   postgres_giver:
     image: postgres:latest
+    contrainer_name: postgres_giver
+    restart: always
     environment:
-      POSTGRES_USER: giver
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: giver
+      POSTGRES_USER: ${POSTGRES_GIVER_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_GIVER_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_GIVER_DB}
     volumes:
       - giver_data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
 

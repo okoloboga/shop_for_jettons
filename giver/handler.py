@@ -87,7 +87,7 @@ async def check_eth_address(message: Message,
         await state.update_data(eth_address=address)
         await dialog_manager.switch_to(MainSG.fill_sol)
     else:
-        await message.answer(text=i18n.error.eth_address())
+        await message.answer(text=i18n.error.ethaddress())
 
 
 # Check SOL address
@@ -125,7 +125,7 @@ async def check_sol_address(message: Message,
 
         await dialog_manager.switch_to(MainSG.coin_getter)
     else:
-        await message.answer(text=i18n.error.sol_address())
+        await message.answer(text=i18n.error.soladdress())
 
 
 # Send ETH
@@ -158,9 +158,9 @@ async def select_eth(callback: CallbackQuery,
 
             await callback.message.answer(text=i18n.success.eth())
         else:
-            await callback.message.answer(text=i18n.error.central_balance())
+            await callback.message.answer(text=i18n.error.central.balance())
     else:
-        await callback.message.answer(text=i18n.error.last_get())
+        await callback.message.answer(text=i18n.error.lastget())
 
 
 # Send FTM
@@ -193,9 +193,9 @@ async def select_ftm(callback: CallbackQuery,
 
             await callback.message.answer(text=i18n.success.ftm())
         else:
-            await callable.message.answer(text=i18n.error.central_balance())
+            await callable.message.answer(text=i18n.error.central.balance())
     else:
-        await callback.message.answer(text=i18n.error.last_get())
+        await callback.message.answer(text=i18n.error.lastget())
 
 
 # Send SOL
@@ -228,9 +228,9 @@ async def select_sol(callback: CallbackQuery,
 
             await callback.message.answer(text=i18n.success.sol())
         else:
-            await callback.message.answer(text=i18n.error.central_balance())
+            await callback.message.answer(text=i18n.error.central.balance())
     else:
-        await callback.message.answer(text=i18n.error.last_get())
+        await callback.message.answer(text=i18n.error.lastget())
 
 
 # Go to Account menu
@@ -264,7 +264,7 @@ async def check_address(message: Message,
         if response['result'] == 'OK':
             await update_eth_address(user, address[4:], db_engine)
         else:
-            await message.answer(text=i18n.error.eth_address())
+            await message.answer(text=i18n.error.ethaddress())
 
     elif address[0:3] == 'SOL':
         response = await check_sol_address(address)
@@ -274,7 +274,7 @@ async def check_address(message: Message,
         if response['result'] == 'OK':
             await update_sol_address(user, address[4:], db_engine)
         else:
-            await message.answer(text=i18n.error.sol_address())
+            await message.answer(text=i18n.error.soladdress())
     else:
         await message.answer(text=i18n.error.address())
 
