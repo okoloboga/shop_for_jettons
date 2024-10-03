@@ -1,8 +1,8 @@
 import logging
 
 from datetime import datetime
-from sqlalchemy import select, column
-from sqlalchemy.dialects.postgresql import insert, update
+from sqlalchemy import select, column, update
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 from database import users
 

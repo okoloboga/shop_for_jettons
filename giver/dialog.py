@@ -3,8 +3,8 @@ from aiogram_dialog.widgets.text import Format
 from aiogram_dialog.widgets.input.text import TextInput
 from aiogram_dialog.widgets.kbd import Button, Row
 
-from .getter import *
-from .handler import *
+from getter import *
+from handler import *
 from states import MainSG
 
 
