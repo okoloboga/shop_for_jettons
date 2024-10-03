@@ -35,15 +35,15 @@ async def command_start_process(message: Message,
                                 dialog_manager: DialogManager,
                                 command: CommandObject):
     
-    user = message.from_user.id
+    user_id = message.from_user.id
 
-    logger.info(f'Command START by user {user}')
+    logger.info(f'Command START by user {user_id}')
     
     # Read users data from database
     statement = (
         select(column('first_name'))
         .select_from(users)
-        .where(users.c.telegram_id == message.from_user.id)
+        .where(users.c.telegram_id == user_id)
     )
 
     async with db_engine.connect() as conn:
