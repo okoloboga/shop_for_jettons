@@ -1,6 +1,6 @@
 const TronWeb = require('tronweb');
 const validator = require('web3-validator');
-const { Connection, PublicKey, LAMPORTS_PER_SOL, clusterApiUrl} = require('@solana/web3.js');
+const solWeb3 = require('@solana/web3.js');
 const { Web3 } = require('web3');
 const bs58 = require('bs58');
 
@@ -11,7 +11,7 @@ const web3 = new Web3(
 );
 
 // Solana Connection //
-const solWeb3 = new Connection(clusterApiUrl("testnet"), 'confirmed');
+const solConnect = new solWeb3.Connection(solWeb3.clusterApiUrl("testnet"), 'confirmed');
 
 // Fantom Connection //
 const ftmWeb3 = new Web3('https://rpc.testnet.fantom.network');
@@ -34,9 +34,11 @@ const getEthBalance = async (address) => {
     try {
         const rawBalance = await web3.eth.getBalance(address);
         const balance = await web3.utils.fromWei(rawBalance, 'ether');
+		console.log(`Service: wallet ${address} ETH balance is ${balance}\n`)
         return balance;
 
     } catch (error) {
+		console.error(`Service: getEthBalance error ${error}\n`)
         throw error;
     }
 }
@@ -47,6 +49,7 @@ const checkEthAddress = async (address) => {
 		const isValid = validator.isAddress(address);
 		return isValid;	
 	} catch (error) {
+		console.error(`Service: checkEthAddress error ${error}\n`)
 		throw error;
 	}
 }
@@ -54,13 +57,17 @@ const checkEthAddress = async (address) => {
 
 const sendEth = async (sender, privateKey, target, amount) => {
     try {
-		const amountWei = web3.utils.toWei(amount.toString(), 'ether');
-		const nonce = await web3.eth.getTransactionCount(sender, 'latest');
+		const value = await web3.utils.toWei(amount, 'ether');
+		const gasPrice = await web3.eth.getGasPrice();
+		const nonce = await web3.eth.getTransactionCount(sender, 'pending');
+
+		console.log(`Service: eth transaction: by ${sender} to ${target} value ${value}`)
+
 		const transaction = {
 			to: target,
-			value: amountWei,
+			value: value,
 			gas: 21000,
-			gasPrice: web3.utils.toHex(await web3.eth.getGasPrice()),
+			gasPrice: gasPrice,
 			nonce: nonce
 		};
 		const signedTransaction = await web3.eth.accounts.signTransaction(
@@ -69,9 +76,13 @@ const sendEth = async (sender, privateKey, target, amount) => {
 		const response = await web3.eth.sendSignedTransaction(
 			signedTransaction.rawTransaction
 		);
-		return response;
+		return { 
+					response: response, 
+				 	hash: signedTransaction.transactionHash
+				};
 
     } catch (error) {
+		console.error(`Service: sendEth error ${error}\n`)
         throw error;
     }
 }
@@ -80,10 +91,12 @@ const sendEth = async (sender, privateKey, target, amount) => {
 // SOLANA //
 const getSolBalance = async (address) => {
 	try {
-		const walletKey = new PublicKey(address)
-		const balance = await solWeb3.getBalance(walletKey);
-		return balance / LAMPORTS_PER_SOL;
+		const walletKey = new solWeb3.PublicKey(address)
+		const balance = await solConnect.getBalance(walletKey);
+		console.log(`Service: wallet ${address} SOL balance is ${balance}\n`)
+		return balance / solWeb3.LAMPORTS_PER_SOL;
 	} catch (error) {
+		console.error(`Service: getSolBalance error ${error}\n`)
 		throw error;
 	}
 };
@@ -91,9 +104,10 @@ const getSolBalance = async (address) => {
 
 const checkSolAddress = async (address) => {
 	try {
-		const isValid = new PublicKey(address);
+		const isValid = new solWeb3.PublicKey(address);
 		return isValid;
 	} catch (error) {
+		console.error(`Service: checkSolAddress error ${error}\n`)
 		throw error;
 	}
 }
@@ -102,19 +116,20 @@ const checkSolAddress = async (address) => {
 const sendSol = async (target, amount, privateKey) => {
 	try {
 		const key = bs58.decode(privateKey);
-		const from = solWeb3.fromSecretKey(key);
+		const from = solWeb3.Keypair.fromSecretKey(key);
 		const transaction = new solWeb3.Transaction().add(
 			solWeb3.SystemProgram.transfer({
 				fromPubkey: from.publicKey,
-				toPubkey: target,
-				lamports: amount
+				toPubkey: new solWeb3.PublicKey(target),
+				lamports: Math.floor(amount * solWeb3.LAMPORTS_PER_SOL),
 			}),
 		);
 		const signature = await solWeb3.sendAndConfirmTransaction(
-			connection, transaction, [from]
+			solConnect, transaction, [from]
 		);
 		return signature;
 	} catch (error) {
+		console.error(`Service: sendSol error ${error}\n`)
 		throw error;
 	}
 };
@@ -125,8 +140,10 @@ const getFtmBalance = async (address) => {
 	try {
 		const rawBalance = await ftmWeb3.eth.getBalance(address);
 		const balance = await ftmWeb3.utils.fromWei(rawBalance, 'ether');
+		console.log(`Service: wallet ${address} FTM balance is ${balance}\n`)
 		return balance;
 	} catch (error) {
+		console.error(`Service: getFtmBalance error ${error}\n`)
 		throw error;
 	}
 };
@@ -135,12 +152,15 @@ const getFtmBalance = async (address) => {
 const sendFtm = async (sender, target, amount, privateKey) => {
 	try {
 		const nonce = await ftmWeb3.eth.getTransactionCount(sender);
+		const gasPrice = await ftmWeb3.eth.getGasPrice();
+		const value = await ftmWeb3.utils.toWei(amount.toString(), 'ether');
+
 		const transaction = {
 			to: target,
-			value: amount,
+			value: value,
 			gas: 21000,
-			gasPrice: await ftmWeb3.eth.getGasPrice(),
-			nonce: nonce
+			gasPrice: gasPrice,
+			nonce: nonce.toString()
 		};
 		const signedTransaction = await ftmWeb3.eth.accounts.signTransaction(
 			transaction, privateKey
@@ -151,6 +171,7 @@ const sendFtm = async (sender, target, amount, privateKey) => {
 		return response;
 
 	} catch (error) {
+		console.error(`Service: sendFtm error ${error}\n`)
 		throw error;
 	}
 };
@@ -163,6 +184,7 @@ const createWallet = async () => {
 		return newWallet;
 
 	} catch (error) {
+		console.error(`Service: createWallet error ${error}\n`)
 		throw error;
 	}
 };
@@ -174,6 +196,7 @@ const getTrxBalance = async (address) => {
 		return balance / 1000000;
 
 	} catch (error) {
+		console.error(`Service: getTrxBalance error ${error}\n`)
 		throw error;
 	};
 };
@@ -188,6 +211,7 @@ const getTokenBalance = async (owner, token, address) => {
 		return balance;
 
 	} catch (error) {
+		console.error(`Service: getTokenBalance error ${error}\n`)
 		throw error;
 	}
 };
@@ -205,6 +229,7 @@ const sendTrx = async (target, amount, privateKey) => {
 		return response;
 
 	} catch (error) {
+		console.error(`Service: sendTrx error ${error}\n`)
 		throw error;
 	}
 };
@@ -236,6 +261,7 @@ const sendToken = async (owner, token, target, amount, privateKey) => {
 		return response
 
 	} catch (error) {
+		console.error(`Service: sendToken error ${error}\n`)
 		throw error;
 	}
 };

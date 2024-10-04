@@ -16,14 +16,12 @@ const getEthBalance = async (req, res) => {
     try {
         console.log(`Controller: getEthBalance ${address}\n`)
         const ethBalance = await service.getEthBalance(address);
-        console.log(`Controller: wallet ${body.address} ETH balance is ${ethBalance}\n`)
+        console.log(`Controller: wallet ${address} ETH balance is ${ethBalance}\n`)
         res.send({ status: "OK", data: ethBalance });
     } catch (error) {
         res.status(error?.status || 500).send({
             status: 'FAILED',
-            data: {
-                error: "One of following keys is missing or is empty in request body:\naddress"
-            }
+            data: { error: error?.message || error },
         });
     };
 };
@@ -47,12 +45,10 @@ const checkEthAddress = async (req, res) => {
     } catch (error) {
         res.status(error?.status || 500).send({
             status: 'FAILED',
-            data: {
-                error: "One of following keys is missing or is empty in request body:\naddress"
-            }
-        })
-    }
-}
+            data: { error: error?.message || error },
+        });
+    };
+};
 
 
 const sendEth = async (req, res) => {
@@ -77,17 +73,15 @@ const sendEth = async (req, res) => {
         const ethTransaction = await service.sendEth(
             body.sender, body.privateKey, body.target, body.amount
         );
-        console.log(`Controller: ethTransaction ${JSON.stringify(ethTransaction)}\n`);
-        res.send({ status: "OK", data: ethTransaction });
+        console.log(`Controller: ethTransaction Hash ${ethTransaction.transactionHash}\n`);
+        res.send({ status: "OK", hash: ethTransaction.transactionHash });
     } catch (error) {
         res.status(error?.status || 500).send({
             status: 'FAILED',
-            data: {
-                error: "One of following keys is missing or is empty in request body:\naddress"
-            }
-        })
-    }
-}
+            data: { error: error?.message || error },
+        });
+    };
+};
 
 
 /// SOLANA ///
@@ -105,7 +99,7 @@ const getSolBalance = async (req, res) => {
     try {
         console.log(`Controller: getSolBalance ${address}\n`)
         const solBalance = await service.getSolBalance(address);
-        console.log(`Controller: wallet ${body.address} SOL balance is ${solBalance}\n`)
+        console.log(`Controller: wallet ${address} SOL balance is ${solBalance}\n`)
         res.send({ status: "OK", data: solBalance });
     } catch (error) {
         res.status(error?.status || 500).send({
@@ -185,7 +179,7 @@ const getFtmBalance = async (req, res) => {
     try {
         console.log(`Controller: getFtmBalance ${address}\n`)
         const fntBalance = await service.getFtmBalance(address);
-        console.log(`Controller: wallet ${body.address} FNT balance is ${fntBalance}\n`)
+        console.log(`Controller: wallet ${address} FTM balance is ${fntBalance}\n`)
         res.send({ status: "OK", data: fntBalance });
     } catch (error) {
         res.status(error?.status || 500).send({
@@ -218,8 +212,8 @@ const sendFtm = async (req, res) => {
         const ftmTransaction = await service.sendFtm(
             body.sender, body.target, body.amount, body.privateKey
         );
-        console.log(`Controller: ftmTransaction ${JSON.stringify(ftmTransaction)}\n`);
-        res.send({ status: "OK", data: ftmTransaction });
+        console.log(`Controller: ftmTransaction hash ${ftmTransaction.transactionHash}\n`);
+        res.send({ status: "OK", data: ftmTransaction.transactionHash });
     } catch (error) {
         res.status(error?.status || 500).send({
             status: 'FAILED',
@@ -290,7 +284,7 @@ const getTokenBalance = async (req, res) => {
         const tokenBalance = await service.getTokenBalance(
             body.owner, body.token, body.address
         );
-	    console.log(`Controller: wallet ${body.address} token balance is ${tokenBalance}\n`);
+	    console.log(`Controller: wallet ${address} token balance is ${tokenBalance}\n`);
 	    res.send({ status: "OK", data: tokenBalance });
     } catch (error) {
         res.status(error?.status || 500).send({

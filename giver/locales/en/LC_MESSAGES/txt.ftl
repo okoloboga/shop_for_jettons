@@ -10,6 +10,8 @@ button-ftm = FANTOM
 
 button-back = Back
 
+button-account = Account
+
 # ######## #
 # MESSAGES #
 # ######## #
@@ -26,6 +28,7 @@ fill-sol-address = Great!
                    Now, enter the SOL address
 
 select-coin = Choose the coin you want to get!
+              this may take a few minutes...
 
               Once a week you can get a choice of:
 
@@ -33,16 +36,19 @@ select-coin = Choose the coin you want to get!
               { $ftm } Fantom
               { $sol } Solana
 
-account = { $first_name } { $last_name }
+account = Your wallets addresses and last coin claim 
 
           ETH: <code>{ $eth_address }</code>
           (to get FTM use ETH address)
+
           SOL: <code{ $sol_address }</code>
 
           The last time you claimed coins:
           { $last_get }
 
 success-eth = Successful withdrawal of ETH!
+              Transaction hash:
+              { $hash }
 
 success-ftm = Successful withdrawal of FTM!
 
@@ -57,6 +63,8 @@ error-address = Invalid address!
 error-ethaddress = Invalid ETH address!
 
 error-soladdress = Invalid SOL address!
+
+error-send = При отправке произошла ошибка...
 
 wrong-input = Invalid input!
 

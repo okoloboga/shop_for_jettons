@@ -67,7 +67,7 @@ async def send_eth(sender: str,
                    amount: str | float
                    ) -> dict:
 
-    url = f'{BASE_URL}/sendeth?sender={sender}&privateKey={privateKey}&target={target}&amount={amount}'
+    url = f'{BASE_URL}/ethtransaction?sender={sender}&privateKey={privateKey}&target={target}&amount={amount}'
     
     logger.info(f'Send ETH: sender: {sender} target: {target} amount: {amount}')
 
@@ -99,7 +99,7 @@ async def send_sol(target: str,
                    privateKey: str
                    ) -> dict:
 
-    url = f'{BASE_URL}/sendsol?target={target}&amount={amount}&privateKey={privateKey}'
+    url = f'{BASE_URL}/soltransaction?target={target}&amount={amount}&privateKey={privateKey}'
     
     logger.info(f'Send SOL: target: {target} amount: {amount}')
 
@@ -132,7 +132,7 @@ async def send_ftm(sender: str,
                    privateKey: str
                    ) -> dict:
 
-    url = f'{BASE_URL}/sendftm?sender={sender}&target={target}&amount={amount}&privateKey={privateKey}'
+    url = f'{BASE_URL}/ftmtransaction?sender={sender}&target={target}&amount={amount}&privateKey={privateKey}'
     
     logger.info(f'Send Fantom: sender: {sender} target: {target} amount: {amount}')
 

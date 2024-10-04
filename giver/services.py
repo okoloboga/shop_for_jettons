@@ -1,6 +1,6 @@
 import logging
+import datetime
 
-from datetime import datetime
 from sqlalchemy import select, column, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
@@ -32,7 +32,7 @@ async def create_new_user(user_id: int,
                 last_name=last_name, 
                 eth_address=eth_address, 
                 sol_address=sol_address,
-                last_get=datetime.now())
+                last_get="2000-01-01 00:00:00")
     )
     do_ignore_user = statement.on_conflict_do_nothing(index_elements=["telegram_id"])
     async with db_engine.connect() as conn:
@@ -86,7 +86,7 @@ async def check_last_get(user_id: int,
             logger.info(f'Statement\n{user_data}\nexecuted of user {user_id}')
 
     last_get = user_data[0]
-    now = datetime.now()
+    now = datetime.datetime.now()
     one_week_ago = now - datetime.timedelta(days=7)
 
     return last_get < one_week_ago

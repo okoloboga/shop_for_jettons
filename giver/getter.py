@@ -56,7 +56,8 @@ async def coin_getter(dialog_manager: DialogManager,
                                             sol=central_wallet.solQuote),
             'button_eth': i18n.button.eth(),
             'button_sol': i18n.button.sol(),
-            'button_ftm': i18n.button.ftm()}
+            'button_ftm': i18n.button.ftm(),
+            'button_account': i18n.button.account()}
 
 
 # Account menu - offer to change addresses

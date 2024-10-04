@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from states import MainSG
 from database import users
-from services import create_new_user, check_last_get
+from services import create_new_user, check_last_get, get_user_data
 from config import get_config, WalletConfig
 from request import *
 
@@ -84,7 +84,7 @@ async def check_eth_address(message: Message,
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
 
-    if response['data'] != False:
+    if response['data'] != False and response['status'] == 'OK':
         await state.update_data(eth_address=address)
         await dialog_manager.switch_to(MainSG.fill_sol)
     else:
@@ -111,7 +111,7 @@ async def check_sol_address(message: Message,
     state: FSMContext = dialog_manager.middleware_data.get('state')
     db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
-    if response['data'] != False:
+    if response['data'] != False and response['status'] == 'OK':
         await state.update_data(sol_address=address)
         adresses = await state.get_data()
         
@@ -124,7 +124,7 @@ async def check_sol_address(message: Message,
 
         logger.info(f'User {user_id} is created')
 
-        await dialog_manager.switch_to(MainSG.coin_getter)
+        await dialog_manager.switch_to(MainSG.select_coin)
     else:
         await message.answer(text=i18n.error.soladdress())
 
@@ -143,13 +143,13 @@ async def select_eth(callback: CallbackQuery,
     time = await check_last_get(user, db_engine)
 
     if time == True:
-        user_wallet = (await get_user_account_data(user, db_engine))['eth_address']
+        user_wallet = (await get_user_data(user, db_engine))['eth_address']
         central_wallet = get_config(WalletConfig, 'wallet')
-        central_balance = await get_eth_balance(central_wallet.ethAddress)
+        central_balance = float((await get_eth_balance(central_wallet.ethAddress))['data'])
         
         logger.info(f'Central balance: {central_balance}')
 
-        if central_balance > central_wallet.ethQuote:
+        if (central_balance - 0.01) > central_wallet.ethQuote:
             result = await send_eth(central_wallet.ethAddress, 
                                     central_wallet.ethPrivateKey,
                                     user_wallet,
@@ -157,7 +157,10 @@ async def select_eth(callback: CallbackQuery,
 
             logger.info(f'Send ETH: {result}')
 
-            await callback.message.answer(text=i18n.success.eth())
+            if result['status'] == 'OK':
+                await callback.message.answer(text=i18n.success.eth(hash=result['data']))
+            else:
+                await callback.message.answer(text=i18n.error.send())
         else:
             await callback.message.answer(text=i18n.error.central.balance())
     else:
@@ -178,23 +181,26 @@ async def select_ftm(callback: CallbackQuery,
     time = await check_last_get(user, db_engine)
 
     if time == True:
-        user_wallet = (await get_user_account_data(user, db_engine))['eth_address']
+        user_wallet = (await get_user_data(user, db_engine))['eth_address']
         central_wallet = get_config(WalletConfig, 'wallet')
-        central_balance = await get_ftm_balance(central_wallet.ethAddress)
+        central_balance = float((await get_ftm_balance(central_wallet.ethAddress))['data'])
         
         logger.info(f'Central balance: {central_balance}')
 
         if central_balance > central_wallet.ftmQuote:
             result = await send_ftm(central_wallet.ethAddress, 
-                                    central_wallet.ethPrivateKey,
                                     user_wallet,
-                                    central_wallet.ftmQuote)
+                                    central_wallet.ftmQuote,
+                                    central_wallet.ethPrivateKey)
 
             logger.info(f'Send FTM: {result}')
 
-            await callback.message.answer(text=i18n.success.ftm())
+            if result['status'] == 'OK':
+                await callback.message.answer(text=i18n.success.ftm(hash=result['data']))
+            else:
+                await callback.message.answer(text=i18n.error.send())
         else:
-            await callable.message.answer(text=i18n.error.central.balance())
+            await callback.message.answer(text=i18n.error.central.balance())
     else:
         await callback.message.answer(text=i18n.error.lastget())
 
@@ -213,21 +219,23 @@ async def select_sol(callback: CallbackQuery,
     time = await check_last_get(user, db_engine)
 
     if time == True:
-        user_wallet = (await get_user_account_data(user, db_engine))['sol_address']
+        user_wallet = (await get_user_data(user, db_engine))['sol_address']
         central_wallet = get_config(WalletConfig, 'wallet')
-        central_balance = await get_sol_balance(central_wallet.solAddress)
+        central_balance = float((await get_sol_balance(central_wallet.solAddress))['data'])
         
         logger.info(f'Central balance: {central_balance}')
 
-        if central_balance > central_wallet.solQuote:
-            result = await send_sol(central_wallet.solAddress, 
-                                    central_wallet.solPrivateKey,
-                                    user_wallet,
-                                    central_wallet.solQuote)
+        if (central_balance - 0.0001) > central_wallet.solQuote:
+            result = await send_sol(user_wallet,
+                                    central_wallet.solQuote,
+                                    central_wallet.solPrivateKey)
 
             logger.info(f'Send SOL: {result}')
 
-            await callback.message.answer(text=i18n.success.sol())
+            if result['status'] == 'OK':
+                await callback.message.answer(text=i18n.success.sol(hash=result['data']))
+            else:
+                await callback.message.answer(text=i18n.error.send())
         else:
             await callback.message.answer(text=i18n.error.central.balance())
     else:
@@ -245,7 +253,7 @@ async def account(callback: CallbackQuery,
     await dialog_manager.switch_to(MainSG.account)
 
 
-# Check new address
+# Check new address
 async def check_address(message: Message,
                         widget: ManagedTextInput,
                         dialog_manager: DialogManager,
@@ -288,7 +296,7 @@ async def back(callback: CallbackQuery,
     user = callback.from_user.id
     logger.info(f'Back: {user}')
 
-    await dialog_manager.switch_to(MainSG.main)
+    await dialog_manager.switch_to(MainSG.select_coin)
 
 
 async def wrong_input(callback: CallbackQuery,
