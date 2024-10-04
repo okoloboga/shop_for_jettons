@@ -9,6 +9,7 @@ from aiogram_dialog.widgets.kbd import Button
 from fluentogram import TranslatorRunner
 
 from states import StartSG, AccountSG, CatalogueSG, WantSG, LobbySG
+from services import get_user_item_metadata
 from database import users, catalogue
 
 router_buttons = Router()
@@ -72,12 +73,24 @@ async def switch_to_want(callback: CallbackQuery,
                          button: Button,
                          dialog_manager: DialogManager
                          ):
+
     logger.info(f'Switch to Want dialog by user {callback.from_user.id}')
-    await dialog_manager.start(state=WantSG.want,
-                               mode=StartMode.RESET_STACK,
-                               data={'user_id': callback.from_user.id,
-                                     'username': callback.from_user.username}
-                               )
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    user_dict = {'user_id': callback.from_user.id}
+
+    # Getting data of item by Page in Users table
+    item = await get_user_item_metadata(user_dict, db_engine)
+
+    if item is not None:
+
+        await dialog_manager.start(state=WantSG.want,
+                                   mode=StartMode.RESET_STACK,
+                                   data={'user_id': callback.from_user.id,
+                                         'username': callback.from_user.username}
+                                   )
+    else:
+        await callback.message.answer(text=i18n.unknown.message())
 
 # Switch to Game Lobby Dialog
 async def switch_to_game(callback: CallbackQuery,

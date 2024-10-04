@@ -284,7 +284,7 @@ const getTokenBalance = async (req, res) => {
         const tokenBalance = await service.getTokenBalance(
             body.owner, body.token, body.address
         );
-	    console.log(`Controller: wallet ${address} token balance is ${tokenBalance}\n`);
+	    console.log(`Controller: wallet ${body.address} token balance is ${tokenBalance}\n`);
 	    res.send({ status: "OK", data: tokenBalance });
     } catch (error) {
         res.status(error?.status || 500).send({

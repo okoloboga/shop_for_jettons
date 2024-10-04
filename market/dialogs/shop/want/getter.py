@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_user_item_metadata, get_user_account_data,
                       new_order, get_token_balance, get_trx_balance)
+from states import StartSG
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ async def item_info_getter(dialog_manager: DialogManager,
 
     # Getting data of item by Page in Users table
     item = await get_user_item_metadata(user_dict, db_engine)
-    
+
     category = item['category']
     name = item['name']
     description = item['description']
