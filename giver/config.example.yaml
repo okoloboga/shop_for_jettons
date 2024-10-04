@@ -8,8 +8,11 @@ db:
 wallet:
   ethAddress: "central_wallet_eth_address"
   ethPrivateKey: "central_wallet_eth_private_key"
+  trxAddress: "central_wallet_trx_address"
+  ethPrivateKey: "central_wallet_eth_private_key"
   solAddress: "central_wallet_sol_address"
   solPrivateKey: "central_wallet_sol_private_key"
   ethQuote: "0.001"
   ftmQuote: "10"
+  trxQuote: "0.1"
   solQuote: "0.1"

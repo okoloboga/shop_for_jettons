@@ -21,6 +21,17 @@ dialog = Dialog(
         state=MainSG.fill_eth
     ),
     Window(
+        Format('{fill_trx_address}'),
+        TextInput(
+            id='trx_address',
+            type_factory=str,
+            on_success=check_trx_address,
+            on_error=wrong_input
+        ),
+        getter=trx_getter,
+        state=MainSG.fill_trx
+    ),
+    Window(
         Format('{fill_sol_address}'),
         TextInput(
             id='sol_address',
@@ -33,7 +44,10 @@ dialog = Dialog(
     ),
     Window(
         Format('{select_coin}'),
-        Button(Format('{button_eth}'), id='b_eth', on_click=select_eth),
+        Row(
+            Button(Format('{button_eth}'), id='b_eth', on_click=select_eth),
+            Button(Format('{button_trx}'), id='b_trx', on_click=select_trx)
+        ),
         Row(
             Button(Format('{button_sol}'), id='b_sol', on_click=select_sol),
             Button(Format('{button_ftm}'), id='b_ftm', on_click=select_ftm)

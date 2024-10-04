@@ -19,11 +19,14 @@ class BotConfig(BaseModel):
 class WalletConfig(BaseModel):
     ethAddress: str
     ethPrivateKey: str
+    trxAddress: str
+    trxPrivateKey: str
     solAddress: str
     solPrivateKey: str
     ethQuote: float
     ftmQuote: float
     solQuote: float
+    trxQuote: float
 
 
 class DbConfig(BaseModel):

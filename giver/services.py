@@ -24,6 +24,7 @@ async def create_new_user(user_id: int,
     
     eth_address = addresses['eth_address']
     sol_address = addresses['sol_address']
+    trx_address = addresses['trx_address']
 
     statement = (
         insert(users)
@@ -32,6 +33,7 @@ async def create_new_user(user_id: int,
                 last_name=last_name, 
                 eth_address=eth_address, 
                 sol_address=sol_address,
+                trx_address=trx_address,
                 last_get="2000-01-01 00:00:00")
     )
     do_ignore_user = statement.on_conflict_do_nothing(index_elements=["telegram_id"])
@@ -62,7 +64,8 @@ async def get_user_data(user_id: int,
         'last_name': user_data[2],
         'eth_address': user_data[3],
         'sol_address': user_data[4],
-        'last_get': user_data[5]
+        'trx_address': user_data[5],
+        'last_get': user_data[6]
     }
     
     return user
@@ -116,6 +119,35 @@ async def update_sol_address(user_id: int,
         update(users)
         .where(users.c.telegram_id == user_id)
         .values(sol_address=sol_address)
+    )
+    async with db_engine.connect() as conn:
+        await conn.execute(statement)
+        await conn.commit()
+
+
+# Update TRX Address in database
+async def update_trx_address(user_id: int,
+                             trx_address: str,
+                             db_engine: AsyncEngine
+                             ):
+    statement = (
+        update(users)
+        .where(users.c.telegram_id == user_id)
+        .values(trx_address=trx_address)
+    )
+    async with db_engine.connect() as conn:
+        await conn.execute(statement)
+        await conn.commit()   
+
+
+# Update Last Get in database
+async def update_last_get(user_id: int,
+                          db_engine: AsyncEngine
+                          ):
+    statement = (
+        update(users)
+        .where(users.c.telegram_id == user_id)
+        .values(last_get=datetime.datetime.now())
     )
     async with db_engine.connect() as conn:
         await conn.execute(statement)

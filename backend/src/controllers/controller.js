@@ -316,8 +316,8 @@ const sendTrx = async (req, res) => {
         const trxTransaction = await service.sendTrx(
             body.target, body.amount, body.privateKey
         );
-	    console.log(`Controller: trxTransaction ${JSON.stringify(trxTransaction)}\n`);
-	    res.send({ status: "OK", data: trxTransaction });
+	    console.log(`Controller: trxTransaction id ${trxTransaction.txid}\n`);
+	    res.send({ status: "OK", data: trxTransaction.txid });
     } catch (error) {
         res.status(error?.status || 500).send({
         status: 'FAILED',

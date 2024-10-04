@@ -30,6 +30,17 @@ async def eth_getter(dialog_manager: DialogManager,
     return {'fill_eth_address': i18n.fill.eth.address(name=name)}
 
 
+# Offer to fill TRX address
+async def trx_getter(dialog_manager: DialogManager,
+                      db_engine: AsyncEngine,
+                      i18n: TranslatorRunner,       
+                      event_from_user: User,
+                      **kwargs
+                      ) -> dict:
+
+    return {'fill_trx_address': i18n.fill.trx.address()}
+
+
 # Offeer to fill SOL address
 async def sol_getter(dialog_manager: DialogManager,
                      db_engine: AsyncEngine,
@@ -53,10 +64,12 @@ async def coin_getter(dialog_manager: DialogManager,
 
     return {'select_coin': i18n.select.coin(eth=central_wallet.ethQuote,
                                             ftm=central_wallet.ftmQuote,
-                                            sol=central_wallet.solQuote),
+                                            sol=central_wallet.solQuote,
+                                            trx=central_wallet.trxQuote),
             'button_eth': i18n.button.eth(),
             'button_sol': i18n.button.sol(),
             'button_ftm': i18n.button.ftm(),
+            'button_trx': i18n.button.trx(),
             'button_account': i18n.button.account()}
 
 

@@ -11,6 +11,7 @@ users = Table(
     Column("last_name", String),  # 2
     Column("eth_address", String),  # 3
     Column("sol_address", String),  # 4
-    Column("last_get", TIMESTAMP)  # 5
+    Column("trx_address", String),  # 5
+    Column("last_get", TIMESTAMP)  # 6
 )
 

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from states import MainSG
 from database import users
-from services import create_new_user, check_last_get, get_user_data
+from services import *
 from config import get_config, WalletConfig
 from request import *
 
@@ -86,9 +86,33 @@ async def check_eth_address(message: Message,
 
     if response['data'] != False and response['status'] == 'OK':
         await state.update_data(eth_address=address)
-        await dialog_manager.switch_to(MainSG.fill_sol)
+        await dialog_manager.switch_to(MainSG.fill_trx)
     else:
         await message.answer(text=i18n.error.ethaddress())
+
+    
+# Check ETH address
+async def check_trx_address(message: Message,
+                            widget: ManagedTextInput,
+                            dialog_manager: DialogManager,
+                            address: str):
+
+    user = message.from_user.id
+
+    logger.info(f'Check TRX address: {user} {address}')
+
+    response = await get_trx_balance(address)
+
+    logger.info(f'Check TRX address: {response}')
+    
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    state: FSMContext = dialog_manager.middleware_data.get('state')
+
+    if response['data'] != False and response['status'] == 'OK':
+        await state.update_data(trx_address=address)
+        await dialog_manager.switch_to(MainSG.fill_sol)
+    else:
+        await message.answer(text=i18n.error.trxaddress())
 
 
 # Check SOL address
@@ -158,6 +182,7 @@ async def select_eth(callback: CallbackQuery,
             logger.info(f'Send ETH: {result}')
 
             if result['status'] == 'OK':
+                await update_last_get(user, db_engine)
                 await callback.message.answer(text=i18n.success.eth(hash=result['data']))
             else:
                 await callback.message.answer(text=i18n.error.send())
@@ -187,7 +212,7 @@ async def select_ftm(callback: CallbackQuery,
         
         logger.info(f'Central balance: {central_balance}')
 
-        if central_balance > central_wallet.ftmQuote:
+        if (central_balance - 0.0001) > central_wallet.ftmQuote:
             result = await send_ftm(central_wallet.ethAddress, 
                                     user_wallet,
                                     central_wallet.ftmQuote,
@@ -196,6 +221,7 @@ async def select_ftm(callback: CallbackQuery,
             logger.info(f'Send FTM: {result}')
 
             if result['status'] == 'OK':
+                await update_last_get(user, db_engine)
                 await callback.message.answer(text=i18n.success.ftm(hash=result['data']))
             else:
                 await callback.message.answer(text=i18n.error.send())
@@ -233,6 +259,7 @@ async def select_sol(callback: CallbackQuery,
             logger.info(f'Send SOL: {result}')
 
             if result['status'] == 'OK':
+                await update_last_get(user, db_engine)
                 await callback.message.answer(text=i18n.success.sol(hash=result['data']))
             else:
                 await callback.message.answer(text=i18n.error.send())
@@ -241,6 +268,43 @@ async def select_sol(callback: CallbackQuery,
     else:
         await callback.message.answer(text=i18n.error.lastget())
 
+
+# Send TRX
+async def select_trx(callback: CallbackQuery,
+                     button: Button,
+                     dialog_manager: DialogManager):
+
+    user = callback.from_user.id
+    i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
+
+    logger.info(f'Select TRX: {user}')
+
+    time = await check_last_get(user, db_engine)
+
+    if time == True:
+        user_wallet = (await get_user_data(user, db_engine))['trx_address']
+        central_wallet = get_config(WalletConfig, 'wallet')
+        central_balance = float((await get_trx_balance(central_wallet.trxAddress))['data'])
+        
+        logger.info(f'Central balance: {central_balance}')
+
+        if (central_balance - 0.0001) > central_wallet.trxQuote:
+            result = await send_trx(user_wallet,
+                                    central_wallet.trxQuote,
+                                    central_wallet.trxPrivateKey)
+
+            logger.info(f'Send TRX: {result}')
+
+            if result['status'] == 'OK':
+                await update_last_get(user, db_engine)
+                await callback.message.answer(text=i18n.success.trx(hash=result['data']))
+            else:
+                await callback.message.answer(text=i18n.error.send())
+        else:
+            await callback.message.answer(text=i18n.error.central.balance())
+    else:
+        await callback.message.answer(text=i18n.error.lastget())
 
 # Go to Account menu
 async def account(callback: CallbackQuery,
@@ -266,7 +330,7 @@ async def check_address(message: Message,
     logger.info(f'Check address: {user} {address}')
 
     if address[0:3] == 'ETH':
-        response = await eth_address(address)
+        response = await eth_address(address[4:])
 
         logger.info(f'Check ETH address: {response}')
 
@@ -276,7 +340,7 @@ async def check_address(message: Message,
             await message.answer(text=i18n.error.ethaddress())
 
     elif address[0:3] == 'SOL':
-        response = await sol_address(address)
+        response = await sol_address(address[4:])
 
         logger.info(f'Check SOL address: {response}')
 
@@ -284,6 +348,16 @@ async def check_address(message: Message,
             await update_sol_address(user, address[4:], db_engine)
         else:
             await message.answer(text=i18n.error.soladdress())
+
+    elif address[0:3] == 'TRX': 
+        response = await get_trx_balance(address[4:])
+
+        logger.info(f'Check TRX address: {response}')
+
+        if response['data'] != False:
+            await update_trx_address(user, address[4:], db_engine)
+        else:
+            await message.answer(text=i18n.error.trxaddress())
     else:
         await message.answer(text=i18n.error.address())
 

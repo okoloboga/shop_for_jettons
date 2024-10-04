@@ -226,6 +226,7 @@ const sendTrx = async (target, amount, privateKey) => {
 		const response = await tronWeb.trx.sendRawTransaction(
 			await tronWeb.trx.sign(transaction, privateKey)
 		);
+		console.log(`Service: sendTrx response ${Object.keys(response)}\n`)
 		return response;
 
 	} catch (error) {

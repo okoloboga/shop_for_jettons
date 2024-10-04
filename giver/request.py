@@ -141,3 +141,35 @@ async def send_ftm(sender: str,
     logger.info(f'Send Fantom: {response.json()}')
 
     return response.json()
+
+
+# Get TRX balance
+async def get_trx_balance(address: str
+                          ) -> dict:
+
+    url = f'{BASE_URL}/trxbalance?address={address}'
+
+    logger.info(f'Get TRX balance: {address}')
+
+    response = requests.get(url)
+
+    logger.info(f'Get TRX balance: {response.json()}')
+
+    return response.json()
+
+
+# Send Tron
+async def send_trx(target: str, 
+                   amount: str | float,
+                   privateKey: str
+                   ) -> dict:
+
+    url = f'{BASE_URL}/trxtransaction?target={target}&amount={amount}&privateKey={privateKey}'
+
+    logger.info(f'Send TRX: {target} amount: {amount}')
+
+    response = requests.post(url)
+
+    logger.info(f'Send TRX: {response.json()}')
+
+    return response.json()
