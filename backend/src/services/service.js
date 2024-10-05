@@ -76,10 +76,7 @@ const sendEth = async (sender, privateKey, target, amount) => {
 		const response = await web3.eth.sendSignedTransaction(
 			signedTransaction.rawTransaction
 		);
-		return { 
-					response: response, 
-				 	hash: signedTransaction.transactionHash
-				};
+		return signedTransaction.transactionHash
 
     } catch (error) {
 		console.error(`Service: sendEth error ${error}\n`)

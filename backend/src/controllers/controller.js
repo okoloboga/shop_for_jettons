@@ -73,8 +73,8 @@ const sendEth = async (req, res) => {
         const ethTransaction = await service.sendEth(
             body.sender, body.privateKey, body.target, body.amount
         );
-        console.log(`Controller: ethTransaction Hash ${ethTransaction.transactionHash}\n`);
-        res.send({ status: "OK", hash: ethTransaction.transactionHash });
+        console.log(`Controller: ethTransaction Hash ${ethTransaction.hash}\n`);
+        res.send({ status: "OK", hash: ethTransaction.hash });
     } catch (error) {
         res.status(error?.status || 500).send({
             status: 'FAILED',
