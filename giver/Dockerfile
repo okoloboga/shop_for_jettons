@@ -4,7 +4,8 @@ WORKDIR /giver
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip && \
+RUN pip install setuptools
+    pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 COPY . .
