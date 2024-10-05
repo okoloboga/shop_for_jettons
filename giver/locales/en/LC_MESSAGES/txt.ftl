@@ -46,7 +46,7 @@ account = Your wallets addresses and last coin claim
           ETH: <code>{ $eth_address }</code>
           (to get FTM use ETH address)
 
-          SOL: <code{ $sol_address }</code>
+          SOL: <code>{ $sol_address }</code>
 
           TRX: <code>{ $trx_address }</code>
 
