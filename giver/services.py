@@ -23,7 +23,7 @@ async def create_new_user(user_id: int,
                           addresses: dict):
     
     eth_address = addresses['eth_address']
-    sol_address = addresses['sol_address']
+    #sol_address = addresses['sol_address']
     trx_address = addresses['trx_address']
 
     statement = (
@@ -32,7 +32,7 @@ async def create_new_user(user_id: int,
                 first_name=first_name, 
                 last_name=last_name, 
                 eth_address=eth_address, 
-                sol_address=sol_address,
+                # sol_address=sol_address,
                 trx_address=trx_address,
                 last_get="2000-01-01 00:00:00")
     )
@@ -63,9 +63,9 @@ async def get_user_data(user_id: int,
         'first_name': user_data[1],
         'last_name': user_data[2],
         'eth_address': user_data[3],
-        'sol_address': user_data[4],
-        'trx_address': user_data[5],
-        'last_get': user_data[6]
+        #'sol_address': user_data[4],
+        'trx_address': user_data[4],
+        'last_get': user_data[5]
     }
     
     return user
@@ -109,7 +109,7 @@ async def update_eth_address(user_id: int,
         await conn.execute(statement)
         await conn.commit()
 
-    
+'''   
 # Update SOL Address in database
 async def update_sol_address(user_id: int,
                              sol_address: str,
@@ -123,7 +123,7 @@ async def update_sol_address(user_id: int,
     async with db_engine.connect() as conn:
         await conn.execute(statement)
         await conn.commit()
-
+'''
 
 # Update TRX Address in database
 async def update_trx_address(user_id: int,

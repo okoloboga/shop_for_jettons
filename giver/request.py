@@ -77,7 +77,7 @@ async def send_eth(sender: str,
 
     return response.json()
 
-
+'''
 # Get Solana Balance
 async def get_sol_balance(address: str
                          ) -> dict:
@@ -108,6 +108,7 @@ async def send_sol(target: str,
     logger.info(f'Send SOL: {response.json()}')
 
     return response.json()
+'''
 
 
 # Get Fantom balance

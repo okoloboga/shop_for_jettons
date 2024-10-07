@@ -10,8 +10,8 @@ users = Table(
     Column("first_name", String),  # 1
     Column("last_name", String),  # 2
     Column("eth_address", String),  # 3
-    Column("sol_address", String),  # 4
-    Column("trx_address", String),  # 5
-    Column("last_get", TIMESTAMP)  # 6
+    # Column("sol_address", String),  
+    Column("trx_address", String),  # 4
+    Column("last_get", TIMESTAMP)  # 5
 )
 

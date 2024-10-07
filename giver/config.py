@@ -21,11 +21,11 @@ class WalletConfig(BaseModel):
     ethPrivateKey: str
     trxAddress: str
     trxPrivateKey: str
-    solAddress: str
-    solPrivateKey: str
+    # solAddress: str
+    # solPrivateKey: str
     ethQuote: float
     ftmQuote: float
-    solQuote: float
+    # solQuote: float
     trxQuote: float
 
 

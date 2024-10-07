@@ -31,17 +31,17 @@ dialog = Dialog(
         getter=trx_getter,
         state=MainSG.fill_trx
     ),
-    Window(
-        Format('{fill_sol_address}'),
-        TextInput(
-            id='sol_address',
-            type_factory=str,
-            on_success=check_sol_address,
-            on_error=wrong_input
-        ),
-        getter=sol_getter,
-        state=MainSG.fill_sol
-    ),
+    # Window(
+    #     Format('{fill_sol_address}'),
+    #     TextInput(
+    #         id='sol_address',
+    #         type_factory=str,
+    #         on_success=check_sol_address,
+    #         on_error=wrong_input
+    #     ),
+    #     getter=sol_getter,
+    #     state=MainSG.fill_sol
+    # ),
     Window(
         Format('{select_coin}'),
         Row(
@@ -49,7 +49,7 @@ dialog = Dialog(
             Button(Format('{button_trx}'), id='b_trx', on_click=select_trx)
         ),
         Row(
-            Button(Format('{button_sol}'), id='b_sol', on_click=select_sol),
+            # Button(Format('{button_sol}'), id='b_sol', on_click=select_sol),
             Button(Format('{button_ftm}'), id='b_ftm', on_click=select_ftm)
         ),
         Button(Format('{button_account}'), id='b_account', on_click=account),

@@ -107,14 +107,26 @@ async def check_trx_address(message: Message,
     
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     state: FSMContext = dialog_manager.middleware_data.get('state')
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
 
     if response['data'] != False and response['status'] == 'OK':
         await state.update_data(trx_address=address)
-        await dialog_manager.switch_to(MainSG.fill_sol)
+        adresses = await state.get_data()
+        
+        # Write new user to database
+        await create_new_user(user_id, 
+                              first_name, 
+                              last_name, 
+                              db_engine,
+                              adresses)
+
+        logger.info(f'User {user_id} is created')
+
+        await dialog_manager.switch_to(MainSG.select_coin)
     else:
         await message.answer(text=i18n.error.trxaddress())
 
-
+'''
 # Check SOL address
 async def check_sol_address(message: Message,
                             widget: ManagedTextInput,
@@ -151,6 +163,7 @@ async def check_sol_address(message: Message,
         await dialog_manager.switch_to(MainSG.select_coin)
     else:
         await message.answer(text=i18n.error.soladdress())
+'''
 
 
 # Send ETH
@@ -230,7 +243,7 @@ async def select_ftm(callback: CallbackQuery,
     else:
         await callback.message.answer(text=i18n.error.lastget())
 
-
+'''
 # Send SOL
 async def select_sol(callback: CallbackQuery,
                      button: Button,
@@ -267,6 +280,7 @@ async def select_sol(callback: CallbackQuery,
             await callback.message.answer(text=i18n.error.central.balance())
     else:
         await callback.message.answer(text=i18n.error.lastget())
+'''
 
 
 # Send TRX
@@ -338,16 +352,16 @@ async def check_address(message: Message,
             await update_eth_address(user, address[4:], db_engine)
         else:
             await message.answer(text=i18n.error.ethaddress())
-
-    elif address[0:3] == 'SOL':
-        response = await sol_address(address[4:])
-
-        logger.info(f'Check SOL address: {response}')
-
-        if response['data'] != False:
-            await update_sol_address(user, address[4:], db_engine)
-        else:
-            await message.answer(text=i18n.error.soladdress())
+    
+    # elif address[0:3] == 'SOL':
+    #     response = await sol_address(address[4:])
+    # 
+    #     logger.info(f'Check SOL address: {response}')
+    # 
+    #     if response['data'] != False:
+    #         await update_sol_address(user, address[4:], db_engine)
+    #     else:
+    #         await message.answer(text=i18n.error.soladdress())
 
     elif address[0:3] == 'TRX': 
         response = await get_trx_balance(address[4:])
