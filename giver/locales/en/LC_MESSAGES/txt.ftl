@@ -8,7 +8,7 @@ button-sol = 🔥 SOLANA
 
 button-trx = TRON 💥
 
-button-ftm = FANTOM ⚡️
+button-ftm = ⚡️ FANTOM ⚡️
 
 button-back = ◀️ Back ◀️
 
@@ -33,7 +33,8 @@ fill-sol-address = Great!
 
                    Now, enter the address 🔥 <b>SOL</b> 🔥
 
-select-coin = 🔽 🔽 🔽
+select-coin = 🔽    🔽     🔽
+
               Choose the coin you want to receive!
               Withdrawal may take a few minutes...
 
@@ -41,15 +42,12 @@ select-coin = 🔽 🔽 🔽
 
               ⭐️ <b>{ $eth }</b> Ethereum ⭐️
               ⚡️ <b>{ $ftm }</b> Fantom ⚡️
-              🔥 <b>{ $sol }</b> Solana 🔥
               💥 <b>{ $trx }</b> Tron 💥
 
 account = Your 💳 wallet addresses and the date of the last receipt of coins
 
           ⭐️ <b>ETH</b> ⭐️: <code>{ $eth_address }</code>
           (to receive FTM, use the ⭐️ <b>ETH</b> ⭐️ address)
-
-          🔥 <b>SOL</b> 🔥: <code>{ $sol_address }</code>
 
           💥 <b>TRX</b> 💥: <code>{ $trx_address }</code>
 

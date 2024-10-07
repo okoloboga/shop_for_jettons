@@ -84,7 +84,9 @@ async def account_getter(dialog_manager: DialogManager,
     user = event_from_user.id
     user_data = await get_user_data(user, db_engine)
 
-    return {'account': i18n.account(**user_data),
+    return {'account': i18n.account(eth_address=user_data['eth_address'],
+                                    trx_address=user_data['trx_address'],
+                                    last_get=user_data['last_get']),
             'button_back': i18n.button.back()}
 
     

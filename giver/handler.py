@@ -97,9 +97,11 @@ async def check_trx_address(message: Message,
                             dialog_manager: DialogManager,
                             address: str):
 
-    user = message.from_user.id
+    user_id = message.from_user.id
+    first_name = message.from_user.first_name
+    last_name = message.from_user.last_name
 
-    logger.info(f'Check TRX address: {user} {address}')
+    logger.info(f'Check TRX address: {user_id} {address}')
 
     response = await get_trx_balance(address)
 
@@ -196,7 +198,7 @@ async def select_eth(callback: CallbackQuery,
 
             if result['status'] == 'OK':
                 await update_last_get(user, db_engine)
-                await callback.message.answer(text=i18n.success.eth(hash=result['data']))
+                await callback.message.answer(text=i18n.success.eth(hash=result['hash']))
             else:
                 await callback.message.answer(text=i18n.error.send())
         else:
