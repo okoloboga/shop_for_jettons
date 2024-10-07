@@ -1,6 +1,6 @@
-#################
+# ############# #
 # Users Buttons #
-#################
+# ############# #
 
 button-back = ◀️ Back
 button-next = Forward ▶️
@@ -20,9 +20,9 @@ button-game-confirm = Start game!
 button-wait = Waiting...
 button-endgame = End Game
 
-##################
+# ############## #
 # Admins Buttons #
-##################
+# ############## #
 
 button-add-row = ✅ Add product ✅
 button-confirm = ✅ Confirm ✅
@@ -45,19 +45,9 @@ button-sellprice = 💲 Cost
 button-selfprice = 💲 Cost
 button-count = ✖️ Count
 
-#########################################                                     
-          |  \                          
-  _______ | $$____    ______    ______  
- /       \| $$    \  /      \  /      \ 
-|  $$$$$$$| $$$$$$$\|  $$$$$$\|  $$$$$$\
- \$$    \ | $$  | $$| $$  | $$| $$  | $$
- _\$$$$$$\| $$  | $$| $$__/ $$| $$__/ $$
-|       $$| $$  | $$ \$$    $$| $$    $$
- \$$$$$$$  \$$   \$$  \$$$$$$ | $$$$$$$ 
-                              | $$      
-                              | $$      
-                               \$$    
-#########################################
+# #### #
+# SHOP #
+# #### #
 
 registration-closed = Registration closed!
 
@@ -173,8 +163,10 @@ order-notification = <b>New order!</b>
                      <code>{ $delivery_address }</code>
 
                      <b>{ $count }</b> ✖️ { $name }
-                     In the amount of 🪙<b>{ $income }</b> 🪙
-                     Net income 🪙 <b>{ $pure_income }</b> 🪙
+                     In the amount of <b>{ $income } $</b>
+                     Net income <b>{ $pure_income } $</b>
+                     In tokens <b>{ $income_in_tokens }</b> 🪙
+                     Tokens net income <b>{ $pure_income_in_tokens }</b> 🪙
 
 account-data = Account 🆔 <code>{ $user_id }</code>
 
@@ -195,18 +187,9 @@ account-data = Account 🆔 <code>{ $user_id }</code>
 wallet-address = { $address }   
 
 
-################################################                  
-                |  \              |  \          
-  ______    ____| $$ ______ ____   \$$ _______  
- |      \  /      $$|      \    \ |  \|       \ 
-  \$$$$$$\|  $$$$$$$| $$$$$$\$$$$\| $$| $$$$$$$\
- /      $$| $$  | $$| $$ | $$ | $$| $$| $$  | $$
-|  $$$$$$$| $$__| $$| $$ | $$ | $$| $$| $$  | $$
- \$$    $$ \$$    $$| $$ | $$ | $$| $$| $$  | $$
-  \$$$$$$$  \$$$$$$$ \$$  \$$  \$$ \$$ \$$   \$$
-
-################################################
-
+# ##### #
+# ADMIN #
+# ##### #
 
 start-admin = Welcome to the 😇 Admin interface!
 
@@ -423,19 +406,9 @@ complete-costumers-username = ✅ Order status: Completed ✅
                               Buyer @{ $username } received notification
 
 
-#############################################                                         
-  ______    ______   ______ ____    ______  
- /      \  |      \ |      \    \  /      \ 
-|  $$$$$$\  \$$$$$$\| $$$$$$\$$$$\|  $$$$$$\
-| $$  | $$ /      $$| $$ | $$ | $$| $$    $$
-| $$__| $$|  $$$$$$$| $$ | $$ | $$| $$$$$$$$
- \$$    $$ \$$    $$| $$ | $$ | $$ \$$     \
- _\$$$$$$$  \$$$$$$$ \$$  \$$  \$$  \$$$$$$$
-|  \__| $$                                  
- \$$    $$                                  
-  \$$$$$$ 
-#############################################
-
+# #### #
+# GAME #
+# #### #
 
 start = Here you can 🎲<b>Play</b>🎲 with others
         users in

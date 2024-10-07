@@ -282,7 +282,8 @@ async def new_order(db_engine: AsyncEngine,
         for row in raw_orders_count:
             len_orders = int(row[0])
             logger.info(f'Order counter is {len_orders}')
-            
+    
+    # Prices in $
     income = int(new_order_data['order_metadata']['sell_price']) * int(new_order_data['count'])
     pure_income = income - int(new_order_data['order_metadata']['self_price']) * int(new_order_data['count'])
 
@@ -365,13 +366,14 @@ async def new_order(db_engine: AsyncEngine,
     
     # Central wallet for sending tokens
     central_wallet = get_config(WalletConfig, 'wallet')
+    token_price = await get_token_price(db_engine)
     
     # SEND TOKENS FOR PURCHASE
     await send_token(owner=central_wallet.centralWallet,
                      private_key=costumers_private_key,
                      target=central_wallet.centralWallet,
                      amount=int(new_order_data['order_metadata']['sell_price']) *
-                           int(new_order_data['count']),
+                           int(new_order_data['count']) * token_price,
                      )
 
     # Send notification to manager
@@ -384,6 +386,8 @@ async def new_order(db_engine: AsyncEngine,
                                delivery_address=new_order_data['address'],
                                name=new_order_data['order_metadata']['name'],
                                count=new_order_data['count'],
+                               income_in_tokens=income * token_price,
+                               pure_income_in_tokens=pure_income * token_price,
                                income=income,
                                pure_income=pure_income
                                )
@@ -398,4 +402,18 @@ def is_admin(text: str) -> str:
     if text == '#admin_panel':
         return text
     raise ValueError
+
+
+# Get token price
+async def get_token_price(db_engine: AsyncEngine) -> float:
+    token_price_statement(
+        select(column("token_price"))
+        .select_from(variables) 
+    )
+    async with db_engine.connect() as conn:
+        raw_token_price = await conn.execute(token_price_statement)
+        for row in raw_token_price:
+            token_price = float(row[0])
+            logger.info(f'Token price: {token_price}')
+            return token_price
 

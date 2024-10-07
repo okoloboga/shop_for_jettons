@@ -93,7 +93,8 @@ variables = Table(
     "variables",
     metadata,
     Column("manager_id", BigInteger),  # 0
-    Column("orders_counter", Integer)  # 1
+    Column("orders_counter", Integer),  # 1
+    Column("token_price", Float)  # 2
 )
 
 stats = Table(

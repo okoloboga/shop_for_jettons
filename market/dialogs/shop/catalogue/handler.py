@@ -22,12 +22,11 @@ logging.basicConfig(
 
 
 # Item from catalogue selected
-async def item_selection(
-        callback: CallbackQuery,
-        widget: Select,
-        dialog_manager: DialogManager,
-        item_id: str
-):
+async def item_selection(callback: CallbackQuery,
+                         widget: Select,
+                         dialog_manager: DialogManager,
+                         item_id: str):
+                         
     logger.info(f'User {callback.from_user.id} selected item {item_id} from catalogue')
 
     # Switcher to start dialog Window

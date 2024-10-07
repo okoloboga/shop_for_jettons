@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column, func
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_user_item_metadata
+from services import get_user_item_metadata, get_token_price
 from database import users, catalogue
 
 logger = logging.getLogger(__name__)
@@ -35,9 +35,10 @@ async def start_getter(
     item = await get_user_item_metadata(user_dict, db_engine)
     
     if item != None:
+        token_price = await get_token_price(db_engine)
         name = item['name']
         image = item['image']
-        sell_price = item['sell_price']
+        sell_price = item['sell_price'] * token_price
 
         logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
@@ -135,9 +136,10 @@ async def start_previous_getter(
     item = await get_user_item_metadata(user_dict, db_engine)
     
     if item != None:
+        token_price = await get_token_price(db_engine)
         name = item['name']
         image = item['image']
-        sell_price = item['sell_price']
+        sell_price = item['sell_price'] * token_price
 
         logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
@@ -234,9 +236,10 @@ async def start_next_getter(
     # Getting data of item from new Users page
     item = await get_user_item_metadata(user_dict, db_engine)
     if item != None:
+        token_price = await get_token_price(db_engine)
         name = item['name']
         image = item['image']
-        sell_price = item['sell_price']
+        sell_price = item['sell_price'] * token_price
 
         logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
@@ -293,9 +296,10 @@ async def show_item_getter(
     # Getting data of item from ITEM_ID
     item = await get_user_item_metadata(user_dict, db_engine)
     if item != None:
+        token_price = await get_token_price(db_engine)
         name = item['name']
         image = item['image']
-        sell_price = item['sell_price']
+        sell_price = item['sell_price'] * token_price
 
         logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 

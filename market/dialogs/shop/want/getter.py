@@ -8,7 +8,8 @@ from fluentogram import TranslatorRunner
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from services import (get_user_item_metadata, get_user_account_data,
-                      new_order, get_token_balance, get_trx_balance)
+                      new_order, get_token_balance, get_trx_balance,
+                      get_token_price)
 from states import StartSG
 
 logger = logging.getLogger(__name__)
@@ -48,11 +49,12 @@ async def item_info_getter(dialog_manager: DialogManager,
     # Getting data of item by Page in Users table
     item = await get_user_item_metadata(user_dict, db_engine)
 
+    token_price = await get_token_price(db_engine)
     category = item['category']
     name = item['name']
     description = item['description']
     image = item['image']
-    sell_price = item['sell_price']
+    sell_price = item['sell_price'] * token_price
 
     # Write to dialog data value of items in catalogue and it's price
     dialog_manager.current_context().dialog_data['current_count'] = item['count']
@@ -126,11 +128,12 @@ async def order_confirmation_getter(dialog_manager: DialogManager,
     item = await get_user_item_metadata(user_dict, 
                                         db_engine)
 
+    token_price = await get_token_price(db_engine)
     category = item['category']
     name = item['name']
     description = item['description']
     image = item['image']
-    sell_price = item['sell_price']
+    sell_price = item['sell_price'] * token_price
 
     dialog_manager.current_context().dialog_data['order_metadata'] = item
 

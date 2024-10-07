@@ -10,6 +10,7 @@ from aiogram_dialog.widgets.kbd import Button
 from fluentogram import TranslatorRunner
 
 from states import WantSG
+from services import get_token_price
 
 
 router_want = Router()
@@ -24,22 +25,20 @@ logging.basicConfig(
 
 
 # User pressed button TAKE IT ot start order process
-async def take_it(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):  
+async def take_it(callback: CallbackQuery,
+                  button: Button,
+                  dialog_manager: DialogManager):
+
     logger.info(f'User {callback.from_user.id} starts TAKE IT process')
     await dialog_manager.switch_to(WantSG.fill_count)
 
 
 # Starts filling count of item
-async def fill_count(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        count: int
-):
+async def fill_count(callback: CallbackQuery,
+                     widget: ManagedTextInput,
+                     dialog_manager: DialogManager,
+                     count: int):
+
     # Getting count of items from catalogue table
     current_count = int(dialog_manager.current_context()
                         .dialog_data['current_count'])
@@ -48,7 +47,9 @@ async def fill_count(
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     
     # Enough tokens in wallet?
-    price = dialog_manager.current_context().dialog_data['sell_price']
+    db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
+    token_price = await get_token_price(db_engine)
+    price = dialog_manager.current_context().dialog_data['sell_price'] * token_price
     users_tokens = dialog_manager.current_context().dialog_data['tokens']
     total_order_sum = price * count
     
@@ -67,12 +68,11 @@ async def fill_count(
 
 
 # Wrong count
-async def wrong_count(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        text_input: TextInput
-):
+async def wrong_count(callback: CallbackQuery,
+                      widget: ManagedTextInput,
+                      dialog_manager: DialogManager,
+                      text_input: TextInput):
+
     logger.warning(f'User {callback.from_user.id} fills wrong count')
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -80,12 +80,11 @@ async def wrong_count(
 
 
 # Filling delivery address
-async def fill_address(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        address: str
-):
+async def fill_address(callback: CallbackQuery,
+                       widget: ManagedTextInput,
+                       dialog_manager: DialogManager,
+                       address: str):
+
     logger.info(f'User {callback.from_user.id} fills count: {address}')
 
     dialog_manager.current_context().dialog_data['address'] = address
@@ -93,12 +92,11 @@ async def fill_address(
 
 
 # Wrong address
-async def wrong_address(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        text_input: TextInput
-):
+async def wrong_address(callback: CallbackQuery,
+                        widget: ManagedTextInput,
+                        dialog_manager: DialogManager,
+                        text_input: TextInput):
+
     logger.warning(f'User {callback.from_user.id} fills wrong address')
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -106,10 +104,9 @@ async def wrong_address(
 
 
 # Confirm order
-async def order_confirm(
-        callback: CallbackQuery,
-        widget: TextInput,
-        dialog_manager: DialogManager
-):
+async def order_confirm(callback: CallbackQuery,
+                        widget: TextInput,
+                        dialog_manager: DialogManager):
+                        
     logger.info(f'User {callback.from_user.id} confim new order')
     await dialog_manager.next()

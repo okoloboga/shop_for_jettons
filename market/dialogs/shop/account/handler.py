@@ -25,8 +25,8 @@ logging.basicConfig(
 async def check_admin(callback: CallbackQuery,
                       widget: ManagedTextInput,
                       dialog_manager: DialogManager,
-                      text: str
-                      ):
+                      text: str):
+
     user_id = callback.from_user.id
     logger.info(f'User {user_id} entered #admin_panel command')
     admins = dialog_manager.current_context().dialog_data['admins']
@@ -44,8 +44,8 @@ async def check_admin(callback: CallbackQuery,
 async def wrong_input(callback: CallbackQuery,
                       widget: ManagedTextInput,
                       dialog_manager: DialogManager,
-                      text: str
-                      ):
+                      text: str):
+
     user_id = callback.from_user.id
     logger.info(f'User {user_id} entered wrong command')
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
@@ -55,8 +55,8 @@ async def wrong_input(callback: CallbackQuery,
 # Show wallet address
 async def show_address(callback: CallbackQuery,
                        button: Button,
-                       dialog_manager: DialogManager
-                       ):
+                       dialog_manager: DialogManager):
+                       
     address = dialog_manager.current_context().dialog_data['address']
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')
     await callback.message.answer(text=i18n.wallet.address(address=address))

@@ -7,7 +7,7 @@ from fluentogram import TranslatorRunner
 from sqlalchemy import select, column
 from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
-from services import get_user_item_metadata
+from services import get_user_item_metadata, get_token_price
 from database import users, catalogue
 
 logger = logging.getLogger(__name__)
@@ -19,13 +19,12 @@ logging.basicConfig(
 
 
 # Show catalogue - names of Items
-async def catalogue_show(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def catalogue_show(dialog_manager: DialogManager,
+                         db_engine: AsyncEngine,
+                         i18n: TranslatorRunner,
+                         event_from_user: User,
+                         **kwargs
+                         ) -> dict[str, str]:
 
     # Get all items for catalogue from database
     statement = (
@@ -49,13 +48,13 @@ async def catalogue_show(
 
 
 # Show selected item from catalogue
-async def show_item_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-) -> dict[str, str]:
+async def show_item_getter(dialog_manager: DialogManager,
+                           db_engine: AsyncEngine,
+                           i18n: TranslatorRunner,
+                           event_from_user: User,
+                           **kwargs
+                           ) -> dict[str, str]:
+
     user_dict = dialog_manager.start_data
     if type(user_dict) is None:
         logger.error(f'User dict from DialogManager is {user_dict}')
@@ -79,10 +78,11 @@ async def show_item_getter(
         logger.info(f'Users {user_id} page is updated to {item_id}')
 
     # Getting data of item from ITEM_ID
+    token_price = await get_token_price(db_engine)
     item = await get_user_item_metadata(int(item_id), db_engine)
     name = item['name']
     image = item['image']
-    sell_price = item['sell_price']
+    sell_price = item['sell_price'] * token_price
 
     logger.info(f'Item metadata for page:\n{name}\n{image}\n{sell_price}')
 
