@@ -406,7 +406,7 @@ def is_admin(text: str) -> str:
 
 # Get token price
 async def get_token_price(db_engine: AsyncEngine) -> float:
-    token_price_statement(
+    token_price_statement = (
         select(column("token_price"))
         .select_from(variables) 
     )
