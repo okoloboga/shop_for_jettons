@@ -52,6 +52,8 @@ async def fill_count(callback: CallbackQuery,
     price = dialog_manager.current_context().dialog_data['sell_price'] * token_price
     users_tokens = dialog_manager.current_context().dialog_data['tokens']
     total_order_sum = price * count
+
+    logger.info(f'Price: {price}, total order sum: {total_order_sum}, users tokens: {users_tokens}')
     
     if count > current_count:
         logger.info(f'Not enough items in catalogue! Asked {count}, total {current_count}')

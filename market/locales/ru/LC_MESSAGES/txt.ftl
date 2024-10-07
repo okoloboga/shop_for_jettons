@@ -91,6 +91,7 @@ item-info = Ты хочешь приобрести
             🏷 <b>{ $name }</b> 🏷
 
             { $category }
+            
             { $description }
 
             🪙 <b>{ $sell_price }</b> 🪙
