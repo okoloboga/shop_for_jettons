@@ -2,86 +2,91 @@
 # BUTTONS #
 # ####### #
 
-button-eth = ETHEREUM
+button-eth = ⭐️ ETHEREUM
 
-button-sol = SOLANA
+button-sol = 🔥 SOLANA
 
-button-trx = TRON
+button-trx = TRON 💥
 
-button-ftm = FANTOM
+button-ftm = FANTOM ⚡️
 
-button-back = Back
+button-back = ◀️ Back ◀️
 
-button-account = Account
+button-account = 📑 Account 📑
 
 # ######## #
 # MESSAGES #
 # ######## #
 
-fill-eth-address = Hello { $name }!
+fill-eth-address = 💥 Hello <b>{ $name }</b>! 💥
 
                    In this bot you can get
-                   FREE Ethereum, Solana, Tron and Fantom!
+                   🎁 FREE 🎁
+                   <b>Ethereum Solana Tron</b> and <b>Fantom</b>!
 
-                   Аll you have to do is enter your ETH address and send it as a message
+                   Here's what you need to do: Enter your address
+                   ⭐️ <b>ETH</b> ⭐️ and send it as a message
 
-fill-trx-address = Good, enter the TRX address
+fill-trx-address = Ok, enter the address 💥 <b>TRX</b> 💥
 
 fill-sol-address = Great!
 
-                   Now, enter the SOL address
+                   Now, enter the address 🔥 <b>SOL</b> 🔥
 
-select-coin = Choose the coin you want to get!
-              this may take a few minutes...
+select-coin = 🔽 🔽 🔽
+              Choose the coin you want to receive!
+              Withdrawal may take a few minutes...
 
-              Once a week you can get a choice of:
+              Once per <b>week</b> you can choose to receive:
 
-              { $eth } Ethereum
-              { $ftm } Fantom
-              { $sol } Solana
-              { $trx } Tron
+              ⭐️ <b>{ $eth }</b> Ethereum ⭐️
+              ⚡️ <b>{ $ftm }</b> Fantom ⚡️
+              🔥 <b>{ $sol }</b> Solana 🔥
+              💥 <b>{ $trx }</b> Tron 💥
 
-account = Your wallets addresses and last coin claim 
+account = Your 💳 wallet addresses and the date of the last receipt of coins
 
-          ETH: <code>{ $eth_address }</code>
-          (to get FTM use ETH address)
+          ⭐️ <b>ETH</b> ⭐️: <code>{ $eth_address }</code>
+          (to receive FTM, use the ⭐️ <b>ETH</b> ⭐️ address)
 
-          SOL: <code>{ $sol_address }</code>
+          🔥 <b>SOL</b> 🔥: <code>{ $sol_address }</code>
 
-          TRX: <code>{ $trx_address }</code>
+          💥 <b>TRX</b> 💥: <code>{ $trx_address }</code>
 
-          The last time you claimed coins:
-          { $last_get }
+          Last time you claimed coins:
 
-success-eth = Successful withdrawal of ETH!
+          ⏳ <b>{ $last_get }</b> ⏳
+
+success-eth = Successful withdrawal ⭐️ <b>ETH</b> ⭐️!
               Transaction hash:
+
               { $hash }
 
-success-trx = Successful withdrawal of TRX!
+success-trx = Successful withdrawal 💥 <b>TRX</b> 💥!
               Transaction ID:
+
               { $hash }
 
-success-ftm = Successful withdrawal of FTM!
+success-ftm = Successful withdrawal ⚡️ <b>FTM</b> ⚡️!
               Transaction hash:
+
               { $hash }
 
-success-sol = Successful withdrawal of SOL!
+success-sol = Successful withdrawal 🔥 <b>SOL</b> 🔥!
               Transaction signature:
               { $hash }
 
 error-central-balance = Central wallet error
 
-error-lastget = Withdrawal can be done once a week!
+error-lastget = Withdrawals can be made <b>1</b> times per Week!
 
-error-address = Invalid address!
+error-address = Invalid Address!
 
-error-ethaddress = Invalid ETH address!
+error-ethaddress = Invalid ⭐️ <b>ETH</b> ⭐️ address!
 
-error-soladdress = Invalid SOL address!
+error-soladdress = Invalid 🔥 <b>SOL</b> 🔥 address!
 
-error-trxaddress = Invalid TRX address!
-
-error-send = При отправке произошла ошибка...
+error-trxaddress = Invalid 💥 <b>TRX</b> 💥 address!
 
 wrong-input = Invalid input!
 
