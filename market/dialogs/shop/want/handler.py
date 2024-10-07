@@ -48,10 +48,10 @@ async def fill_count(callback: CallbackQuery,
     
     # Enough tokens in wallet?
     db_engine: AsyncEngine = dialog_manager.middleware_data.get('db_engine')
-    token_price = await get_token_price(db_engine)
-    price = dialog_manager.current_context().dialog_data['sell_price'] * token_price
-    users_tokens = dialog_manager.current_context().dialog_data['tokens']
-    total_order_sum = price * count
+    token_price = float(await get_token_price(db_engine))
+    price = float(dialog_manager.current_context().dialog_data['sell_price'] * token_price)
+    users_tokens = float(dialog_manager.current_context().dialog_data['tokens'])
+    total_order_sum = float(price * count)
 
     logger.info(f'Price: {price}, total order sum: {total_order_sum}, users tokens: {users_tokens}')
     

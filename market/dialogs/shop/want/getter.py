@@ -42,8 +42,8 @@ async def item_info_getter(dialog_manager: DialogManager,
     logger.info(f'User {user_dict["user_id"]} have {tokens} tokens and {tron} Tron')
     
     # Write tokens and Tron value to dialog data
-    dialog_manager.current_context().dialog_data['tokens'] = tokens
-    dialog_manager.current_context().dialog_data['tron'] = tron
+    dialog_manager.current_context().dialog_data['tokens'] = float(tokens)
+    dialog_manager.current_context().dialog_data['tron'] = float(tron)
     dialog_manager.current_context().dialog_data['wallet'] = wallet
 
     # Getting data of item by Page in Users table
