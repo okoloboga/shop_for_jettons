@@ -18,13 +18,12 @@ logging.basicConfig(
 
 
 # Show selected item from catalogue for editing or deleting
-async def edit_delete_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def edit_delete_getter(dialog_manager: DialogManager,
+                             db_engine: AsyncEngine,
+                             i18n: TranslatorRunner,
+                             event_from_user: User,
+                             **kwargs):
+
     user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']
     page = await get_user_data(user_id, db_engine)
@@ -72,13 +71,12 @@ async def edit_delete_getter(
 
 
 # Chosing changes to fill
-async def select_type_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def select_type_getter(dialog_manager: DialogManager,
+                             db_engine: AsyncEngine,
+                             i18n: TranslatorRunner,
+                             event_from_user: User,
+                             **kwargs):
+
     # Getting page of user
     user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']
@@ -108,26 +106,24 @@ async def select_type_getter(
 
 
 # Filling changes of selected type
-async def fill_changes_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def fill_changes_getter(dialog_manager: DialogManager,
+                              db_engine: AsyncEngine,
+                              i18n: TranslatorRunner,
+                              event_from_user: User,
+                              **kwargs):
+
     return {"button_back": i18n.button.back(),
             "enter_new_data": i18n.fill.newdata()
             }
 
 
 # Deleting confirmed
-async def delete_confirmed_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def delete_confirmed_getter(dialog_manager: DialogManager,
+                                 db_engine: AsyncEngine,
+                                 i18n: TranslatorRunner,
+                                 event_from_user: User,
+                                 **kwargs):
+
     user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']
 
@@ -145,13 +141,12 @@ async def delete_confirmed_getter(
 
 
 # Changes confirmed
-async def changes_confirmed_getter(
-        dialog_manager: DialogManager,
-        db_engine: AsyncEngine,
-        i18n: TranslatorRunner,
-        event_from_user: User,
-        **kwargs
-):
+async def changes_confirmed_getter(dialog_manager: DialogManager,
+                                   db_engine: AsyncEngine,
+                                   i18n: TranslatorRunner,
+                                   event_from_user: User,
+                                   **kwargs):
+                                   
     user_dict = dialog_manager.start_data
     user_id = user_dict['user_id']
     new_data = dialog_manager.current_context().dialog_data['new_data']

@@ -23,42 +23,38 @@ logging.basicConfig(
 
 
 # Edit Item process - Start
-async def edit(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def edit(callback: CallbackQuery,
+               button: Button,
+               dialog_manager: DialogManager):
+
     logger.info(f'User {callback.from_user.id} starts editing item')
     await dialog_manager.switch_to(EditRowSG.edit)
 
 
 # Delete Item process
-async def delete(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def delete(callback: CallbackQuery,
+                 button: Button,
+                 dialog_manager: DialogManager):
+
     logger.info(f'User {callback.from_user.id} starts delete item')
     await dialog_manager.switch_to(EditRowSG.delete)
 
 
 # Delete confirmed
-async def delete_confirm(
-        callback: CallbackQuery,
-        button: Button,
-        dialog_manager: DialogManager
-):
+async def delete_confirm(callback: CallbackQuery,
+                         button: Button,
+                         dialog_manager: DialogManager):
+
     logger.info(f'User {callback.from_user.id} delete item')
     await dialog_manager.switch_to(EditRowSG.delete_confirmed)
 
     
 # Filling changes confirmed
-async def fill_changes(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        new_data: str | int
-):
+async def fill_changes(callback: CallbackQuery,
+                       widget: ManagedTextInput,
+                       dialog_manager: DialogManager,
+                       new_data: str | int):
+
     logger.info(f'User {callback.from_user.id} filled changes: {new_data}')
 
     dialog_manager.current_context().dialog_data['new_data'] = new_data
@@ -66,12 +62,11 @@ async def fill_changes(
 
 
 # Wrong changes
-async def wrong_changes(
-        callback: CallbackQuery,
-        widget: ManagedTextInput,
-        dialog_manager: DialogManager,
-        new_data: str | int
-):
+async def wrong_changes(callback: CallbackQuery,
+                        widget: ManagedTextInput,
+                        dialog_manager: DialogManager,
+                        new_data: str | int):
+                        
     logger.warning(f'User {callback.from_user.id} fills wrong changes')
 
     i18n: TranslatorRunner = dialog_manager.middleware_data.get('i18n')

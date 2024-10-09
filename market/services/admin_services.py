@@ -139,25 +139,17 @@ def len_check(text: str) -> str:
         return text
     raise ValueError
 
-'''
-                                   __    __                             
-                                  |  \  |  \                            
- _______    ______   __   __   __  \$$ _| $$_     ______   ______ ____  
-|       \  /      \ |  \ |  \ |  \|  \|   $$ \   /      \ |      \    \ 
-| $$$$$$$\|  $$$$$$\| $$ | $$ | $$| $$ \$$$$$$  |  $$$$$$\| $$$$$$\$$$$
-| $$  | $$| $$    $$| $$ | $$ | $$| $$  | $$ __ | $$    $$| $$ | $$ | $$
-| $$  | $$| $$$$$$$$| $$_/ $$_/ $$| $$  | $$|  \| $$$$$$$$| $$ | $$ | $$
-| $$  | $$ \$$     \ \$$   $$   $$| $$   \$$  $$ \$$     \| $$ | $$ | $$
- \$$   \$$  \$$$$$$$  \$$$$$\$$$$  \$$    \$$$$   \$$$$$$$ \$$  \$$  \$$
-'''
+
+# ######## #
+# NEW ITEM #
+# ######## #
 
 
 # Writing new Item to database
-async def new_item(
-        db_engine: AsyncEngine,
-        admin_id: int,
-        new_item_data: dict
-):
+async def new_item(db_engine: AsyncEngine,
+                   admin_id: int,
+                   new_item_data: dict):
+
     logger.info(f'new_item({new_item_data['name']})')
 
     len_catalogue: int  # Number of items in Catalogue table
@@ -221,10 +213,9 @@ async def new_item(
 
 
 # Deleting item from database
-async def delete_item(
-        db_engine: AsyncEngine,
-        admin_id: int,
-        ):
+async def delete_item(db_engine: AsyncEngine,
+                      admin_id: int):
+
     logger.info(f'delete_item({admin_id})')
     page: int  # Current page of user from database
 
@@ -276,21 +267,15 @@ async def delete_item(
         await conn.commit()
 
 
+# ######## #
+# EDIT ROW #
+# ######## #
 
-'''
-                 __  __    __                                             
-                |  \|  \  |  \                                            
-  ______    ____| $$ \$$ _| $$_           ______    ______   __   __   __ 
- /      \  /      $$|  \|   $$ \         /      \  /      \ |  \ |  \ |  
-|  $$$$$$\|  $$$$$$$| $$ \$$$$$$        |  $$$$$$\|  $$$$$$\| $$ | $$ | $$
-| $$    $$| $$  | $$| $$  | $$ __       | $$   \$$| $$  | $$| $$ | $$ | $$
-| $$$$$$$$| $$__| $$| $$  | $$|  \      | $$      | $$__/ $$| $$_/ $$_/ $$
- \$$     \ \$$    $$| $$   \$$  $$      | $$       \$$    $$ \$$   $$   $$
-  \$$$$$$$  \$$$$$$$ \$$    \$$$$        \$$        \$$$$$$   \$$$$$\$$$$
-'''
 
 # Validate changes entered by Admin
-def check_changes(changes: str) -> dict:
+def check_changes(changes: str
+                  ) -> dict:
+
     logger.info(f'Checking for changes {changes}')
     changes_types = {
                      'category': str,
@@ -308,18 +293,19 @@ def check_changes(changes: str) -> dict:
         
         # is correct type of change
         if len(changes_raw) == 2 and changes_raw[0] in changes_types:
-            
+
+            logger.info(f'changes_raw: {changes_raw}')
             logger.info(f'changes_raw[0]: {changes_raw[0]}')
             
             # unite changes description, like {'description': 'very taste banana'}
             if changes_raw[1].isdigit:
                 changes_raw[1] = int(changes_raw[1])
                 changes_united = {changes_raw[0]: changes_raw[1]}
+                logger.info(f'changes_united: {changes_united}')
             else:
                 changes_united = {changes_raw[0]: ' '.join(changes_raw[1:])}
+                logger.info(f'changes_united: {changes_united}')
                 
-            logger.info(f'Changes raw: {changes_raw}')
-            logger.info(f'changes_united: {changes_united}')
             logger.info(f'changes type {changes_types[changes_raw[0]]} is {type(changes_raw[1])}')
             
             # check for data type of changes
