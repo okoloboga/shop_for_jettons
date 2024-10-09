@@ -298,7 +298,7 @@ def check_changes(changes: str
             logger.info(f'changes_raw[0]: {changes_raw[0]}')
             
             # unite changes description, like {'description': 'very taste banana'}
-            if changes_raw[1].isdigit:
+            if changes_raw[1].isdigit():
                 changes_raw[1] = int(changes_raw[1])
                 changes_united = {changes_raw[0]: changes_raw[1]}
                 logger.info(f'changes_united: {changes_united}')
