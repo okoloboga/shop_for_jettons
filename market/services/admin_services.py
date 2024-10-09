@@ -292,7 +292,7 @@ def check_changes(changes: str
         changes_raw = changes[1:].split()
         
         # is correct type of change
-        if len(changes_raw) == 2 and changes_raw[0] in changes_types:
+        if len(changes_raw) >= 2 and changes_raw[0] in changes_types:
 
             logger.info(f'changes_raw: {changes_raw}')
             logger.info(f'changes_raw[0]: {changes_raw[0]}')
