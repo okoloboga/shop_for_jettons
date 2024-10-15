@@ -86,3 +86,87 @@ async def send_token(owner: str,
 
     return respone.json()
 
+
+# ### #
+# TON #
+# ### #
+
+
+# Create TON wallet
+async def create_wallet() -> dict:
+
+    url = f'{BASE_URL}/createWallet'
+
+    logger.info('Creating a new TON wallet')
+
+    response = requests.get(url)
+
+    logger.info(f'Server response: {response.json()}')
+
+    return response.json()
+
+
+# Get TON balance
+async def get_ton_balance(wallet_address: str
+                          ) -> dict:
+
+    url = f'{BASE_URL}/getTonBalance?walletAddress={wallet_address}'
+
+    logger.info(f'Getting TON balance for address: {wallet_address}')
+    
+    response = requests.get(url)
+    
+    logger.info(f'Server response: {response.json()}')
+    
+    return response.json()
+
+
+# Get Jetton balance
+async def get_jetton_balance(wallet_address: str, 
+                             jetton_address: str
+                             ) -> dict:
+
+    url = f'{BASE_URL}/getJettonBalance?walletAddress={wallet_address}&jettonAddress={jetton_address}'
+    
+    logger.info(f'Getting Jetton balance for address: {wallet_address}, Jetton: {jetton_address}')
+    
+    response = requests.get(url)
+    
+    logger.info(f'Server response: {response.json()}')
+    
+    return response.json()
+
+
+# Send TON transaction
+async def send_ton_transaction(to_address: str, 
+                               amount: str, 
+                               mnemonic: str
+                               ) -> dict:
+
+    url = f'{BASE_URL}/sendTonTransaction?toAddress={to_address}&amount={amount}&mnemonic={mnemonic}'
+    
+    logger.info(f'Sending TON transaction to {to_address}, amount: {amount}')
+    
+    response = requests.post(url)
+    
+    logger.info(f'Server response: {response.json()}')
+    
+    return response.json()
+
+
+# Send Jetton transaction
+async def send_jetton_transaction(to_address: str, 
+                                  jetton_address: str, 
+                                  amount: str, 
+                                  mnemonic: str
+                                  ) -> dict:
+
+    url = f'{BASE_URL}/sendJettonTransaction?toAddress={to_address}&jettonAddress={jetton_address}&amount={amount}&mnemonic={mnemonic}'
+    
+    logger.info(f'Sending Jetton transaction to {to_address}, amount: {amount}, Jetton: {jetton_address}')
+    
+    response = requests.post(url)
+    
+    logger.info(f'Server response: {response.json()}')
+    
+    return response.json()
