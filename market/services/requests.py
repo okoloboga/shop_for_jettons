@@ -95,7 +95,7 @@ async def send_token(owner: str,
 # Create TON wallet
 async def create_wallet() -> dict:
 
-    url = f'{BASE_URL}/createWallet'
+    url = f'{BASE_URL}/newTonWallet'
 
     logger.info('Creating a new TON wallet')
 
@@ -140,10 +140,10 @@ async def get_jetton_balance(wallet_address: str,
 # Send TON transaction
 async def send_ton_transaction(to_address: str, 
                                amount: str, 
-                               mnemonic: str
+                               private_key: str
                                ) -> dict:
 
-    url = f'{BASE_URL}/sendTonTransaction?toAddress={to_address}&amount={amount}&mnemonic={mnemonic}'
+    url = f'{BASE_URL}/sendTonTransaction?toAddress={to_address}&amount={amount}&privateKey={private_key}'
     
     logger.info(f'Sending TON transaction to {to_address}, amount: {amount}')
     
@@ -158,10 +158,10 @@ async def send_ton_transaction(to_address: str,
 async def send_jetton_transaction(to_address: str, 
                                   jetton_address: str, 
                                   amount: str, 
-                                  mnemonic: str
+                                  private_key: str
                                   ) -> dict:
 
-    url = f'{BASE_URL}/sendJettonTransaction?toAddress={to_address}&jettonAddress={jetton_address}&amount={amount}&mnemonic={mnemonic}'
+    url = f'{BASE_URL}/sendJettonTransaction?toAddress={to_address}&jettonAddress={jetton_address}&amount={amount}&privateKey={private_key}'
     
     logger.info(f'Sending Jetton transaction to {to_address}, amount: {amount}, Jetton: {jetton_address}')
     

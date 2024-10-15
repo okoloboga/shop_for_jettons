@@ -281,7 +281,11 @@ const createTonWallet = async () => {
 			publicKey: walletKey.publicKey,
 	  	});
   
-	  	return { mnemonic, address: wallet.address.toString() };
+	  	return { 
+				mnemonic, 
+				address: wallet.address.toString(), 
+				privateKey: walletKey.secretKey.toString('hex') 
+				};
 
 	} catch (error) {
 	  	console.error(`Service: createWallet error ${error}\n`);
@@ -324,13 +328,11 @@ const getJettonBalance = async (walletAddress, jettonAddress) => {
 };
   
   
-const sendTonTransaction = async (toAddress, amount, mnemonic) => {
+const sendTonTransaction = async (fromWallet, toAddress, amount, privateKey) => {
 	try {
-	  	const walletKey = await mnemonicToWalletKey(mnemonic);
-  
 	  	const wallet = WalletContractV3.create({
 			workchain: 0,
-			publicKey: walletKey.publicKey,
+			publicKey: fromWallet,
 	  	});
   
 	  	const seqno = await wallet.getSeqNo(client);
@@ -338,7 +340,7 @@ const sendTonTransaction = async (toAddress, amount, mnemonic) => {
 	  	const value = parseFloat(amount) * 1e9;
 
 		const transfer = await wallet.sendTransfer({
-			secretKey: walletKey.secretKey,
+			secretKey: privateKey,
 			seqno,
 			messages: [{
 			  	to,
@@ -346,7 +348,6 @@ const sendTonTransaction = async (toAddress, amount, mnemonic) => {
 			  	bounce: false,
 			}],
 		});
-	  
 		  
 		return transfer.txid;
   
@@ -357,13 +358,11 @@ const sendTonTransaction = async (toAddress, amount, mnemonic) => {
 };
 
   
-const sendJettonTransaction = async (toAddress, jettonAddress, amount, mnemonic) => {
+const sendJettonTransaction = async (fromWallet, toAddress, jettonAddress, amount, privateKey) => {
 	try {
-	  	const walletKey = await mnemonicToWalletKey(mnemonic);
-  
 	  	const wallet = WalletContractV3.create({
 			workchain: 0,
-			publicKey: walletKey.publicKey,
+			publicKey: fromWallet,
 	  	});
   
 	  	const seqno = await wallet.getSeqNo(client);
@@ -381,7 +380,7 @@ const sendJettonTransaction = async (toAddress, jettonAddress, amount, mnemonic)
 	  	transferMessage.bits.writeCoins(value);
   
     	const transfer = await wallet.sendTransfer({
-      		secretKey: walletKey.secretKey,
+      		secretKey: privateKey,
       		seqno,
       		messages: [{
         		to: jettonMaster,

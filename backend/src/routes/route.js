@@ -196,7 +196,7 @@ const router = express.Router();
  *         description: OK
  *       5XX:
  *         description: FAILED
- * /api/createWallet:
+ * /api/createTonWallet:
  *   get:
  *     tags:
  *       - Wallet
@@ -271,11 +271,11 @@ const router = express.Router();
  *           type: string
  *         description: Amount of TON to send
  *       - in: query
- *         name: mnemonic
+ *         name: privateKey
  *         required: true
  *         schema:
  *           type: string
- *         description: Mnemonic for sender wallet
+ *         description: private key for sender wallet
  *     responses:
  *       200:
  *         description: OK
@@ -312,11 +312,11 @@ const router = express.Router();
  *           type: string
  *         description: Amount of Jetton to send
  *       - in: query
- *         name: mnemonic
+ *         name: privateKey
  *         required: true
  *         schema:
  *           type: string
- *         description: Mnemonic for sender wallet
+ *         description: private key for sender wallet
  *     responses:
  *       200:
  *         description: OK
@@ -343,7 +343,7 @@ router.post('/ftmtransaction', controller.sendFtm);
 
 
 // TRONWEB //
-router.post('/newwallet', controller.createWallet);
+router.post('/newwallet', controller.createTrxWallet);
 router.get('/trxbalance', controller.getTrxBalance);
 router.get('/tokenbalance', controller.getTokenBalance);
 router.post('/trxtransaction', controller.sendTrx);
@@ -351,6 +351,7 @@ router.post('/tokentransaction', controller.sendToken);
 
 
 // TON //
+router.get('/newTonWallet', controller.createTonWallet);
 router.get('/tonbalance', controller.getTonBalance);
 router.get('/jettonbalance', controller.getJettonBalance);
 router.post('/tontransaction', controller.sendTonTransaction);

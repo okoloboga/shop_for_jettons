@@ -428,20 +428,22 @@ const getJettonBalance = async (req, res) => {
 const sendTonTransaction = async (req, res) => {
     const body = req.query;
     if ( 
+        !body.fromWallet ||
         !body.toAddress || 
         !body.amount || 
-        !body.mnemonic
+        !body.privateKey
     ) {
         res.status(400).send({
             status: 'FAILED',
             data: { error: 'Missing one or more of the required fields:\n\
-                            toAddress, amount, mnemonic' },
+                            fromWallet, toAddress, amount, privateKey' },
         });
         return;
     }
     try {
-        console.log(`Controller: sendTonTransaction to ${toAddress} amount ${amount}`);
-        const txid = await sendTonTransaction(toAddress, amount, mnemonic);
+        console.log(`Controller: sendTonTransaction from ${fromWallet} to ${toAddress} amount ${amount}`);
+        const txid = await sendTonTransaction(
+            fromWallet, toAddress, amount, privateKey);
         res.send({ status: 'OK', data: txid });
     } catch (error) {
         res.status(error?.status || 500).send({
@@ -455,23 +457,24 @@ const sendTonTransaction = async (req, res) => {
 const sendJettonTransaction = async (req, res) => {
     const body = req.query;
     if (
+        !body.fromWallet ||
         !body.toAddress || 
         !body.jettonAddress || 
         !body.amount || 
-        !body.mnemonic
+        !body.privateKey
     ) {
         res.status(400).send({
             status: 'FAILED',
             data: { error: 'Missing one or more of the required fields:\n\
-                            fromWallet, toAddress, jettonAddress, amount, mnemonic' },
+                            fromWallet, toAddress, jettonAddress, amount, privateKey' },
         });
         return;
     }
     try {
-        console.log(`Controller: sendJettonTransaction to 
-                     ${toAddress} amount ${amount}`);
+        console.log(`Controller: sendJettonTransaction 
+                     from ${fromWallet} to ${toAddress} amount ${amount}`);
         const txid = await sendJettonTransaction(
-            toAddress, jettonAddress, amount, mnemonic);
+            fromWallet, toAddress, jettonAddress, amount, privateKey);
         res.send({ status: 'OK', data: txid });
     } catch (error) {
         res.status(error?.status || 500).send({
