@@ -3,6 +3,8 @@ const validator = require('web3-validator');
 const solWeb3 = require('@solana/web3.js');
 const { Web3 } = require('web3');
 const bs58 = require('bs58');
+const { TonClient, WalletContractV3, fromNano, Cell, Address } = require('ton');
+const { mnemonicNew, mnemonicToWalletKey } = require('ton-crypto');
 
 
 // Web3 Connection //
@@ -27,6 +29,9 @@ const tronWeb = new TronWeb({
 	solidityNode,
 	eventNode
 });
+
+// TON Connection //
+const client = new TonClient({ endpoint: 'https://toncenter.com/api/v2/jsonRPC' });
 
 
 // ETHEREUM //
@@ -175,7 +180,7 @@ const sendFtm = async (sender, target, amount, privateKey) => {
 
 
 // TRONWEB //
-const createWallet = async () => {
+const createTrxWallet = async () => {
 	try {
 		const newWallet = await tronWeb.createAccount();
 		return newWallet;
@@ -265,6 +270,136 @@ const sendToken = async (owner, token, target, amount, privateKey) => {
 };
 
 
+// TON //
+const createTonWallet = async () => {
+	try {
+	  	const mnemonic = await mnemonicNew();
+	  	const walletKey = await mnemonicToWalletKey(mnemonic);
+  
+	  	const wallet = WalletContractV3.create({
+			workchain: 0,
+			publicKey: walletKey.publicKey,
+	  	});
+  
+	  	return { mnemonic, address: wallet.address.toString() };
+
+	} catch (error) {
+	  	console.error(`Service: createWallet error ${error}\n`);
+	  	throw error;
+	}
+};
+  
+
+const getTonBalance = async (walletAddress) => {
+	try {
+	  	const address = Address.parse(walletAddress);
+	  	const balance = await client.getBalance(address);
+	  	
+	  	return fromNano(balance);
+
+	} catch (error) {
+	  	console.error(`Service: getTonBalance error ${error}\n`);
+	  	throw error;
+	}
+};
+
+
+const getJettonBalance = async (walletAddress, jettonAddress) => {
+	try {
+	  	const address = Address.parse(walletAddress);
+	  	const jetton = Address.parse(jettonAddress);
+  
+	  	const jettonData = await client.callGetMethod(jetton, 'get_wallet_data', [
+			{ type: 'slice', cell: Cell.fromBoc(await client.getBoc(address))[0] }
+	  	]);
+  
+	  	const balance = jettonData.stack[0][1].toString();
+
+	  	return fromNano(balance);
+
+	} catch (error) {
+	  	console.error(`Service: getJettonBalance error ${error}\n`);
+	  	throw error;
+	}
+};
+  
+  
+const sendTonTransaction = async (toAddress, amount, mnemonic) => {
+	try {
+	  	const walletKey = await mnemonicToWalletKey(mnemonic);
+  
+	  	const wallet = WalletContractV3.create({
+			workchain: 0,
+			publicKey: walletKey.publicKey,
+	  	});
+  
+	  	const seqno = await wallet.getSeqNo(client);
+	  	const to = Address.parse(toAddress);
+	  	const value = parseFloat(amount) * 1e9;
+
+		const transfer = await wallet.sendTransfer({
+			secretKey: walletKey.secretKey,
+			seqno,
+			messages: [{
+			  	to,
+			  	value,
+			  	bounce: false,
+			}],
+		});
+	  
+		  
+		return transfer.txid;
+  
+	} catch (error) {
+	  	console.error(`Service: sendTonTransaction error ${error}\n`);
+	  	throw error;
+	}
+};
+
+  
+const sendJettonTransaction = async (toAddress, jettonAddress, amount, mnemonic) => {
+	try {
+	  	const walletKey = await mnemonicToWalletKey(mnemonic);
+  
+	  	const wallet = WalletContractV3.create({
+			workchain: 0,
+			publicKey: walletKey.publicKey,
+	  	});
+  
+	  	const seqno = await wallet.getSeqNo(client);
+	  	const to = Address.parse(toAddress);
+	  	const value = parseFloat(amount) * 1e9;
+  
+	  	const jettonMaster = Address.parse(jettonAddress);
+	  	const jettonData = await client.callGetMethod(jettonMaster, 'get_wallet_data', [
+			{ type: 'slice', cell: Cell.fromBoc(await client.getBoc(wallet.address))[0] }
+	  	]);
+  
+	  	const transferMessage = new Cell();
+	  	transferMessage.bits.writeUint(0xf8a7ea5, 32);
+	  	transferMessage.bits.writeAddress(to);
+	  	transferMessage.bits.writeCoins(value);
+  
+    	const transfer = await wallet.sendTransfer({
+      		secretKey: walletKey.secretKey,
+      		seqno,
+      		messages: [{
+        		to: jettonMaster,
+        		value: 0.05 * 1e9,
+        		body: transferMessage,
+        		bounce: true,
+      		}],
+    	});
+
+    	return transfer.txid;
+  
+	} catch (error) {
+	  	console.error(`Service: sendJettonTransaction error ${error}\n`);
+	  	throw error;
+	}
+};
+
+
 module.exports = {
   	getEthBalance,
 	checkEthAddress,
@@ -274,9 +409,14 @@ module.exports = {
   	sendSol,
   	getFtmBalance,
   	sendFtm,
-	createWallet,
+	createTrxWallet,
 	getTrxBalance,
 	getTokenBalance,
 	sendTrx,
-	sendToken
+	sendToken,
+	createTonWallet,
+	getTonBalance,
+	getJettonBalance,
+	sendTonTransaction,
+	sendJettonTransaction,
 };

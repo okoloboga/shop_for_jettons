@@ -225,9 +225,9 @@ const sendFtm = async (req, res) => {
 
 
 // TRONWEB //
-const createWallet = async (req, res) => {
+const createTrxWallet = async (req, res) => {
     try {
-        const newWallet = await service.createWallet();
+        const newWallet = await service.createTrxWallet();
 	    console.log(`Controller: New Wallet ${JSON.stringify(newWallet)}\n`)
 	    res.send({ status: "OK", data: newWallet });
     } catch (error) {
@@ -362,6 +362,126 @@ const sendToken = async (req, res) => {
 };
 
 
+// TON //
+const createTonWallet = async (req, res) => {
+    try {
+        console.log(`Controller: createWallet`);
+        const wallet = await createWallet();
+        res.send({ status: 'OK', data: wallet });
+    } catch (error) {
+        res.status(error?.status || 500).send({
+            status: 'FAILED',
+            data: { error: error?.message || error },
+        });
+    }
+};
+  
+
+const getTonBalance = async (req, res) => { 
+    const { walletAddress } = req.query;
+    if (!walletAddress) {
+        res.status(400).send({
+            status: 'FAILED',
+            data: { error: 'Missing walletAddress in request query' },
+        });
+        return;
+    }
+    try {
+        console.log(`Controller: getTonBalance for walletAddress: ${walletAddress}`);
+        const balance = await getTonBalance(walletAddress);
+        res.send({ status: 'OK', data: balance });
+    } catch (error) {
+        res.status(error?.status || 500).send({
+            status: 'FAILED',
+            data: { error: error?.message || error },
+        });
+    }
+};
+  
+
+const getJettonBalance = async (req, res) => {
+    const body = req.query;
+    if (
+        !body.walletAddress ||
+        !body.jettonAddress
+    ) {
+        res.status(400).send({
+            status: 'FAILED',
+            data: { error: 'Missing walletAddress or jettonAddress in request query' },
+        });
+        return;
+    }
+    try {
+        console.log(`Controller: getJettonBalance for walletAddress: 
+            ${walletAddress}, jettonAddress: ${jettonAddress}`);
+        const balance = await getJettonBalance(walletAddress, jettonAddress);
+        res.send({ status: 'OK', data: balance });
+    } catch (error) {
+        res.status(error?.status || 500).send({
+            status: 'FAILED',
+            data: { error: error?.message || error },
+        });
+    }
+};
+  
+
+const sendTonTransaction = async (req, res) => {
+    const body = req.query;
+    if ( 
+        !body.toAddress || 
+        !body.amount || 
+        !body.mnemonic
+    ) {
+        res.status(400).send({
+            status: 'FAILED',
+            data: { error: 'Missing one or more of the required fields:\n\
+                            toAddress, amount, mnemonic' },
+        });
+        return;
+    }
+    try {
+        console.log(`Controller: sendTonTransaction to ${toAddress} amount ${amount}`);
+        const txid = await sendTonTransaction(toAddress, amount, mnemonic);
+        res.send({ status: 'OK', data: txid });
+    } catch (error) {
+        res.status(error?.status || 500).send({
+            status: 'FAILED',
+            data: { error: error?.message || error },
+        });
+    }
+};
+
+
+const sendJettonTransaction = async (req, res) => {
+    const body = req.query;
+    if (
+        !body.toAddress || 
+        !body.jettonAddress || 
+        !body.amount || 
+        !body.mnemonic
+    ) {
+        res.status(400).send({
+            status: 'FAILED',
+            data: { error: 'Missing one or more of the required fields:\n\
+                            fromWallet, toAddress, jettonAddress, amount, mnemonic' },
+        });
+        return;
+    }
+    try {
+        console.log(`Controller: sendJettonTransaction to 
+                     ${toAddress} amount ${amount}`);
+        const txid = await sendJettonTransaction(
+            toAddress, jettonAddress, amount, mnemonic);
+        res.send({ status: 'OK', data: txid });
+    } catch (error) {
+        res.status(error?.status || 500).send({
+            status: 'FAILED',
+            data: { error: error?.message || error },
+        });
+    }
+};
+
+
 module.exports = {  
     getEthBalance,
     checkEthAddress,
@@ -371,9 +491,14 @@ module.exports = {
     sendSol,
     getFtmBalance,
     sendFtm,
-    createWallet,   
+    createTrxWallet,   
     getTrxBalance,
     getTokenBalance,
     sendTrx,
-    sendToken
+    sendToken,
+    createTonWallet,
+    getTonBalance,
+    getJettonBalance,
+    sendTonTransaction,
+    sendJettonTransaction
 };

@@ -4,60 +4,7 @@ const controller = require('../controllers/controller');
 const router = express.Router();
 /**
  * @openapi
- * /api/ethbalance:
- *   get:
- *     tags:
- *       - ETH Balance
- *     parameters:
- *       - in: query
- *         name: address
- *         type: string
- *         description: Get ballance of Wallet by Address
- *     responses:
- *       200:
- *         description: OK
- *       5XX:
- *         description: FAILED
- * /api/ethaddress:
- *   get:
- *     tags:
- *       - ETH Address Validation
- *     parameters:
- *       - in: query
- *         name: address
- *         type: string
- *         description: Validate Address of Wallet
- *     responses:
- *       200:
- *         description: OK
- *       5XX:
- *         description: FAILED
- * /api/sendeth:
- *   post:
- *     tags:
- *       - Send ETH
- *     parameters:
- *       - name: sender
- *         in: query
- *         type: string
- *         description: Senders address of wallet to send ETH
- *       - name: privateKey
- *         in: query
- *         type: string
- *         description: Wallet's private key for sign transaction
- *       - name: target
- *         in: query
- *         type: string
- *         description: Target address of wallet to send ETH
- *       - name: amount
- *         in: query
- *         type: string
- *         description: Amount of tokens to send
- *     responses:
- *       200:
- *         description: OK
- *       5XX:
- *         description: FAILED
+
  * /api/solbalance:
  *   get:
  *     tags:
@@ -249,6 +196,132 @@ const router = express.Router();
  *         description: OK
  *       5XX:
  *         description: FAILED
+ * /api/createWallet:
+ *   get:
+ *     tags:
+ *       - Wallet
+ *     summary: Create a new TON wallet
+ *     responses:
+ *       200:
+ *         description: OK
+ *       5XX:
+ *         description: FAILED
+ * /api/getTonBalance:
+ *   get:
+ *     tags:
+ *       - Balance
+ *     summary: Get TON balance of a wallet
+ *     parameters:
+ *       - in: query
+ *         name: walletAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Wallet address to get the TON balance
+ *     responses:
+ *       200:
+ *         description: OK
+ *       5XX:
+ *         description: FAILED
+ * /api/getJettonBalance:
+ *   get:
+ *     tags:
+ *       - Balance
+ *     summary: Get Jetton balance of a wallet
+ *     parameters:
+ *       - in: query
+ *         name: walletAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Wallet address to get the Jetton balance
+ *       - in: query
+ *         name: jettonAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Jetton contract address
+ *     responses:
+ *       200:
+ *         description: OK
+ *       5XX:
+ *         description: FAILED
+ * /api/sendTonTransaction:
+ *   post:
+ *     tags:
+ *       - Transaction
+ *     summary: Send TON to another wallet
+ *     parameters:
+ *       - in: query
+ *         name: fromWallet
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Sender wallet address
+ *       - in: query
+ *         name: toAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Receiver wallet address
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Amount of TON to send
+ *       - in: query
+ *         name: mnemonic
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Mnemonic for sender wallet
+ *     responses:
+ *       200:
+ *         description: OK
+ *       5XX:
+ *         description: FAILED
+ * /api/sendJettonTransaction:
+ *   post:
+ *     tags:
+ *       - Transaction
+ *     summary: Send Jetton tokens to another wallet
+ *     parameters:
+ *       - in: query
+ *         name: fromWallet
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Sender wallet address
+ *       - in: query
+ *         name: toAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Receiver wallet address
+ *       - in: query
+ *         name: jettonAddress
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Jetton contract address
+ *       - in: query
+ *         name: amount
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Amount of Jetton to send
+ *       - in: query
+ *         name: mnemonic
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Mnemonic for sender wallet
+ *     responses:
+ *       200:
+ *         description: OK
+ *       5XX:
+ *         description: FAILED
  */
 
 
@@ -275,6 +348,13 @@ router.get('/trxbalance', controller.getTrxBalance);
 router.get('/tokenbalance', controller.getTokenBalance);
 router.post('/trxtransaction', controller.sendTrx);
 router.post('/tokentransaction', controller.sendToken);
+
+
+// TON //
+router.get('/tonbalance', controller.getTonBalance);
+router.get('/jettonbalance', controller.getJettonBalance);
+router.post('/tontransaction', controller.sendTonTransaction);
+router.post('/jettontransaction', controller.sendJettonTransaction);
 
 
 module.exports = router;
