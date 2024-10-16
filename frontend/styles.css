@@ -1,0 +1,170 @@
+/* styles.css */
+body {
+    font-family: 'JetBrains Mono', monospace;
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+}
+
+.full-height {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.top-header {
+    width: 100%;
+    background-color: rgba(51, 51, 51, 0.3);
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.top-nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.top-nav-link, .language-button {
+    background-color: #7209b7;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    margin-left: 15px;
+}
+
+.top-nav-link:hover, .language-button:hover {
+    background-color: #e30b5d; /* Малиновый цвет при наведении */
+}
+
+.language-button {
+    background-color: #7209b7;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 20px; /* Отступ для кнопки */
+}
+
+.language-button:hover {
+    background-color: #e30b5d;
+}
+
+.hero-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.hero-content.appear {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cta-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 30px;
+    background-color: #7209b7;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #e30b5d;
+}
+
+
+.tokenomics-section {
+    padding: 20px 10px;
+    background-color: #2a2a40;
+    text-align: center;
+}
+
+.tokenomics-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 10px auto;
+}
+
+.token-box {
+    background-color: #7209b7;
+    padding: 25px;
+    margin: 10px;
+    border-radius: 15px;
+    flex-basis: 28%;
+    transition: transform 1s ease, background-color 0.3s ease;
+}
+
+.token-box:hover {
+    background-color: #e30b5d;
+    transform: scale(1.15);
+}
+
+.whitepaper-section {
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.whitepaper-excerpt {
+    background-color: rgba(100, 100, 100, 0.5); 
+    padding: 20px;
+    border-radius: 10px;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.whitepaper-excerpt h3 {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.whitepaper-excerpt ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.footer-section {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+}
+
+.appear-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.appear {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+

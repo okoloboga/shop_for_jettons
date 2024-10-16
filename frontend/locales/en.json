@@ -1,0 +1,24 @@
+{
+    "heroTitle": "New Crypto Token XYZ",
+    "heroDescription": "Welcome to our official website! Invest in the future with XYZ - a revolutionary cryptocurrency.",
+    "ctaButton": "Learn More",
+    "tokenomicsTitle": "Tokenomics",
+    "totalSupplyTitle": "Total Supply",
+    "totalSupplyText": "1,000,000,000 XYZ",
+    "distributionTitle": "Distribution",
+    "distributionText": "50% - Community, 20% - Team, 20% - Investors, 10% - Reserve",
+    "initialPriceTitle": "Initial Price",
+    "initialPriceText": "0.01 USDT per token",
+    "whitepaperTitle": "White Paper",
+    "whitepaperContent": "Welcome to our White Paper. Here we discuss in detail the innovative solutions offered by our XYZ Token project, as well as our goals and vision for the future.",
+    "whitepaperLink": "White Paper",
+    "whitepaperContentsTitle": "Contents:",
+    "whitepaperContents": [
+        "1. Introduction: Why do we need XYZ Token?",
+        "2. Tokenomics: Economic model and distribution of tokens.",
+        "3. Technology: Main technical aspects of our project.",
+        "4. Team: Who is behind XYZ Token?",
+        "5. Roadmap: Plans for the near future."
+    ],
+    "readMore": "Read our"
+}
