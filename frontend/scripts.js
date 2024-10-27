@@ -78,3 +78,4 @@ function switchLanguage() {
 document.addEventListener('DOMContentLoaded', function () {
     loadLanguageContent(currentLanguage);
 });
+

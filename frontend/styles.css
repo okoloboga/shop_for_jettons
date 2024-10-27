@@ -89,7 +89,7 @@ body {
     position: relative;
     text-align: center;
     color: white;
-    top: 58.5%;
+    top: 59%;
     left: 50%;
     transform: translate(-50%, -50%);
     transition: opacity 0.5s ease-in-out;
@@ -195,6 +195,8 @@ body {
     transition: background 0.3s;
     border-radius: 10px;
     text-align: justify;
+    height: 300px;
+    width: 300px;
 }
 
 /* Video Background Section */
