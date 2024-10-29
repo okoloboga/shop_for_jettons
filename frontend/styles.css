@@ -82,7 +82,7 @@ body {
     }
 
     .top-nav-link, .language-button {
-        width: auto; /* Раньше они были во всю ширину, теперь они занимают только нужную им ширину */
+        width: 30%; /* Раньше они были во всю ширину, теперь они занимают только нужную им ширину */
         padding: 10px;
         margin: 5px auto; /* Добавляем небольшой отступ между кнопками */
         text-align: center; 
@@ -242,34 +242,54 @@ body {
     width: 300px;
 }
 
-/* Comic-Style Story Section (мобильные стили) */
+/* Мобильные стили для Comic-Story-Section */
 @media (max-width: 768px) {
-    .story-grid {
+    .comic-story-section {
         display: flex;
-        overflow-x: scroll;
-        scroll-snap-type: x mandatory;
-        gap: 10px; /* Расстояние между картинками */
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start; /* Размещаем все элементы сверху */
+        padding: 20px; /* Отступы для удобного просмотра на мобильных устройствах */
+        background-color: black;
     }
 
+    .story-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Разделяем картинки расстоянием */
+        width: 100%;
+        align-items: center;
+    }
+    
     .comic-frame {
-        min-width: 80%; /* Установим ширину картинки чуть меньше ширины экрана */
-        flex: 0 0 auto;
-        scroll-snap-align: start; /* Привязка к началу при прокрутке */
+        width: auto; /* Блок будет иметь ширину, соответствующую изображению */
+        height: auto; /* Высота будет автоматически подстраиваться под изображение */
+        margin: 0 auto; /* Центрируем блок в секции */
     }
     
     .comic-frame img {
-        width: 100%;
-        height: auto; /* Сохраняем пропорции картинки */
-        object-fit: contain; /* Избегаем обрезки изображения */
+        width: 100%; /* Ширина будет адаптирована к блоку, но оставляем возможность подгонки */
+        height: auto; /* Автоматическое сохранение пропорций изображения */
+        object-fit: contain; /* Подгоняем изображение без обрезки */
     }
-    
+
     .overlay {
-        height: auto;
-        width: auto;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
         padding: 10px;
-        font-size: 1.2rem;
+        box-sizing: border-box;
     }
 }
+
 
 /* Video Background Section */
 .video-background-section {
