@@ -40,9 +40,9 @@ async def main():
     )
 
     # Create Tables
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(metadata.drop_all)
-    #     await conn.run_sync(metadata.create_all)
+    async with engine.begin() as conn:
+        await conn.run_sync(metadata.drop_all)
+        await conn.run_sync(metadata.create_all)
 
     # Init Bot in Dispatcher
     bot_config = get_config(BotConfig, "bot")
