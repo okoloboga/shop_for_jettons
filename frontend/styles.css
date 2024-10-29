@@ -242,37 +242,34 @@ body {
     width: 300px;
 }
 
-/* Мобильные стили для Comic-Story-Section */
+/* Comic-Style Story Section (мобильные стили) */
 @media (max-width: 768px) {
-    .comic-story-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start; /* Размещаем все элементы сверху */
-        padding: 20px; /* Отступы для удобного просмотра на мобильных устройствах */
-        background-color: black;
-    }
-
     .story-grid {
         display: flex;
-        flex-direction: column;
-        gap: 20px; /* Разделяем картинки расстоянием */
-        width: 100%;
-        align-items: center;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        gap: 10px; /* Расстояние между картинками */
+        padding: 10px; /* Дополнительное пространство вокруг изображений */
+        align-items: center; /* Центрируем изображения по вертикали */
     }
-    
+
     .comic-frame {
-        width: auto; /* Блок будет иметь ширину, соответствующую изображению */
-        height: auto; /* Высота будет автоматически подстраиваться под изображение */
-        margin: 0 auto; /* Центрируем блок в секции */
+        flex: 0 0 auto; /* Позволяем каждому элементу быть независимым */
+        scroll-snap-align: start; /* Привязка к началу при прокрутке */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: auto; /* Блок автоматически адаптируется к высоте изображения */
+        width: auto; /* Ширина будет определяться изображением */
     }
     
     .comic-frame img {
-        width: 100%; /* Ширина будет адаптирована к блоку, но оставляем возможность подгонки */
-        height: auto; /* Автоматическое сохранение пропорций изображения */
-        object-fit: contain; /* Подгоняем изображение без обрезки */
+        max-width: 100%; /* Изображение не должно превышать ширину экрана */
+        height: auto; /* Сохраняем пропорции картинки */
+        object-fit: contain; /* Избегаем обрезки изображения */
+        display: block; /* Изображение занимает весь доступный контейнер */
     }
-
+    
     .overlay {
         position: absolute;
         top: 0;
