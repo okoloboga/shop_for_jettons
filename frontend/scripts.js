@@ -79,3 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loadLanguageContent(currentLanguage);
 });
 
+function toggleMenu() {
+    const navLinks = document.querySelector('.top-nav-links');
+    navLinks.classList.toggle('show');
+}
+
