@@ -84,3 +84,8 @@ function toggleMenu() {
     navLinks.classList.toggle('show');
 }
 
+document.querySelectorAll('.comic-frame').forEach(frame => {
+    frame.addEventListener('touchstart', (e) => {
+        // Дополнительная логика для улучшения взаимодействия
+    });
+});

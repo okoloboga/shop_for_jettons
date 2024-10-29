@@ -81,6 +81,13 @@ body {
         display: block;
     }
 
+    .top-nav-link, .language-button {
+        width: auto; /* Раньше они были во всю ширину, теперь они занимают только нужную им ширину */
+        padding: 10px;
+        margin: 5px auto; /* Добавляем небольшой отступ между кнопками */
+        text-align: center; 
+    }
+    
     .top-nav-links.show {
         display: flex;
     }
@@ -237,20 +244,23 @@ body {
 
 /* Comic-Style Story Section (мобильные стили) */
 @media (max-width: 768px) {
+    .story-grid {
+        display: flex;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        gap: 10px; /* Расстояние между картинками */
+    }
+
     .comic-frame {
-        width: 100%;
-        height: auto;
+        min-width: 80%; /* Установим ширину картинки чуть меньше ширины экрана */
+        flex: 0 0 auto;
+        scroll-snap-align: start; /* Привязка к началу при прокрутке */
     }
     
     .comic-frame img {
         width: 100%;
-        height: auto;
-        object-fit: contain; /* Изменение с cover на contain для корректного отображения */
-    }
-    
-    .story-grid {
-        grid-template-columns: 1fr; /* Изменяем расположение с 3 на 1 колонку */
-        gap: 10px;
+        height: auto; /* Сохраняем пропорции картинки */
+        object-fit: contain; /* Избегаем обрезки изображения */
     }
     
     .overlay {
@@ -260,7 +270,6 @@ body {
         font-size: 1.2rem;
     }
 }
-
 
 /* Video Background Section */
 .video-background-section {
