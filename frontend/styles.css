@@ -254,6 +254,8 @@ body {
     }
 
     .comic-frame {
+        height: 66%;
+        width: 90%;
         flex: 0 0 auto; /* Позволяем каждому элементу быть независимым и соответствовать контенту */
         scroll-snap-align: start; /* Привязка к началу при прокрутке */
         display: inline-block; /* Изменяем на inline-block, чтобы блок автоматически подстраивался под размеры содержимого */
@@ -268,8 +270,8 @@ body {
     }
     
     .overlay {
-        height: 60%;
-        width: 60%;
+        height: 50%;
+        width: 70%;
         padding: 10px;
         font-size: 1.2rem;
     }
