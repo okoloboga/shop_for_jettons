@@ -254,39 +254,26 @@ body {
     }
 
     .comic-frame {
-        flex: 0 0 auto; /* Позволяем каждому элементу быть независимым */
+        flex: 0 0 auto; /* Позволяем каждому элементу быть независимым и соответствовать контенту */
         scroll-snap-align: start; /* Привязка к началу при прокрутке */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: auto; /* Блок автоматически адаптируется к высоте изображения */
-        width: auto; /* Ширина будет определяться изображением */
+        display: inline-block; /* Изменяем на inline-block, чтобы блок автоматически подстраивался под размеры содержимого */
+        margin: 0; /* Убираем лишние отступы */
     }
     
     .comic-frame img {
-        max-width: 100%; /* Изображение не должно превышать ширину экрана */
-        height: auto; /* Сохраняем пропорции картинки */
+        width: 100%; /* Изображение занимает весь контейнер по ширине */
+        height: auto; /* Сохраняем пропорции изображения */
         object-fit: contain; /* Избегаем обрезки изображения */
-        display: block; /* Изображение занимает весь доступный контейнер */
+        display: block; /* Убираем лишние отступы, которые могут появляться при рендеринге изображений */
     }
     
     .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
+        height: auto;
+        width: auto;
         padding: 10px;
-        box-sizing: border-box;
+        font-size: 1.2rem;
     }
 }
-
 
 /* Video Background Section */
 .video-background-section {
