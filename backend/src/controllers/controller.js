@@ -366,7 +366,7 @@ const sendToken = async (req, res) => {
 const createTonWallet = async (req, res) => {
     try {
         console.log(`Controller: createWallet`);
-        const wallet = await createWallet();
+        const wallet = await createTonWallet();
         res.send({ status: 'OK', data: wallet });
     } catch (error) {
         res.status(error?.status || 500).send({

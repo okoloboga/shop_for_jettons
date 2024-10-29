@@ -17,7 +17,7 @@ BASE_URL = 'http://backend:3000/api'
 
 
 # Create TRX wallet
-async def create_wallet() -> dict:
+async def create_trx_wallet() -> dict:
     url = f'{BASE_URL}/newwallet'
     response = requests.post(url)
     return response.json()
@@ -93,7 +93,7 @@ async def send_token(owner: str,
 
 
 # Create TON wallet
-async def create_wallet() -> dict:
+async def create_ton_wallet() -> dict:
 
     url = f'{BASE_URL}/newTonWallet'
 

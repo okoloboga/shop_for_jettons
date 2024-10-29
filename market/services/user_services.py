@@ -14,7 +14,7 @@ from fluentogram import TranslatorRunner
 
 from database import users, catalogue, orders, variables, stats
 from config import get_config, WalletConfig
-from .requests import create_wallet, send_token, send_trx
+from .requests import create_trx_wallet, send_token, send_trx
 
 
 logger = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ async def new_user(db_engine: AsyncEngine,
 
     # Create new wallet and send init Tron
     central_wallet = get_config(WalletConfig, 'wallet')
-    new_wallet = await create_wallet()
+    new_wallet = await create_trx_wallet()
 
     logger.info(f'New wallet: {new_wallet}, lets send 0.1 TRON and 15 tokens to new wallet address:\n\
         {new_wallet["data"]["address"]["base58"]}')
