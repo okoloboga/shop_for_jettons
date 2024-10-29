@@ -67,14 +67,18 @@ body {
 /* Мобильные стили */
 @media (max-width: 768px) {
     .top-nav-links {
-        display: none;
+        display: flex;
         flex-direction: column;
-        background: rgba(51, 51, 51, 0.9);
+        background: rgba(51, 51, 51, 0.3);
         position: absolute;
         top: 60px;
         left: 0;
         right: 0;
         padding: 10px;
+        max-height: 0; /* Изначально скрыто */
+        overflow: hidden; /* Скрываем содержимое при уменьшении высоты */
+        opacity: 0; /* Невидимо при закрытом состоянии */
+        transition: max-height 0.5s ease, opacity 0.5s ease; /* Плавный переход высоты и прозрачности */
     }
 
     .hamburger {
@@ -89,7 +93,8 @@ body {
     }
     
     .top-nav-links.show {
-        display: flex;
+        max-height: 300px; /* Высота при открытом состоянии (должно быть больше, чем высота всех элементов) */
+        opacity: 1; /* Полная видимость */
     }
 }
 

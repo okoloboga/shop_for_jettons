@@ -89,3 +89,13 @@ document.querySelectorAll('.comic-frame').forEach(frame => {
         // Дополнительная логика для улучшения взаимодействия
     });
 });
+
+function toggleMenu() {
+    const navLinks = document.querySelector('.top-nav-links');
+    if (navLinks.classList.contains('show')) {
+        navLinks.classList.remove('show');
+    } else {
+        navLinks.classList.add('show');
+    }
+}
+
