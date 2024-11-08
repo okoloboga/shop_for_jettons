@@ -47,9 +47,7 @@ function loadLanguageContent(lang) {
         .then(data => {
             document.querySelector(".hero-title").innerHTML = data.heroTitle;
             document.querySelector(".hero-description").innerHTML = data.heroDescription;
-            document.querySelector(".comic-1-1").innerHTML = data.comic11;
-            document.querySelector(".comic-1-2").innerHTML = data.comic12;
-            document.querySelector(".comic-1-3").innerHTML = data.comic13;
+            document.querySelector(".comic-1-1").innerHTML = data.comic1;
             document.querySelector(".video-title").innerHTML = data.videoTitle;
             document.querySelector(".video-description-1").innerHTML = data.videoDescription1;
             document.querySelector(".video-description-2").tinnerHTML= data.videoDescription2;
@@ -58,9 +56,7 @@ function loadLanguageContent(lang) {
             document.querySelector(".video-description-5").innerHTML = data.videoDescription5;
             document.querySelector(".video-description-6").innerHTML = data.videoDescription6;
             document.querySelector(".video-description-7").innerHTML = data.videoDescription7;
-            document.querySelector(".comic-2-1").innerHTML = data.comic21;
-            document.querySelector(".comic-2-2").innerHTML = data.comic22;
-            document.querySelector(".comic-2-3").innerHTML = data.comic23;
+            document.querySelector(".comic-2-1").innerHTML = data.comic2;
             document.querySelector(".cta-description").innerHTML = data.ctaDescription;
             document.querySelector(".cta-button").innerHTML = data.ctaButton;
 
