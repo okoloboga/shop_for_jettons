@@ -13,7 +13,7 @@ body {
     width: 100%;
     background-color: rgba(51, 51, 51, 0.3);
     padding: 10px 20px;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
     z-index: 1000;
@@ -192,24 +192,62 @@ body {
 
 /* Comic-Style Story Section */
 .comic-story-section {
+    position: relative; /* Это необходимо, чтобы правильно позиционировать абсолютные элементы внутри */
     height: 100vh;
     padding: 0 20px;
     background-color: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     box-sizing: border-box;
+    display: block; /* Заменяем flex, чтобы элементы могли быть позиционированы независимо */
 }
 
+/* Бегущая строка поверх всей секции */
+.marquee-overlay {
+    position: absolute;
+    top: 0; /* Перемещаем строку к верхней части секции */
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Затемнение для улучшения видимости текста */
+    color: #fff; /* Цвет текста белый для лучшей видимости */
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 10; /* Поверх всех других элементов */
+    padding: 10px 0; /* Дополнительное пространство сверху и снизу */
+    box-sizing: border-box;
+    text-align: center; /* Текст по центру по горизонтали */
+}
+
+.marquee-overlay p {
+    letter-spacing: 0.5em; /* Добавляет пространство между каждой буквой */
+    word-spacing: 1.5em;   /* Добавляет пространство между словами, 1.5em эквивалентно примерно трём пробелам */
+    display: inline-block;
+    animation: marquee 60s linear infinite; /* Время анимации и бесконечное повторение */
+    padding-left: 100%;
+    box-sizing: border-box;
+    font-size: 1.5em; /* Увеличен для лучшей видимости */
+    color: #fff; /* Белый цвет текста */
+}
+
+/* Анимация для бегущей строки */
+@keyframes marquee {
+    0% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Story Grid */
 .story-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    height: 100%;
+    height: calc(100% - 50px); /* Корректируем высоту для учета бегущей строки сверху */
     width: 100%;
     align-items: center;
     justify-items: center;
     box-sizing: border-box;
+    padding-top: 50px; /* Чтобы создать отступ сверху и не пересекаться с бегущей строкой */
 }
 
 .comic-frame {
@@ -239,29 +277,7 @@ body {
     transition: filter 0.3s ease-in-out;
 }
 
-.marquee {
-    width: 100%;
-    overflow: hidden;
-    background-color: #333; /* Цвет фона */
-    color: #fff; /* Цвет текста */
-    white-space: nowrap;
-    box-sizing: border-box;
-}
 
-.marquee p {
-    display: inline-block;
-    padding-left: 100%;
-    animation: marquee 15s linear infinite; /* Время анимации и бесконечное повторение */
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(100%);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
-}
 
 /* Comic-Style Story Section (мобильные стили) */
 @media (max-width: 768px) {
@@ -290,13 +306,6 @@ body {
         display: block; /* Убираем лишние отступы, которые могут появляться при рендеринге изображений */
     }
     
-    .overlay {
-        height: 50%;
-        width: 70%;
-        padding: 10px;
-        text-align: center;
-        font-size: 1.2rem;
-    }
 }
 
 /* Video Background Section */
