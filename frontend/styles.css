@@ -153,6 +153,17 @@ body {
     z-index: 0;
 }
 
+.hero-disclaimer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+    color: white;
+    padding: 10px 0;
+}
+
 .logo-center {
     width: 120px;
     height: auto;

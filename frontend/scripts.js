@@ -47,6 +47,7 @@ function loadLanguageContent(lang) {
         .then(data => {
             document.querySelector(".hero-title").innerHTML = data.heroTitle;
             document.querySelector(".hero-description").innerHTML = data.heroDescription;
+            document.querySelector(".hero-disclaimer").innerHTML = data.heroDisclaimer;
             document.querySelector(".comic1").innerHTML = data.comic1;
             document.querySelector(".video-title").innerHTML = data.videoTitle;
             document.querySelector(".video-description-1").innerHTML = data.videoDescription1;
