@@ -5,7 +5,7 @@ services:
     container_name: backend
     restart: always
     ports:
-      - "3000:3000"
+      - "3001:3000"
 
   market:
     build:
@@ -51,7 +51,7 @@ services:
     container_name: redis
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
 volumes:
   market_data:
